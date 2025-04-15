@@ -14,37 +14,34 @@ import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
 
 
 public class TileEntityBookcase extends BiblioTileEntity
 {
 	private int slotsFilled;
-	private boolean hasredstonebook;  
+	private boolean hasredstonebook;
 	private int redstonebookslot;
-	private int[] bookCheck = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; 
-	
-	public TileEntityBookcase() 
+	private int[] bookCheck = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+	public TileEntityBookcase()
 	{
 		super(16, true);
 	}
 
 	@Override
-	public void setInventorySlotContentsAdditionalCommands(int slot, ItemStack stack) 
+	public void setInventorySlotContentsAdditionalCommands(int slot, ItemStack stack)
 	{
 		boolean redtest = hasredstonebook;
 		hasredstonebook = hasredstone();
 		if (redtest != hasredstonebook)
 		{
-			world.notifyNeighborsOfStateChange(new BlockPos(pos.getX(), pos.getY(), pos.getZ()), BlockBookcase.instance, true);
-			world.notifyNeighborsOfStateChange(new BlockPos(pos.getX()+1, pos.getY(), pos.getZ()), BlockBookcase.instance, true);
-			world.notifyNeighborsOfStateChange(new BlockPos(pos.getX()-1, pos.getY(), pos.getZ()), BlockBookcase.instance, true);
-			world.notifyNeighborsOfStateChange(new BlockPos(pos.getX(), pos.getY(), pos.getZ()+1), BlockBookcase.instance, true);
-			world.notifyNeighborsOfStateChange(new BlockPos(pos.getX(), pos.getY(), pos.getZ()-1), BlockBookcase.instance, true);
-			world.notifyNeighborsOfStateChange(new BlockPos(pos.getX(), pos.getY()+1, pos.getZ()), BlockBookcase.instance, true);
-			world.notifyNeighborsOfStateChange(new BlockPos(pos.getX(), pos.getY()-1, pos.getZ()), BlockBookcase.instance, true);
+			worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord, BlockBookcase.instance);
+			worldObj.notifyBlocksOfNeighborChange(xCoord+1, yCoord, zCoord, BlockBookcase.instance);
+			worldObj.notifyBlocksOfNeighborChange(xCoord-1, yCoord, zCoord, BlockBookcase.instance);
+			worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord+1, BlockBookcase.instance);
+			worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord-1, BlockBookcase.instance);
+			worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord+1, zCoord, BlockBookcase.instance);
+			worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord-1, zCoord, BlockBookcase.instance);
 		}
 		checkFilledSlots();
 		checkBooks();
@@ -56,11 +53,11 @@ public class TileEntityBookcase extends BiblioTileEntity
 		this.slotsFilled = nbt.getInteger("filledSlots");
 		this.hasredstonebook = nbt.getBoolean("hasredstonebook");
 		this.redstonebookslot = nbt.getInteger("redstonebookslot");
-		this.bookCheck = nbt.getIntArray("bookCheck");	
+		this.bookCheck = nbt.getIntArray("bookCheck");
 	}
 
 	@Override
-	public NBTTagCompound writeCustomNBTData(NBTTagCompound nbt) 
+	public NBTTagCompound writeCustomNBTData(NBTTagCompound nbt)
 	{
 		nbt.setInteger("filledSlots", slotsFilled);
     	nbt.setBoolean("hasredstonebook", hasredstonebook);
@@ -68,19 +65,44 @@ public class TileEntityBookcase extends BiblioTileEntity
     	nbt.setIntArray("bookCheck", bookCheck);
 		return nbt;
 	}
-	
-	@Override
+
+    @Override
+    public ItemStack getStackInSlotOnClosing(int index) {
+        return null;
+    }
+
+    @Override
+    public String getInventoryName() {
+        return "";
+    }
+
+    @Override
+    public boolean hasCustomInventoryName() {
+        return false;
+    }
+
+    @Override
 	public int getInventoryStackLimit()
 	{
 		return 64;
 	}
-	
-	public boolean hasredstone()
+
+    @Override
+    public void openInventory() {
+
+    }
+
+    @Override
+    public void closeInventory() {
+
+    }
+
+    public boolean hasredstone()
 	{
 		for(int x=0; x < 16; x++)
 		{
-			ItemStack stack = inventory.get(x);
-			if (stack != ItemStack.EMPTY)
+			ItemStack stack = inventory[x];
+			if (stack != null)
 			{
 				Item item = stack.getItem();
 				if (item instanceof ItemRedstoneBook)
@@ -90,10 +112,10 @@ public class TileEntityBookcase extends BiblioTileEntity
 				}
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	public void checkBooks()
 	{
 		if (bookCheck.length == 0)
@@ -102,8 +124,8 @@ public class TileEntityBookcase extends BiblioTileEntity
 		}
 		for(int x=0; x < bookCheck.length; x++)
 		{
-			ItemStack stack = inventory.get(x);
-			if (stack != ItemStack.EMPTY && stack.getItem() != Items.AIR)
+			ItemStack stack = inventory[x];
+			if (stack != null && stack.getItem() != null)
 			{
 				bookCheck[x] = 1;
 			}
@@ -113,12 +135,12 @@ public class TileEntityBookcase extends BiblioTileEntity
 			}
 		}
 	}
-	
+
 	public int[] getCheckedBooks()
 	{
 		return bookCheck;
 	}
-	
+
 	public boolean getredstone()
 	{
 		return hasredstonebook;
@@ -127,19 +149,19 @@ public class TileEntityBookcase extends BiblioTileEntity
 	{
 		return redstonebookslot;
 	}
-	
+
 	public boolean setBook(int bookNumber, ItemStack bookStack)
 	{
-		if (bookStack != ItemStack.EMPTY && getStackInSlot(bookNumber) == ItemStack.EMPTY)
+		if (bookStack != null && getStackInSlot(bookNumber) == null)
 		{
 			// adding the book
 			setInventorySlotContents(bookNumber, bookStack);
 			return true;
 		}
-		if (bookStack == ItemStack.EMPTY && getStackInSlot(bookNumber) != ItemStack.EMPTY)
+		if (bookStack == null && getStackInSlot(bookNumber) != null)
 		{
 			// deleteing a book
-			setInventorySlotContents(bookNumber, ItemStack.EMPTY);
+			setInventorySlotContents(bookNumber, null);
 		}
 		return false;
 	}
@@ -150,22 +172,22 @@ public class TileEntityBookcase extends BiblioTileEntity
 		for (int s = 0; s < 16; s++)
 		{
 			ItemStack stackTest = getStackInSlot(s);
-			if (stackTest != ItemStack.EMPTY)
+			if (stackTest != null)
 			{
 				slotsFilled = slotsFilled + 1;
 			}
 		}
 	}
-	
+
 	public boolean checkSlot(int slot)
     {
-    	if (getStackInSlot(slot) != ItemStack.EMPTY)
+    	if (getStackInSlot(slot) != null)
     	{
     		return true;
     	}
     	return false;
     }
-    
+
     public void addRandomBooksToShelf()
     {
     	Random rando = new Random();
@@ -173,18 +195,18 @@ public class TileEntityBookcase extends BiblioTileEntity
     	{
     		if (rando.nextInt(10) < 8)
     		{
-    			
+
     			this.setInventorySlotContents(n, writeCustomBook());
     		}
     	}
     }
-    
+
     public ItemStack writeCustomBook()
     {
     	BookGenWordLists bookgenwordlist = new BookGenWordLists();
     	String authorName = bookgenwordlist.getRandomName();
     	BookGenUtil bookgen = new BookGenUtil(1, authorName);
-		ItemStack newBook = new ItemStack(Items.WRITTEN_BOOK, 1, 0);
+		ItemStack newBook = new ItemStack(Items.written_book, 1, 0);
 		NBTTagCompound bookTag = new NBTTagCompound();
 		NBTTagList bookTagList = new NBTTagList();
 		//stasis page
@@ -211,7 +233,7 @@ public class TileEntityBookcase extends BiblioTileEntity
 		//resolution
 		nbtPage = new NBTTagString(bookgen.getResolution(1, authorName));
 		bookTagList.appendTag(nbtPage);
-		
+
 		bookTag.setTag("title", new NBTTagString(bookgen.getBookTitle()));
 		bookTag.setTag("author", new NBTTagString(authorName));
 		bookTag.setTag("pages", bookTagList);
@@ -221,7 +243,7 @@ public class TileEntityBookcase extends BiblioTileEntity
 		newBook.setTagCompound(bookTag);
 		return newBook;
     }
-    
+
     public int getFilledSlots()
     {
     	return slotsFilled;
@@ -231,89 +253,89 @@ public class TileEntityBookcase extends BiblioTileEntity
     {
     	for (int x = 0; x < 8; x++)
     	{
-    		if (inventory.get(x) == ItemStack.EMPTY)
+    		if (inventory[x] == null)
     		{
     			return x;
     		}
     	}
-    	
+
     	return -1;
     }
     public int getBottomEmptySlot()
     {
     	for (int x = 8; x < 16; x++)
     	{
-    		if (inventory.get(x) == ItemStack.EMPTY)
+    		if (inventory[x] == null)
     		{
     			return x;
     		}
     	}
-    	
+
     	return -1;
     }
-    
+
     public int getTopFullSlot()
     {
     	for (int x = 7; x >= 0; x=x-1)
     	{
-    		if (inventory.get(x) != ItemStack.EMPTY)
+    		if (inventory[x] != null)
     		{
     			return x;
     		}
     	}
-    	
+
     	return -1;
     }
-    
+
     public int getBottomFullSlot()
     {
     	for (int x = 15; x >= 8; x=x-1)
     	{
-    		if (inventory.get(x) != ItemStack.EMPTY)
+    		if (inventory[x] != null)
     		{
     			return x;
     		}
     	}
-    	
+
     	return -1;
     }
-    
+
     public ItemStack getTopBook()
     {
     	int slot = getTopFullSlot();
     	if (slot != -1)
     	{
-    		ItemStack topBook = inventory.get(slot);
+    		ItemStack topBook = inventory[slot];
     		//setInventorySlotContents(slot, null);
     		return topBook;
     	}
     	else
     	{
-    		return ItemStack.EMPTY;
+    		return null;
     	}
     }
-    
+
     public ItemStack getBottomBook()
     {
     	int slot = getBottomFullSlot();
     	if (slot != -1)
     	{
-    		ItemStack bottomBook = inventory.get(slot);
+    		ItemStack bottomBook = inventory[slot];
     		//setInventorySlotContents(slot, null);
     		return bottomBook;
     	}
     	else
     	{
-    		return ItemStack.EMPTY;
+    		return null;
     	}
     }
-    
+
     public boolean removeTopBook()
     {
     	int slot = getTopFullSlot();
     	if (slot != -1)
     	{
-    		setInventorySlotContents(slot, ItemStack.EMPTY);
+    		setInventorySlotContents(slot, null);
     		return true;
     	}
     	else
@@ -321,13 +343,13 @@ public class TileEntityBookcase extends BiblioTileEntity
     		return false;
     	}
     }
-    
+
     public boolean removeBottomBook()
     {
     	int slot = getBottomFullSlot();
     	if (slot != -1)
     	{
-    		setInventorySlotContents(slot, ItemStack.EMPTY);
+    		setInventorySlotContents(slot, null);
     		return true;
     	}
     	else
@@ -335,7 +357,7 @@ public class TileEntityBookcase extends BiblioTileEntity
     		return false;
     	}
     }
-    
+
     public boolean addTopBook(ItemStack stack)
     {
     	//boolean hasStack = false;
@@ -349,7 +371,7 @@ public class TileEntityBookcase extends BiblioTileEntity
     		return false;
     	}
     }
-    
+
     public boolean addBottomBook(ItemStack stack)
     {
     	if (getBottomEmptySlot() != -1)
@@ -362,12 +384,12 @@ public class TileEntityBookcase extends BiblioTileEntity
     		return false;
     	}
     }
-    
-    @Override 
+
+    @Override
 	public boolean isItemValidForSlot(int slot, ItemStack itemstack)
 	{
 		Item stackitem = itemstack.getItem();
-		if (stackitem != ItemStack.EMPTY.getItem())
+		if (stackitem != null)
 		{
 			if (!Config.isBlock(itemstack) && Config.testBookValidity(itemstack))
 			{
@@ -377,16 +399,21 @@ public class TileEntityBookcase extends BiblioTileEntity
 		return false;
 	}
 
-	@Override
-	public String getName() 
-	{
-		return BlockBookcase.name;
-	}
-    
-	@Override
-	public ITextComponent getDisplayName() 
-	{
-		ITextComponent chat = new TextComponentString(getName());
-		return chat;
-	}
+    @Override
+    public int[] getAccessibleSlotsFromSide(int p_94128_1_) {
+        return new int[0];
+    }
+
+//	@Override
+//	public String getName()
+//	{
+//		return BlockBookcase.name;
+//	}
+//
+//	@Override
+//	public ITextComponent getDisplayName()
+//	{
+//		ITextComponent chat = new ChatComponentText(getName());
+//		return chat;
+//	}
 }

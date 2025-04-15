@@ -11,10 +11,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import cpw.mods.fml.common.network.ByteBufUtils;
+import cpw.mods.fml.common.network.simpleimpl.IMessage;
+import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 
 public class BiblioStockLog implements IMessage {
     NBTTagCompound tags;
@@ -41,13 +41,13 @@ public class BiblioStockLog implements IMessage {
 
         @Override
         public IMessage onMessage(BiblioStockLog message, MessageContext ctx) {
-            Minecraft.getMinecraft().addScheduledTask(() -> {
+            Minecraft.getMinecraft().func_152344_a(() -> {
                 NBTTagCompound tags = message.tags;
                 if (tags != null) {
                     NBTTagList comp = tags.getTagList("compasses", Constants.NBT.TAG_COMPOUND);
                     int[] compasses = { -1, -1, -1, -1, -1, -1, -1, -1 };
-                    ItemStack[] compassStacks = { ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY,
-                            ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY };
+                    ItemStack[] compassStacks = { null, null, null, null,
+                            null, null, null, null };
 
                     for (int i = 0; i < comp.tagCount(); i++) {
                         NBTTagCompound compTag = comp.getCompoundTagAt(i);
@@ -56,7 +56,7 @@ public class BiblioStockLog implements IMessage {
                             int compSlot = compTag.getInteger(invSlotName);
                             compasses[i] = compSlot;
                             if (compSlot != -1) {
-                                compassStacks[i] = new ItemStack(compTag);
+                                compassStacks[i] = ItemStack.loadItemStackFromNBT(compTag);
                             }
                         }
                     }
@@ -72,11 +72,11 @@ public class BiblioStockLog implements IMessage {
                     final String title = tags.getString("title");
                     // openCatalogGUI(player, alphaList, quantaList, compassStacks, compasses,
                     // tags.getString("title"));
-                    Minecraft.getMinecraft().addScheduledTask(new Runnable() {
+                    Minecraft.getMinecraft().func_152344_a(new Runnable() {
 
                         @Override
                         public void run() {
-                            Utils.openCatalogGUI(Minecraft.getMinecraft().player, alphaList, quantaList,
+                            Utils.openCatalogGUI(Minecraft.getMinecraft().thePlayer, alphaList, quantaList,
                                     finalCompassStacks,
                                     finalCompasses, title);
                         }

@@ -8,6 +8,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import com.mojang.realmsclient.gui.ChatFormatting;
+import cpw.mods.fml.common.FMLCommonHandler;
 import jds.bibliocraft.Config;
 import jds.bibliocraft.items.ItemBigBook;
 import jds.bibliocraft.items.ItemRecipeBook;
@@ -21,9 +23,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.FMLCommonHandler;
+
 
 public class FileUtil {
 	private final String savePath = "books_bibliocraft";
@@ -35,9 +36,9 @@ public class FileUtil {
 			if (stack.getItem() instanceof ItemBigBook) {
 				String filename = "";
 				String title = stack.getDisplayName();
-				title = TextFormatting.getTextWithoutFormattingCodes(title);
+				title = ChatFormatting.stripFormatting(title);
 				String author = pageTags.getString("author");
-				author = TextFormatting.getTextWithoutFormattingCodes(author);
+				author = ChatFormatting.stripFormatting(author);
 				filename = author + ", " + title;
 				File book = new File(getSaveDir(world), filename);
 				if (book.exists()) {
@@ -45,7 +46,7 @@ public class FileUtil {
 				}
 			} else if (stack.getItem() instanceof ItemRecipeBook || stack.getItem() instanceof ItemStockroomCatalog) {
 				String title = stack.getDisplayName();
-				title = TextFormatting.getTextWithoutFormattingCodes(title);
+				title = ChatFormatting.stripFormatting(title);
 				title = title.replace(":", ";");
 				File book = new File(getSaveDir(world), title);
 				if (book.exists()) {
@@ -77,7 +78,7 @@ public class FileUtil {
 
 	/**
 	 * Saves a book from a recieved itemstack to the external save folder for books.
-	 * 
+	 *
 	 * @param stack
 	 * @param world
 	 */
@@ -92,8 +93,8 @@ public class FileUtil {
 				String author = authorTag.toString();
 				title = title.replace("\"", "");
 				author = author.replace("\"", "");
-				title = TextFormatting.getTextWithoutFormattingCodes(title);
-				author = TextFormatting.getTextWithoutFormattingCodes(author);
+				title = ChatFormatting.stripFormatting(title);
+				author = ChatFormatting.stripFormatting(author);
 				NBTTagList page = (NBTTagList) pageTags.getTagList("pages", 8);
 				File book = new File(getSaveDir(world), author + ", " + title + "");
 				if (book.exists()) {
@@ -143,7 +144,7 @@ public class FileUtil {
 	 * Uses the parameters author and title to search the names of the saved books
 	 * after
 	 * storing a list to an array.
-	 * 
+	 *
 	 * @param world
 	 * @param author
 	 * @param title
@@ -196,7 +197,7 @@ public class FileUtil {
 	 * to
 	 * a book that contains the information saved to a book on file. The chosen book
 	 * from file is indicated by the iteger of the array that books are stored in.
-	 * 
+	 *
 	 * @param world
 	 * @param stack
 	 * @param bookint
@@ -204,19 +205,19 @@ public class FileUtil {
 	 */
 
 	public ItemStack loadBook(World world, ItemStack stack, int bookint) {
-		if (stack.getItem() != Items.BOOK) {
+		if (stack.getItem() != Items.book) {
 			System.out.println("Cannot print to these type of book");
-			return ItemStack.EMPTY;
+			return null;
 		}
 		String[] booksArray = scanBookDir(world);
 
 		if (booksArray != null) {
 			if (booksArray.length < bookint) {
 				// System.out.println("Book scan turned up empty");
-				return ItemStack.EMPTY;
+				return null;
 			}
 			// System.out.println("is this happening?");
-			stack = new ItemStack(Items.WRITTEN_BOOK);
+			stack = new ItemStack(Items.written_book);
 			File book = new File(getSaveDir(world), booksArray[bookint]);
 			NBTTagCompound bookinfo = new NBTTagCompound();
 			try {
@@ -284,9 +285,9 @@ public class FileUtil {
 
 		} else {
 			// System.out.println("No books found!");
-			return ItemStack.EMPTY;
+			return null;
 		}
-		return ItemStack.EMPTY;
+		return null;
 
 		// File book = new File(getSaveDir(world), author+"_"+title+".dat");
 		// FileReader reader = new FileReader(book)
@@ -295,7 +296,7 @@ public class FileUtil {
 	/**
 	 * Scans the directory of saved books and returns a string array of all the
 	 * saved books.
-	 * 
+	 *
 	 * @param world
 	 * @return
 	 */
@@ -331,7 +332,7 @@ public class FileUtil {
 
 	/**
 	 * Returns the save directory of the books in a File object.
-	 * 
+	 *
 	 * @param world
 	 * @return
 	 */
@@ -522,7 +523,7 @@ public class FileUtil {
 	}
 
 	public boolean deleteBook(boolean isClient, String bookname) {
-		bookname = TextFormatting.getTextWithoutFormattingCodes(bookname);
+		bookname = ChatFormatting.stripFormatting(bookname);
 		File saveDir = getSaveDir(isClient);
 		File book = new File(saveDir, bookname);
 		if (book.getParentFile().getAbsolutePath().equals(saveDir.getAbsolutePath())) {
@@ -596,25 +597,25 @@ public class FileUtil {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param book
 	 * @param world
-	 * @param filename
+	 * @param //filename
 	 * @param type;    0 = BigBook, 1 = Recipe book, more to follow eventually?
 	 * @return
 	 */
 	public boolean saveNBTtoFile(ItemStack book, World world, int type) {
-		if (book != ItemStack.EMPTY) {
+		if (book != null) {
 			NBTTagCompound nbt = book.getTagCompound();
 			if (nbt != null) {
 
 				String filename = "";
 				String title = book.getDisplayName();
-				title = TextFormatting.getTextWithoutFormattingCodes(title);
+				title = ChatFormatting.stripFormatting(title);
 				boolean savedMeta = false;
 				if (type == 0) {
 					String author = nbt.getString("author");
-					author = TextFormatting.getTextWithoutFormattingCodes(author);
+					author = ChatFormatting.stripFormatting(author);
 					filename = author + ", " + title;
 					savedMeta = saveBookMeta(world, filename, title, author, "Big");
 					// need to save bookname, author, private, type, filename
@@ -689,7 +690,7 @@ public class FileUtil {
 	/**
 	 * Return the book type
 	 * -1 = vanilla, 0 = big book and 1 = recipe book
-	 * 
+	 *
 	 * @param world
 	 * @param bookNum
 	 * @return

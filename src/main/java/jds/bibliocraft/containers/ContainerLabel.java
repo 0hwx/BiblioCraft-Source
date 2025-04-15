@@ -10,27 +10,27 @@ import net.minecraft.item.ItemStack;
 
 public class ContainerLabel extends Container
 {
-	
+
 	protected TileEntityLabel tileEntity;
 	protected SlotLabel labelSlot;
-	
+
 	public ContainerLabel(InventoryPlayer inventoryPlayer, TileEntityLabel tile)
 	{
 		tileEntity = tile;
-		
+
 		addSlotToContainer(this.labelSlot = new SlotLabel(this,tileEntity, 0, 80, 45));
 		addSlotToContainer(this.labelSlot = new SlotLabel(this,tileEntity, 1, 35, 26));
 		addSlotToContainer(this.labelSlot = new SlotLabel(this,tileEntity, 2, 125, 26));
-		
+
 		bindPlayerInventory(inventoryPlayer);
 	}
-	
+
 	@Override
 	public boolean canInteractWith(EntityPlayer player)
 	{
-		return tileEntity.isUsableByPlayer(player);
+		return tileEntity.isUseableByPlayer(player);
 	}
-	
+
 	protected void bindPlayerInventory(InventoryPlayer inventoryPlayer)
 	{
 		for (int i = 0; i < 3; i++)
@@ -40,7 +40,7 @@ public class ContainerLabel extends Container
 				addSlotToContainer(new Slot(inventoryPlayer, j+i*9+9, 8+j*18, 84+i*18));
 			}
 		}
-		for (int i = 0; i < 9; i++) 
+		for (int i = 0; i < 9; i++)
 		{
 			addSlotToContainer(new Slot(inventoryPlayer, i, 8+i*18,142));
 		}
@@ -49,7 +49,7 @@ public class ContainerLabel extends Container
 	@Override
 	public ItemStack transferStackInSlot(EntityPlayer player, int slot)
 	{
-		ItemStack stack = ItemStack.EMPTY;
+		ItemStack stack = null;
 		Slot slotObject = (Slot) inventorySlots.get(slot);
 	//null checks and checks if the item can be stacked (maxStackSize > 1)
 		if (slotObject != null && slotObject.getHasStack())
@@ -63,29 +63,29 @@ public class ContainerLabel extends Container
 			{
 				if (!this.mergeItemStack(stackInSlot, 3, 39, true))  // changing 9 to 6
 				{
-					return ItemStack.EMPTY;
+					return null;
 				}
 			}
 			//places it into the tileEntity is possible since its in the player inventory
 
 			else if (!this.mergeItemStack(stackInSlot, 0, 3, false)) // I would like to make this go to the second slot first. What if I just switched the slot position?
 			{
-				return ItemStack.EMPTY;
+				return null;
 			}
-			
-			if (stackInSlot.getCount() == 0)
+
+			if (stackInSlot.stackSize == 0)
 			{
-				slotObject.putStack(ItemStack.EMPTY);
-			} else 
+				slotObject.putStack(null);
+			} else
 			{
 				slotObject.onSlotChanged();
 			}
-			
-			if (stackInSlot.getCount() == stack.getCount())
+
+			if (stackInSlot.stackSize == stack.stackSize)
 			{
-				return ItemStack.EMPTY;
+				return null;
 			}
-			slotObject.onTake(player, stackInSlot);
+			slotObject.onPickupFromSlot(player, stackInSlot);
 		}
 		return stack;
 	}

@@ -1,12 +1,10 @@
 package jds.bibliocraft.helpers;
 
-import net.minecraft.util.IStringSerializable;
-
-public enum EnumCustomDataType implements IStringSerializable
+public enum EnumCustomDataType
 {
 	NONE(0, "None"),
 	FANCY_SIGN(1, "FancySign");
-	
+
 	private int ID;
 	private String name;
 	private static final EnumCustomDataType[] META_LOOKUP = new EnumCustomDataType[values().length];
@@ -16,13 +14,12 @@ public enum EnumCustomDataType implements IStringSerializable
 		this.ID = id;
 		this.name = name;
 	}
-	
-	@Override
-	public String getName() 
+
+	public String getName()
 	{
 		return this.name;
 	}
-	
+
 	public int getID()
 	{
 		return this.ID;
@@ -33,7 +30,7 @@ public enum EnumCustomDataType implements IStringSerializable
 		EnumCustomDataType datatype = META_LOOKUP[id];
 		return datatype;
 	}
-	
+
 	static
 	{
 		for (EnumCustomDataType dt : values())

@@ -1,5 +1,6 @@
 package jds.bibliocraft.events;
 
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
 import jds.bibliocraft.items.ItemDrill;
@@ -12,10 +13,8 @@ import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.EnumHand;
 import net.minecraftforge.client.event.RenderGameOverlayEvent ;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class GuiBiblioOverlay extends Gui
 {
@@ -27,13 +26,13 @@ public class GuiBiblioOverlay extends Gui
 	private int dheight = 0; //= mc.displayHeight;
 	private int dwidth = 0;// = mc.displayWidth;
 	private int distance = 0;
-	
+
 	private int textCounter = 0;
 	private int fadeOutCount = 255;
 	//private boolean showText = false;
 	//private boolean showTextChanged = false;
 	//private String showTextString = "";
-	
+
 	public GuiBiblioOverlay(Minecraft mc)
 	{
 		super();
@@ -41,46 +40,46 @@ public class GuiBiblioOverlay extends Gui
 		fr = this.mc.fontRenderer;
 		//this.mc.currentScreen.height
 	}
-	
+
 	public void setMeasX(int mex)
 	{
 		mx = mex;
 	}
-	
+
 	//@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void RenderGameOverlayEvent(RenderGameOverlayEvent.Post event)
 	{
-		
-		if (event.getType() != event.getType().TEXT || event.isCanceled())
+
+		if (event.type != event.type.TEXT || event.isCanceled())
 		{
 			return;
 		}
-		
-		ItemStack headArmor = this.mc.player.inventory.armorItemInSlot(3); 
+
+		ItemStack headArmor = this.mc.thePlayer.inventory.armorItemInSlot(3);
 
 		if (EventBlockMarkerHighlight.canHeadArmorRead(headArmor))
 		{
 			NBTTagCompound tags = headArmor.getTagCompound();
 			if (tags != null && tags.hasKey("text"))
 			{
-				dheight = event.getResolution().getScaledHeight() / 2;
-				dwidth = event.getResolution().getScaledWidth() / 2;
+				dheight = event.resolution.getScaledHeight() / 2;
+				dwidth = event.resolution.getScaledWidth() / 2;
 				NBTTagList names = tags.getTagList("text", Constants.NBT.TAG_STRING);
 				for (int i = 0; i < names.tagCount(); i++)
 				{
-					if (event.getType() == event.getType().TEXT)
+					if (event.type == event.type.TEXT)
 					{
 						this.drawCenteredString(fr, names.getStringTagAt(i), dwidth+1, dheight + 20 + (i * 9), 16777215);
 					}
 				}
 			}
 		}
-		
-		ItemStack playerhand = this.mc.player.getHeldItem(EnumHand.MAIN_HAND);
-		if (playerhand != ItemStack.EMPTY)
+
+		ItemStack playerhand = this.mc.thePlayer.getHeldItem();
+		if (playerhand != null)
 		{
-			
+
 			if (playerhand.getItem() instanceof ItemTapeMeasure)
 			{
 				if (tickcounter > 50)
@@ -106,16 +105,16 @@ public class GuiBiblioOverlay extends Gui
 					case 0: guimulti = 4; break;
 					default: guimulti = guiscale; break;
 					}
-					dheight = event.getResolution().getScaledHeight() / 2;
-					dwidth = event.getResolution().getScaledWidth() / 2;
+					dheight = event.resolution.getScaledHeight() / 2;
+					dwidth = event.resolution.getScaledWidth() / 2;
 					String dist = distance+"m";
-					if (event.getType() == event.getType().TEXT)
+					if (event.type == event.type.TEXT)
 					{
 						this.drawCenteredString(fr, dist, dwidth+1, dheight+20, 16777215);
 					}
 				}
 			}
-			
+
 			if (playerhand.getItem() instanceof ItemDrill)
 			{
 				ItemDrill drill  = (ItemDrill)playerhand.getItem();
@@ -136,15 +135,15 @@ public class GuiBiblioOverlay extends Gui
 						{
 							this.fadeOutCount = 255;
 						}
-						dheight = event.getResolution().getScaledHeight() / 2;
-						dwidth = event.getResolution().getScaledWidth() / 2;
+						dheight = event.resolution.getScaledHeight() / 2;
+						dwidth = event.resolution.getScaledWidth() / 2;
 						GL11.glPushMatrix();
 	                    GL11.glEnable(GL11.GL_BLEND);
 	                    OpenGlHelper.glBlendFunc(770, 771, 1, 0);
 						this.drawCenteredString(fr, drill.showTextString, dwidth+1, dheight+60, 16777215 + (fadeOutCount << 24));
 						GL11.glDisable(GL11.GL_BLEND);
 						GL11.glPopMatrix();
-						
+
 						this.textCounter++;
 					}
 					else
@@ -155,7 +154,7 @@ public class GuiBiblioOverlay extends Gui
 				}
 
 			}
-			
+
 			if (playerhand.getItem() instanceof ItemRecipeBook)
 			{
 				ItemRecipeBook book  = (ItemRecipeBook)playerhand.getItem();
@@ -176,13 +175,13 @@ public class GuiBiblioOverlay extends Gui
 						{
 							this.fadeOutCount = 255;
 						}
-						dheight = event.getResolution().getScaledHeight() / 2;
-						dwidth = event.getResolution().getScaledWidth() / 2;
+						dheight = event.resolution.getScaledHeight() / 2;
+						dwidth = event.resolution.getScaledWidth() / 2;
 
 						GL11.glPushMatrix();
 	                    GL11.glEnable(GL11.GL_BLEND);
 	                    OpenGlHelper.glBlendFunc(770, 771, 1, 0);
-						this.drawCenteredString(fr, "\u00a76"+book.showTextString, dwidth+1, dheight+80, 16777215 + (fadeOutCount << 24)); 
+						this.drawCenteredString(fr, "\u00a76"+book.showTextString, dwidth+1, dheight+80, 16777215 + (fadeOutCount << 24));
 						GL11.glDisable(GL11.GL_BLEND);
 						GL11.glPopMatrix();
 						this.textCounter++;
@@ -193,12 +192,12 @@ public class GuiBiblioOverlay extends Gui
 						this.textCounter = 0;
 					}
 				}
-				
+
 			}
-			 
+
 			return;
 		}
-		
+
 	}
 
 }

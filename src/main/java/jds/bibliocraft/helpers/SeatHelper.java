@@ -1,11 +1,12 @@
 package jds.bibliocraft.helpers;
 
-import net.minecraft.util.EnumFacing;
+
+import net.minecraftforge.common.util.ForgeDirection;
 
 public class SeatHelper
 {
 	private boolean southConnect, westConnect, northConnect, eastConnect;
-	public SeatHelper(boolean south, boolean west, boolean north, boolean east, EnumFacing seatAngle)
+	public SeatHelper(boolean south, boolean west, boolean north, boolean east, ForgeDirection seatAngle)
 	{
 		this.southConnect = south;
 		this.westConnect = west;
@@ -13,35 +14,35 @@ public class SeatHelper
 		this.eastConnect = east;
 		adjustBooleanConnectsBasedOnAngle(seatAngle);
 	}
-	
+
 	public boolean getSouthConnect()
 	{
 		return this.southConnect;
 	}
-	
+
 	public boolean getWestConnect()
 	{
 		return this.westConnect;
 	}
-	
+
 	public boolean getNorthConnect()
 	{
 		return this.northConnect;
 	}
-	
+
 	public boolean getEastConnect()
 	{
 		return this.eastConnect;
 	}
-	
-	private void adjustBooleanConnectsBasedOnAngle(EnumFacing angle)
+
+	private void adjustBooleanConnectsBasedOnAngle(ForgeDirection angle)
 	{
 		// NORTH is default location
 		boolean north = this.northConnect;
 		boolean south = this.southConnect;
 		boolean east = this.eastConnect;
 		boolean west = this.westConnect;
-		
+
 		switch (angle)
 		{
 			case SOUTH:

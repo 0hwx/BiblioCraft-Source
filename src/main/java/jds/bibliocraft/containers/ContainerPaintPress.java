@@ -13,15 +13,15 @@ public class ContainerPaintPress extends Container
 {
 	protected TileEntityPaintPress paintPress;
 	protected SlotPaintPress canvasSlot;
-	
+
 	public ContainerPaintPress(InventoryPlayer inventoryPlayer, TileEntityPaintPress tile)
 	{
 		this.paintPress = tile;
-		
+
 		addSlotToContainer(this.canvasSlot = new SlotPaintPress(this, this.paintPress, 0, 120, 139));
 		bindPlayerInventory(inventoryPlayer);
 	}
-	
+
 	protected void bindPlayerInventory(InventoryPlayer inventoryPlayer)
 	{
 		for (int i = 0; i < 3; i++)
@@ -31,22 +31,22 @@ public class ContainerPaintPress extends Container
 				addSlotToContainer(new Slot(inventoryPlayer, j+i*9+9, 48+j*18, 159+i*18));
 			}
 		}
-		for (int i = 0; i < 9; i++) 
+		for (int i = 0; i < 9; i++)
 		{
 			addSlotToContainer(new Slot(inventoryPlayer, i, 48+i*18,217));
 		}
 	}
-	
+
 	@Override
 	public boolean canInteractWith(EntityPlayer player)
 	{
-		return paintPress.isUsableByPlayer(player);
+		return paintPress.isUseableByPlayer(player);
 	}
-	
+
 	@Override
 	public ItemStack transferStackInSlot(EntityPlayer player, int slot)
 	{
-		ItemStack stack = ItemStack.EMPTY;
+		ItemStack stack = null;
 		Slot slotObject = (Slot) inventorySlots.get(slot);
 		if (slotObject != null && slotObject.getHasStack())
 		{
@@ -56,51 +56,51 @@ public class ContainerPaintPress extends Container
 			{
 				if (!this.mergeItemStack(stackInSlot, 1, 37, true))  // changing 9 to 6
 				{
-					return ItemStack.EMPTY;
+					return null;
 				}
 			}
 			else  // use this line to limit what can be shift-clicked into place
 			{
-				if ((!checkCanvas(stack) || this.paintPress.getStackInSlot(0) != ItemStack.EMPTY))
+				if ((!checkCanvas(stack) || this.paintPress.getStackInSlot(0) != null))
 				{
-					return ItemStack.EMPTY;
+					return null;
 				}
-				
-				if (stack.getCount() == 1)
+
+				if (stack.stackSize == 1)
 				{
 					if (!this.mergeItemStack(stackInSlot, 0, 1, false))
 					{
-						return ItemStack.EMPTY;
+						return null;
 					}
-					
+
 				}
 				else
-				{	
-					stack.setCount(1);
+				{
+					stack.stackSize = (1);
 					this.mergeItemStack(stack, 0, 1, false);
-					stackInSlot.setCount(stackInSlot.getCount() - 1);
-                    return ItemStack.EMPTY;
+					stackInSlot.stackSize = (stackInSlot.stackSize - 1);
+                    return null;
 				}
 			}
 
-			
-			if (stackInSlot.getCount() == 0)
+
+			if (stackInSlot.stackSize == 0)
 			{
-				slotObject.putStack(ItemStack.EMPTY);
-			} else 
+				slotObject.putStack(null);
+			} else
 			{
 				slotObject.onSlotChanged();
 			}
-			
-			if (stackInSlot.getCount() == stack.getCount())
+
+			if (stackInSlot.stackSize == stack.stackSize)
 			{
-				return ItemStack.EMPTY;
+				return null;
 			}
-			slotObject.onTake(player, stackInSlot);
+			slotObject.onPickupFromSlot(player, stackInSlot);
 		}
 		return stack;
 	}
-	
+
 	private boolean checkCanvas(ItemStack stack)
 	{
 		if (stack.getItem() instanceof ItemPaintingCanvas)

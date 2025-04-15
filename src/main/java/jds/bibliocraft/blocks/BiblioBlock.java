@@ -4,12 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import javax.annotation.Nullable;
-import javax.vecmath.Quat4f;
-import javax.vecmath.Vector3f;
-
-import com.google.common.collect.Lists;
-
+import cpw.mods.fml.client.registry.RenderingRegistry;
 import jds.bibliocraft.helpers.CustomBlockItemDataPack;
 import jds.bibliocraft.items.ItemDrill;
 import jds.bibliocraft.items.ItemLock;
@@ -17,12 +12,8 @@ import jds.bibliocraft.tileentities.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityTable;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
-import net.minecraft.block.SoundType;
+
 import net.minecraft.block.material.Material;
-import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.state.BlockStateContainer;
-//import net.minecraft.block.state.BlockState;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -34,67 +25,53 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumBlockRenderType;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.translation.I18n;
-//import net.minecraft.util.math.MathHelper;
-//import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.MathHelper;
+import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.StatCollector;
+import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
-import net.minecraftforge.client.model.obj.OBJModel;
-import net.minecraftforge.common.model.TRSRTransformation;
-import net.minecraftforge.common.property.ExtendedBlockState;
-import net.minecraftforge.common.property.IExtendedBlockState;
-import net.minecraftforge.common.property.IUnlistedProperty;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.common.util.ForgeDirection;
 
-public abstract class BiblioBlock extends BlockContainer 
+
+public abstract class BiblioBlock extends BlockContainer
 {
 	//private boolean hasCustomWoods = false;
-	
+
 	private String customTexture = "none";
 	private CustomBlockItemDataPack customData = null;
-	
-	
+
+
 	public BiblioBlock(Material material, SoundType sound, CreativeTabs tab, String name)
 	{
 		super(material);
-		this.setSoundType(sound);
-		//setStepSound(sound);
+		this.setStepSound(sound);
 		if (tab != null)
 		{
 			setCreativeTab(tab);
 		}
 
-		setUnlocalizedName("BiblioCraft:" + name);
-		setRegistryName(name);
-		//setRegistryName("bibliocraft:" + name);
+		setBlockName("BiblioCraft:" + name);
+//		setUnlocalizedName(name);
+		//setUnlocalizedName("bibliocraft:" + name);
 	}
-	
-	
+
 	@Override
-	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
+	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ)
 	{
 		boolean returnValue = true;
-		TileEntity tile = world.getTileEntity(pos);
+		TileEntity tile = world.getTileEntity(x, y, z);
 		if (tile != null && tile instanceof BiblioTileEntity)
 		{
 			BiblioTileEntity biblioTile = (BiblioTileEntity)tile;
-			String playername = player.getDisplayNameString();
+			String playername = player.getDisplayName();
 			boolean islocked = biblioTile.isLocked();
 			String lockeename = biblioTile.getLockee();
 			if (!world.isRemote)
 			{
-				 ItemStack playerhand = player.getHeldItem(EnumHand.MAIN_HAND);
-				 if (playerhand != ItemStack.EMPTY)
+				 ItemStack playerhand = player.getHeldItem();
+				 if (playerhand != null)
 				 {
 					 if (playerhand.getItem() instanceof ItemLock)
 					 {
@@ -102,46 +79,46 @@ public abstract class BiblioBlock extends BlockContainer
 							 {
 								 if (playername.contains(lockeename))
 								 {
-									 biblioTile.setLocked(false); 
-									 player.sendMessage(new TextComponentString(I18n.translateToLocal("lock.unlocked")));
+									 biblioTile.setLocked(false);
+									 player.addChatMessage(new ChatComponentText(StatCollector.translateToLocal("lock.unlocked")));
 								 }
 								 else
 								 {
-									 player.sendMessage(new TextComponentString(I18n.translateToLocal("lock.notowner")));
+									 player.addChatMessage(new ChatComponentText(StatCollector.translateToLocal("lock.notowner")));
 								 }
 							 }
 							 else
 							 {
 								 biblioTile.setLocked(true);
 								 biblioTile.setLockee(playername);
-								 player.sendMessage(new TextComponentString(I18n.translateToLocal("lock.locked")));
+								 player.addChatMessage(new ChatComponentText(StatCollector.translateToLocal("lock.locked")));
 							 }
 							 return true;
 					 }
 				 }
 				if (!islocked || playername.contains(lockeename))  // The fix to all these lock issues is to use the playername.contains(lockeename) instead of an ==
 				{
-					if (playerhand != ItemStack.EMPTY)
+					if (playerhand != null)
 					{
 						if (playerhand.getItem() instanceof ItemDrill && !(biblioTile instanceof TileEntityTable))
 						{
 							return false;
 						}
-						
+
 					}
-					returnValue = onBlockActivatedCustomCommands(world, pos, state, player, side, hitX, hitY, hitZ);
+					returnValue = onBlockActivatedCustomCommands(world, x, y, z, player, side, hitX, hitY, hitZ);
 				}
 				else
 				{
-					player.sendMessage(new TextComponentString(I18n.translateToLocal("lock.notowner")));
+					player.addChatMessage(new ChatComponentText(StatCollector.translateToLocal("lock.notowner")));
 				}
 			}
 			else
 			{
 				//client side
-				returnValue = onBlockActivatedCustomCommands(world, pos, state, player, side, hitX, hitY, hitZ);
-				ItemStack playerhand = player.getHeldItem(EnumHand.MAIN_HAND);
-				if (playerhand != ItemStack.EMPTY)
+				returnValue = onBlockActivatedCustomCommands(world, x, y, z, player, side, hitX, hitY, hitZ);
+				ItemStack playerhand = player.getHeldItem();
+				if (playerhand != null)
 				{
 					if (playerhand.getItem() instanceof ItemDrill)
 					{
@@ -150,35 +127,31 @@ public abstract class BiblioBlock extends BlockContainer
 				}
 			}
 		}
-		
+
 		return returnValue;
 	}
-	
 	@Override
-    public boolean canPlaceBlockOnSide(World worldIn, BlockPos pos, EnumFacing side)
+    public boolean canPlaceBlockOnSide(World worldIn, int x, int y, int z, int side)
     {
         return true;
     }
 
 	/** Only runs server side on block right click if the block isnt locked or is the correct player who locked it */
-	public abstract boolean onBlockActivatedCustomCommands(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ);
-	
-	@Override 
-	public abstract TileEntity createNewTileEntity(World worldIn, int meta);
-	
-    /** Create a list of model parts that should be rendered based on the TileEntity. List<String> parts = new ArrayList<String>(); */
-    public abstract List<String> getModelParts(BiblioTileEntity tile);
-	
+	public abstract boolean onBlockActivatedCustomCommands(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ);
+
 	@Override
-	public boolean hasTileEntity(IBlockState state)
+	public abstract TileEntity createNewTileEntity(World worldIn, int meta);
+
+	@Override
+	public boolean hasTileEntity()
 	{
 		return true;
 	}
-	
+
 	@Override
-    public void onBlockHarvested(World world, BlockPos pos, IBlockState state, EntityPlayer player)
+    public void onBlockHarvested(World world, int x, int y, int z, int meta, EntityPlayer player)
     {
-        TileEntity tile = world.getTileEntity(pos);
+        TileEntity tile = world.getTileEntity(x, y, z);
         if (tile != null && tile instanceof BiblioTileEntity)
         {
         	BiblioTileEntity biblioTile = (BiblioTileEntity)tile;
@@ -186,33 +159,33 @@ public abstract class BiblioBlock extends BlockContainer
         	this.customData = getCustomDataOnHarvest(biblioTile);
         }
     }
-	
+
 	public CustomBlockItemDataPack getCustomDataOnHarvest(BiblioTileEntity tile)
 	{
 		return new CustomBlockItemDataPack();
 	}
-	
+
 	@Override
-	public List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune)
+	public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune)
     {
         ArrayList<ItemStack> retern = new ArrayList<ItemStack>();
-        Random rand = world instanceof World ? ((World)world).rand : RANDOM;
-        
-        TileEntity tile = world.getTileEntity(pos);
-        int count = quantityDropped(state, fortune, rand);
+        Random rand = world instanceof World ? world.rand : new Random();
+
+        TileEntity tile = world.getTileEntity(x, y, z);
+        int count = quantityDropped(metadata, fortune, rand);
         for(int i = 0; i < count; i++)
         {
-            Item item = getItemDropped(state, rand, fortune);
-            if (item != ItemStack.EMPTY.getItem())
+            Item item = getItemDropped(metadata, rand, fortune);
+            if (item != null)
             {
-            	ItemStack newStack = new ItemStack(item, 1, damageDropped(state));
+            	ItemStack newStack = new ItemStack(item, 1, damageDropped(metadata));
             	if (!(customTexture.contentEquals("none") || customTexture.contentEquals("")))
             	{
             		NBTTagCompound tags = new NBTTagCompound();
             		tags.setString("renderTexture", this.customTexture);
             		newStack.setTagCompound(tags);
             	}
-            	if (this.customData != null && this.customData.hasData) 
+            	if (this.customData != null && this.customData.hasData)
             	{
             		NBTTagCompound tags = new NBTTagCompound();
             		if (newStack.getTagCompound() != null)
@@ -222,47 +195,47 @@ public abstract class BiblioBlock extends BlockContainer
             		tags = this.customData.applyDataToItemStack(tags);
             		newStack.setTagCompound(tags);
             	}
-            	
+
             	retern.add(newStack);
             }
         }
-        
+
         return retern;
     }
-	
-	public BlockPos getDropPositionOffset(BlockPos oldPos, EntityPlayer player) // move this to parent class I think.
+
+	public Vec3 getDropPositionOffset(int x1, int y1, int z1, EntityPlayer player) // move this to parent class I think.
 	{
-		BlockPos playerPos = player.getPosition();
-		
-		int x = oldPos.getX() - playerPos.getX();
-		int z = oldPos.getZ() - playerPos.getZ();
-		if (x > 1)
-			x = 1;
-		if (x < -1)
-			x = -1;
-		if (z > 1)
-			z = 1;
-		if (z < -1)
-			z = -1;
-		x = oldPos.getX() - x;
-		z = oldPos.getZ() - z;
-		BlockPos pos = new BlockPos(x, oldPos.getY(), z);
-		return pos;
+        Vec3 playerPos = Vec3.createVectorHelper(player.posX, player.posY, player.posZ);
+
+        double x = x1 - playerPos.xCoord;
+        double z = z1 - playerPos.zCoord;
+        if (x > 1)
+            x = 1;
+        if (x < -1)
+            x = -1;
+        if (z > 1)
+            z = 1;
+        if (z < -1)
+            z = -1;
+        x = x1 - x;
+        z = z1 - z;
+        Vec3 pos = Vec3.createVectorHelper(x, y1, z);
+        return pos;
 	}
-	
-	public void dropStackInSlot(World world, BlockPos pos, int slot, BlockPos extractPos)
+
+	public void dropStackInSlot(World world, int x, int y, int z, int slot, Vec3 extractPos)
 	{
-		TileEntity tileEntity = world.getTileEntity(pos);
+		TileEntity tileEntity = world.getTileEntity(x, y, z);
 		if(!(tileEntity instanceof IInventory))
 		{
 			return;
 		}
-		
+
 		IInventory inventory = (IInventory) tileEntity;
 		BiblioTileEntity biblioTile = (BiblioTileEntity) tileEntity;
 		ItemStack stack;
 		stack = biblioTile.getStackInSlot(slot);
-		if (stack != ItemStack.EMPTY && stack.getCount() > 0)
+		if (stack != null && stack.stackSize > 0)
 		{
 			float adjusti = 0.0F;
 			float adjustk = 0.0F;
@@ -274,27 +247,27 @@ public abstract class BiblioBlock extends BlockContainer
 				case EAST: {adjusti = 0.0F; adjustk = 0.2F; break;}
 				default: {adjusti = 0.2F; adjustk = 0.0F; break;}
 			}
-			
-			EntityItem entityItem = new EntityItem(world, extractPos.getX()+0.5F+adjusti, extractPos.getY() + 0.5F, extractPos.getZ() +0.5F+adjustk, new ItemStack(stack.getItem(), stack.getCount(), stack.getItemDamage()));
-			
+
+			EntityItem entityItem = new EntityItem(world, extractPos.xCoord+0.5F+adjusti, extractPos.yCoord + 0.5F, extractPos.zCoord +0.5F+adjustk, new ItemStack(stack.getItem(), stack.stackSize, stack.getItemDamage()));
+
 			if (stack.hasTagCompound())
 			{
-				entityItem.getItem().setTagCompound((NBTTagCompound) stack.getTagCompound().copy());
+				entityItem.getEntityItem().setTagCompound((NBTTagCompound) stack.getTagCompound().copy());
 			}
-			
+
 			entityItem.motionX = 0;
 			entityItem.motionY = 0;
 			entityItem.motionZ = 0;
-			world.spawnEntity(entityItem);
-			stack.setCount(0);
+			world.spawnEntityInWorld(entityItem);
+			stack.stackSize = 0;
 		}
-		
+
 	}
-	
+
 	@Override
-    public float getBlockHardness(IBlockState state, World world, BlockPos pos)
+    public float getBlockHardness(World world, int x, int y, int z)
     {
-		TileEntity tile = world.getTileEntity(pos);
+		TileEntity tile = world.getTileEntity(x, y, z);
 		if (tile != null && tile instanceof BiblioTileEntity)
 		{
 			BiblioTileEntity tilee = (BiblioTileEntity)tile;
@@ -305,50 +278,50 @@ public abstract class BiblioBlock extends BlockContainer
 		}
 		return 3.0F;
     }
-	
+
 	@Override
-	public int damageDropped(IBlockState state)
+	public int damageDropped(int meta)
 	{
-		return state.getBlock().getMetaFromState(state); 
+		return meta;
 	}
-    
-	
-    @Deprecated
-    public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn)
+
+
+//    @Deprecated
+//    public void addCollisionBoxToList(Block state, World worldIn, int x, int y, int z, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn)
+//    {
+//        addCollisionBoxToList(x, y, z, entityBox, collidingBoxes, state.getCollisionBoundingBoxFromPool(worldIn, x, y, z));
+//    }
+
+//    @Override
+//    public void addCollisionBoxesToList(World world, int x, int y, int z, AxisAlignedBB mask, List<AxisAlignedBB> collidingBoxes, Entity collidingEntity)
+//    {
+//        this.setBlockBoundsBasedOnState(world, x, y, z);
+//        super.addCollisionBoxesToList(world,  x, y, z, mask, collidingBoxes, collidingEntity);
+//	}
+
+    public ForgeDirection getFacing(int angle)
     {
-        addCollisionBoxToList(pos, entityBox, collidingBoxes, state.getCollisionBoundingBox(worldIn, pos));
-    }
-    /*
-    @Override
-    public void addCollisionBoxesToList(World world, BlockPos pos, IBlockState state, AxisAlignedBB mask, List list, Entity collidingEntity)
-    {
-        this.setBlockBoundsBasedOnState(world, pos);
-        super.addCollisionBoxesToList(world, pos, state, mask, list, collidingEntity);
-	}
-    */ 
-    public EnumFacing getFacing(int angle)
-    {
-    	EnumFacing face = EnumFacing.WEST;
+    	ForgeDirection face = ForgeDirection.WEST;
     	switch (angle)
     	{
-	    	case 0:{ face = EnumFacing.SOUTH; break; }
-	    	case 2:{ face = EnumFacing.NORTH; break; }
-	    	case 3:{ face = EnumFacing.EAST; break; }
+	    	case 0:{ face = ForgeDirection.SOUTH; break; }
+	    	case 2:{ face = ForgeDirection.NORTH; break; }
+	    	case 3:{ face = ForgeDirection.EAST; break; }
     	}
     	return face;
     }
-    
+
     @Override
-    public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase player, ItemStack itemStack)
+    public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase player, ItemStack itemStack)
     {
-    	TileEntity tile = world.getTileEntity(pos);
+    	TileEntity tile = world.getTileEntity(x, y, z);
     	if (tile != null && tile instanceof BiblioTileEntity)
     	{
-	        int angle = MathHelper.floor(player.rotationYaw * 4.0F / 360.0F + 0.5D) & 3;
+	        int angle = MathHelper.floor_double(player.rotationYaw * 4.0F / 360.0F + 0.5D) & 3;
 	        ++angle;
 	        angle %= 4;
-	        
-	        BiblioTileEntity biblioTile = (BiblioTileEntity) world.getTileEntity(pos);
+
+	        BiblioTileEntity biblioTile = (BiblioTileEntity) world.getTileEntity(x, y, z);
 	        biblioTile.setAngle(getFacing(angle));
 	        NBTTagCompound tags = itemStack.getTagCompound();
 	        if (tags != null)
@@ -360,119 +333,122 @@ public abstract class BiblioBlock extends BlockContainer
 
 	        	if (tags.hasKey("textscale"))
 	        	{
-	        		customData.applyDataToBlock(tags, biblioTile); 
+	        		customData.applyDataToBlock(tags, biblioTile);
 	        	}
-	        	
+
 	        }
 	        additionalPlacementCommands(biblioTile, player);
     	}
     }
-    
+
     /** Called when the block is placed  */
     public abstract void additionalPlacementCommands(BiblioTileEntity biblioTile, EntityLivingBase player);
-    
 	@Override
-	public void breakBlock(World world, BlockPos pos, IBlockState state)
+	public void breakBlock(World world, int x, int y, int z, Block blockBroken, int meta)
 	{
-		if (!(state.getBlock() instanceof BlockFancySign)) // This is so the fancy sign retains its inventory
-			dropItems(world, pos); 
-		super.breakBlock(world, pos, state);
+		if (!(blockBroken instanceof BlockFancySign)) // This is so the fancy sign retains its inventory
+			dropItems(world, x, y, z);
+		super.breakBlock(world, x, y, z, blockBroken, meta);
 	}
-	
-	public void dropItems(World world, BlockPos pos)
+
+	public void dropItems(World world, int x, int y, int z)
 	{
 		Random rando = new Random();
-		
-		TileEntity tileEntity = world.getTileEntity(pos);
+
+		TileEntity tileEntity = world.getTileEntity(x, y, z);
 		if (!(tileEntity instanceof IInventory))
 		{
 			return;
 		}
 		IInventory inventory = (IInventory) tileEntity;
-		
-		for (int x = 0; x < inventory.getSizeInventory(); x++)
+
+		for (int x1 = 0; x1 < inventory.getSizeInventory(); x1++)
 		{
-			ItemStack item = inventory.getStackInSlot(x);
-			
-			if (item != ItemStack.EMPTY && item.getCount() > 0)
+			ItemStack item = inventory.getStackInSlot(x1);
+
+			if (item != null && item.stackSize > 0)
 			{
 				float ri = rando.nextFloat() * 0.8F + 0.1F;
 				float rj = rando.nextFloat() * 0.8F + 0.1F;
 				float rk = rando.nextFloat() * 0.8F + 0.1F;
-				
-				EntityItem entityItem = new EntityItem(world, pos.getX() + ri, pos.getY() + rj, pos.getZ() + rk, new ItemStack(item.getItem(), item.getCount(), item.getItemDamage()));
-				
+
+				EntityItem entityItem = new EntityItem(world, x + ri, y + rj, z + rk, new ItemStack(item.getItem(), item.stackSize, item.getItemDamage()));
+
 				if (item.hasTagCompound())
 				{
-					entityItem.getItem().setTagCompound((NBTTagCompound) item.getTagCompound().copy());
+					entityItem.getEntityItem().setTagCompound((NBTTagCompound) item.getTagCompound().copy());
 				}
-				
+
 				float factor = 0.05F;
 				entityItem.motionX = rando.nextGaussian() * factor;
 				entityItem.motionY = rando.nextGaussian() * factor + 0.2F;
 				entityItem.motionZ = rando.nextGaussian() * factor;
-				world.spawnEntity(entityItem);
-				item.setCount(0);
+				world.spawnEntityInWorld(entityItem);
+				item.stackSize = 0;
 			}
 		}
 	}
-	
 	@Override
-	public ItemStack getPickBlock(IBlockState state, RayTraceResult trace, World world, BlockPos pos, EntityPlayer player)
+	public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z, EntityPlayer player)
 	{
-       ItemStack item = getItem(world, pos, state);
-       if (item == ItemStack.EMPTY)
+       Item item = getItem(world, x, y, z);
+       if (item == null)
        {
-           return ItemStack.EMPTY;
+           return null;
        }
-       Block block = item.getItem() instanceof ItemBlock ? Block.getBlockFromItem(item.getItem()) : this;
-       ItemStack stack = new ItemStack(item.getItem(), 1, block.getMetaFromState(state));
-       stack = getPickBlockExtras(stack, world, pos);
+       Block block = item instanceof ItemBlock ? Block.getBlockFromItem(item) : this;
+       ItemStack stack = new ItemStack(item, 1, block.getDamageValue(world, x, y, z));
+       stack = getPickBlockExtras(stack, world, x, y, z);
        return stack;
 	}
-	
+
 	/** Additional stuff for the getPickBlock method if needed, just return the stack if not */
-	public abstract ItemStack getPickBlockExtras(ItemStack stack, World world, BlockPos pos);
-	
-    @Override
-    public boolean isOpaqueCube(IBlockState state) { return false; }
+	public abstract ItemStack getPickBlockExtras(ItemStack stack, World world, int x, int y, int z);
 
     @Override
-    public boolean isFullCube(IBlockState state) { return false; }
+    public boolean isOpaqueCube() { return false; }
+
+    @Override
+   public boolean renderAsNormalBlock() {
+        return false;
+    }
 /*
     @Override
-    public boolean isFullyOpaque(IBlockState state) { return false; }
-*/  
+    public boolean isFullyOpaque() { return false; }
+*/
     @Override
-    public EnumBlockRenderType getRenderType(IBlockState state) { return EnumBlockRenderType.MODEL; }
-	
+    public int getRenderType()
+    {
+        return RenderingRegistry.getNextAvailableRenderId();
+    }
+
 	@Override
-	public EnumFacing[] getValidRotations(World worldObj, BlockPos pos) 
+	public ForgeDirection[] getValidRotations(World worldObj, int x, int y, int z)
 	{
-		EnumFacing[] axises = {EnumFacing.UP, EnumFacing.DOWN};
+        ForgeDirection[] axises = new ForgeDirection[]{ForgeDirection.UP, ForgeDirection.DOWN};
 		return axises;
 	}
-	
+
 	@Override
-	public boolean rotateBlock(World world, BlockPos pos, EnumFacing axis) 
+	public boolean rotateBlock(World world,  int x, int y, int z, ForgeDirection axis)
 	{
 		boolean returnValue = false;
-		TileEntity tile = world.getTileEntity(pos);
+		TileEntity tile = world.getTileEntity(x, y, z);
 		if (tile != null && tile instanceof BiblioTileEntity)
 		{
 			BiblioTileEntity te = (BiblioTileEntity)tile;
-			EnumFacing angle = te.getAngle();
+            ForgeDirection angle = te.getAngle();
 			returnValue = true;
 			switch (axis)
 			{
-				case DOWN: 
+				case DOWN:
 				{
-					te.setAngle(angle.rotateY());
+					te.setAngle(rotateY(angle));
 					break;
 				}
 				case UP:
 				{
-					te.setAngle(angle.rotateYCCW());
+					te.setAngle(rotateYCCW(angle));
 					break;
 				}
 				default: returnValue = false;
@@ -480,140 +456,177 @@ public abstract class BiblioBlock extends BlockContainer
 		}
 		return returnValue;
 	}
-	
-    @Override
-    protected BlockStateContainer createBlockState()
-    {
-    	//return new BlockStateContainer(this, new IProperty[0]);
-    	return new ExtendedBlockState(this, new IProperty[0], new IUnlistedProperty[]{OBJModel.OBJProperty.INSTANCE});
-    }
-    
-    @Override
-    public IBlockState getStateFromMeta(int meta)
-    {
-    	return  this.getDefaultState();
-    }
-    
-    @Override
-    public int getMetaFromState(IBlockState state)
-    {
-    	return 0;
-    }
-    
-    @Override
-    public IBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos)
-    {
-    	ExtendedBlockState exstate = new ExtendedBlockState(this, new IProperty[0], new IUnlistedProperty[]{OBJModel.OBJProperty.INSTANCE});
-    	exstate = getExtendedBlockStateAlternate(exstate);
-    	IExtendedBlockState newState = ((IExtendedBlockState) exstate.getBaseState());
-    	OBJModel.OBJState partList = new OBJModel.OBJState(Lists.newArrayList(OBJModel.Group.ALL), true);
-    	TileEntity tile = world.getTileEntity(pos);
-    	if (tile != null && tile instanceof BiblioTileEntity)
-    	{
-    		BiblioTileEntity biblioTile = (BiblioTileEntity)tile;
-    		List<String> modelParts = getModelParts(biblioTile);
-    		TRSRTransformation transform = new TRSRTransformation(biblioTile.getAngle());
-    		switch (biblioTile.getShiftPosition())
-    		{
-	    		case HALF_SHIFT: 
-	    		{
-	    			transform = transform.compose(new TRSRTransformation(new Vector3f(0.25f, 0.0f, 0.0f), new Quat4f(0.0f, 0.0f, 0.0f, 1.0f), new Vector3f(1.0f, 1.0f, 1.0f), new Quat4f(0.0f, 0.0f, 0.0f, 1.0f)));
-	    			break; 
-    			}
-	    		case FULL_SHIFT:
-	    		{ 
-	    			transform = transform.compose(new TRSRTransformation(new Vector3f(0.5f, 0.0f, 0.0f), new Quat4f(0.0f, 0.0f, 0.0f, 1.0f), new Vector3f(1.0f, 1.0f, 1.0f), new Quat4f(0.0f, 0.0f, 0.0f, 1.0f)));
-	    			break; 
-	    		}
-	    		default: break;
-    		}
-    		transform = getAdditionalTransforms(transform, biblioTile);
-    		partList = new OBJModel.OBJState(modelParts, true, transform);
-    		newState = newState.withProperty(OBJModel.OBJProperty.INSTANCE, partList);
-    		newState = getIExtendedBlockStateAlternate(biblioTile, newState);
-    	}
-    	
-    	return getFinalBlockstate(state, newState);
-    }
-    
-    public abstract IBlockState getFinalBlockstate(IBlockState state, IBlockState newState);
-    
-    public abstract TRSRTransformation getAdditionalTransforms(TRSRTransformation transform, BiblioTileEntity tile);
-    
-    /** This can be used to change the default extended block state for adding additional properties */
-    public abstract ExtendedBlockState getExtendedBlockStateAlternate(ExtendedBlockState state);
-    
-    /** Allows changing and adding properties to the IExtendedBlockState that is to be returned */
-    public abstract IExtendedBlockState getIExtendedBlockStateAlternate(BiblioTileEntity biblioTile, IExtendedBlockState state);
-    
-    @SideOnly(Side.CLIENT)
-    @Override
-    public boolean canRenderInLayer(IBlockState state, BlockRenderLayer layer)
-    {
-    	boolean output = false;
-    	if (layer == layer.CUTOUT)
-    	{
-    		output = true;
-    	}
-        return output;
-    }
-    
-    
-    public static boolean isFrontOfBlock(EnumFacing face, EnumFacing angle)
+
+//    @Override
+//    protected BlockStateContainer createBlockState()
+//    {
+//    	//return new BlockStateContainer(this, new IProperty[0]);
+//    	return new ExtendedBlockState(this, new IProperty[0], new IUnlistedProperty[]{OBJModel.OBJProperty.INSTANCE});
+//    }
+//
+//    @Override
+//    public IBlockState getStateFromMeta(int meta)
+//    {
+//    	return  this.getDefaultState();
+//    }
+//
+//    @Override
+//    public int getMetaFromState(IBlockState state)
+//    {
+//    	return 0;
+//    }
+
+//    @Override
+//    public IBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos)
+//    {
+//    	ExtendedBlockState exstate = new ExtendedBlockState(this, new IProperty[0], new IUnlistedProperty[]{OBJModel.OBJProperty.INSTANCE});
+//    	exstate = getExtendedBlockStateAlternate(exstate);
+//    	IExtendedBlockState newState = ((IExtendedBlockState) exstate.getBaseState());
+//    	OBJModel.OBJState partList = new OBJModel.OBJState(Lists.newArrayList(OBJModel.Group.ALL), true);
+//    	TileEntity tile = world.getTileEntity(pos);
+//    	if (tile != null && tile instanceof BiblioTileEntity)
+//    	{
+//    		BiblioTileEntity biblioTile = (BiblioTileEntity)tile;
+//    		List<String> modelParts = getModelParts(biblioTile);
+//    		TRSRTransformation transform = new TRSRTransformation(biblioTile.getAngle());
+//    		switch (biblioTile.getShiftPosition())
+//    		{
+//	    		case HALF_SHIFT:
+//	    		{
+//	    			transform = transform.compose(new TRSRTransformation(new Vector3f(0.25f, 0.0f, 0.0f), new Quat4f(0.0f, 0.0f, 0.0f, 1.0f), new Vector3f(1.0f, 1.0f, 1.0f), new Quat4f(0.0f, 0.0f, 0.0f, 1.0f)));
+//	    			break;
+//    			}
+//	    		case FULL_SHIFT:
+//	    		{
+//	    			transform = transform.compose(new TRSRTransformation(new Vector3f(0.5f, 0.0f, 0.0f), new Quat4f(0.0f, 0.0f, 0.0f, 1.0f), new Vector3f(1.0f, 1.0f, 1.0f), new Quat4f(0.0f, 0.0f, 0.0f, 1.0f)));
+//	    			break;
+//	    		}
+//	    		default: break;
+//    		}
+//    		transform = getAdditionalTransforms(transform, biblioTile);
+//    		partList = new OBJModel.OBJState(modelParts, true, transform);
+//    		newState = newState.withProperty(OBJModel.OBJProperty.INSTANCE, partList);
+//    		newState = getIExtendedBlockStateAlternate(biblioTile, newState);
+//    	}
+//
+//    	return getFinalBlockstate(state, newState);
+//    }
+//
+//    public abstract IBlockState getFinalBlockstate(IBlockState state, IBlockState newState);
+//
+//    public abstract TRSRTransformation getAdditionalTransforms(TRSRTransformation transform, BiblioTileEntity tile);
+//
+//    /** This can be used to change the default extended block state for adding additional properties */
+//    public abstract ExtendedBlockState getExtendedBlockStateAlternate(ExtendedBlockState state);
+//
+//    /** Allows changing and adding properties to the IExtendedBlockState that is to be returned */
+//    public abstract IExtendedBlockState getIExtendedBlockStateAlternate(BiblioTileEntity biblioTile, IExtendedBlockState state);
+//
+//    @SideOnly(Side.CLIENT)
+//    @Override
+//    public boolean canRenderInLayer(IBlockState state, BlockRenderLayer layer)
+//    {
+//    	boolean output = false;
+//    	if (layer == layer.CUTOUT)
+//    	{
+//    		output = true;
+//    	}
+//        return output;
+//    }
+
+
+    public static boolean isFrontOfBlock(ForgeDirection face, ForgeDirection angle)
     {
     	boolean returnValue = false;
-    	if ((face == EnumFacing.SOUTH && angle == EnumFacing.EAST) ||
-			(face == EnumFacing.WEST && angle == EnumFacing.SOUTH) ||
-			(face == EnumFacing.NORTH && angle == EnumFacing.WEST) ||
-			(face == EnumFacing.EAST && angle == EnumFacing.NORTH))
+    	if ((face == ForgeDirection.SOUTH && angle == ForgeDirection.EAST) ||
+			(face == ForgeDirection.WEST && angle == ForgeDirection.SOUTH) ||
+			(face == ForgeDirection.NORTH && angle == ForgeDirection.WEST) ||
+			(face == ForgeDirection.EAST && angle == ForgeDirection.NORTH))
     	{
     		returnValue = true;
     	}
     	return returnValue;
     }
-    
-    public static boolean isBackOfBlock(EnumFacing face, EnumFacing angle)
+
+    public static boolean isBackOfBlock(ForgeDirection face, ForgeDirection angle)
     {
     	boolean returnValue = false;
-    	if ((face == EnumFacing.SOUTH && angle == EnumFacing.WEST) ||
-			(face == EnumFacing.WEST && angle == EnumFacing.NORTH) ||
-			(face == EnumFacing.NORTH && angle == EnumFacing.EAST) ||
-			(face == EnumFacing.EAST && angle == EnumFacing.SOUTH))
+    	if ((face == ForgeDirection.SOUTH && angle == ForgeDirection.WEST) ||
+			(face == ForgeDirection.WEST && angle == ForgeDirection.NORTH) ||
+			(face == ForgeDirection.NORTH && angle == ForgeDirection.EAST) ||
+			(face == ForgeDirection.EAST && angle == ForgeDirection.SOUTH))
     	{
     		returnValue = true;
     	}
     	return returnValue;
     }
-   
- 	public static int getSlotNumberFromClickon2x2block(EnumFacing angle, float hitX, float hitY, float hitZ)
+
+ 	public static int getSlotNumberFromClickon2x2block(ForgeDirection angle, float hitX, float hitY, float hitZ)
  	{
  		 int xCheck = (int)(hitX * 2);
  		 int yCheck = (int)(hitY * 2);
  		 int zCheck = (int)(hitZ * 2);
  		 int slot = -1;
- 		 
- 		if ((yCheck == 1 && zCheck == 0 && angle == EnumFacing.SOUTH) || (yCheck == 1 && xCheck == 1 && angle == EnumFacing.WEST) || (yCheck == 1 && zCheck == 1 && angle == EnumFacing.NORTH) || (yCheck == 1 && xCheck == 0 && angle == EnumFacing.EAST))
+
+ 		if ((yCheck == 1 && zCheck == 0 && angle == ForgeDirection.SOUTH) || (yCheck == 1 && xCheck == 1 && angle == ForgeDirection.WEST) || (yCheck == 1 && zCheck == 1 && angle == ForgeDirection.NORTH) || (yCheck == 1 && xCheck == 0 && angle == ForgeDirection.EAST))
  		 {
  			 slot = 0;
  		 }
- 		 if ((yCheck == 1 && zCheck == 1 && angle == EnumFacing.SOUTH) || (yCheck == 1 && xCheck == 0 && angle == EnumFacing.WEST) || (yCheck == 1 && zCheck == 0 && angle == EnumFacing.NORTH) || (yCheck == 1 && xCheck == 1 && angle == EnumFacing.EAST))
+ 		 if ((yCheck == 1 && zCheck == 1 && angle == ForgeDirection.SOUTH) || (yCheck == 1 && xCheck == 0 && angle == ForgeDirection.WEST) || (yCheck == 1 && zCheck == 0 && angle == ForgeDirection.NORTH) || (yCheck == 1 && xCheck == 1 && angle == ForgeDirection.EAST))
  		 {
  			 slot = 1;
  		 }
- 		 if ((yCheck == 0 && zCheck == 0 && angle == EnumFacing.SOUTH) || (yCheck == 0 && xCheck == 1 && angle == EnumFacing.WEST) || (yCheck == 0 && zCheck == 1 && angle == EnumFacing.NORTH) || (yCheck == 0 && xCheck == 0 && angle == EnumFacing.EAST))
+ 		 if ((yCheck == 0 && zCheck == 0 && angle == ForgeDirection.SOUTH) || (yCheck == 0 && xCheck == 1 && angle == ForgeDirection.WEST) || (yCheck == 0 && zCheck == 1 && angle == ForgeDirection.NORTH) || (yCheck == 0 && xCheck == 0 && angle == ForgeDirection.EAST))
  		 {
  			 slot = 2;
  		 }
- 		 if ((yCheck == 0 && zCheck == 1 && angle == EnumFacing.SOUTH) || (yCheck == 0 && xCheck == 0 && angle == EnumFacing.WEST) || (yCheck == 0 && zCheck == 0 && angle == EnumFacing.NORTH) || (yCheck == 0 && xCheck == 1 && angle == EnumFacing.EAST))
+ 		 if ((yCheck == 0 && zCheck == 1 && angle == ForgeDirection.SOUTH) || (yCheck == 0 && xCheck == 0 && angle == ForgeDirection.WEST) || (yCheck == 0 && zCheck == 0 && angle == ForgeDirection.NORTH) || (yCheck == 0 && xCheck == 1 && angle == ForgeDirection.EAST))
  		 {
  			 slot = 3;
  		 }
  		 return slot;
  	}
- 	
+
  	  public AxisAlignedBB getBlockBounds(float x1, float y1, float z1, float x2, float y2, float z2)
  	  {
- 		  return new AxisAlignedBB(x1, y1, z1, x2, y2, z2);
+           this.setBlockBounds(x1, y1, z1, x2, y2, z2);
+ 		  return AxisAlignedBB.getBoundingBox(x1, y1, z1, x2, y2, z2);
  	  }
- 	  
+
+
+
+    /**
+     * Rotate this Facing around the Y axis clockwise (NORTH => EAST => SOUTH => WEST => NORTH)
+     */
+    public ForgeDirection rotateY(ForgeDirection facing)
+    {
+        switch (facing)
+        {
+            case NORTH:
+                return facing.EAST;
+            case EAST:
+                return facing.SOUTH;
+            case SOUTH:
+                return facing.WEST;
+            case WEST:
+                return facing.NORTH;
+            default:
+                throw new IllegalStateException("Unable to get Y-rotated facing of " + this);
+        }
+    }
+
+    public ForgeDirection rotateYCCW(ForgeDirection facing) {
+        switch (facing) {
+            case NORTH:
+                return facing.WEST;
+            case EAST:
+                return facing.NORTH;
+            case SOUTH:
+                return facing.EAST;
+            case WEST:
+                return facing.SOUTH;
+            default:
+                throw new IllegalStateException("Unable to get CCW facing of " + this);
+        }
+    }
 }

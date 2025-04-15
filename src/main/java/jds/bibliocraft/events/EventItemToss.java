@@ -1,24 +1,24 @@
 package jds.bibliocraft.events;
 
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import jds.bibliocraft.containers.ContainerAtlas;
 import jds.bibliocraft.containers.ContainerSlottedBook;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-public class EventItemToss 
+public class EventItemToss
 {
 	@SubscribeEvent
 	public void DroppedItemEvent(ItemTossEvent event)
 	{
-		EntityPlayer player = event.getPlayer();
-		
+		EntityPlayer player = event.player;
+
 		if (player != null)
 		{
-			ItemStack thing = event.getEntityItem().getItem();
-			if (thing != ItemStack.EMPTY)
+			ItemStack thing = event.entityItem.getEntityItem();
+			if (thing != null)
 			{
 				if (checkIfValidPacketItem(thing.getUnlocalizedName()))
 				{
@@ -38,7 +38,7 @@ public class EventItemToss
 			}
 		}
 	}
-	
+
 	public static boolean checkIfValidPacketItem(String input)
 	{
 		String validPacketItems[] = {"item.AtlasBook", "item.BigBook", "item.RecipeBook", "item.BiblioClipboard", "item.BiblioRedBook", "item.SlottedBook", "item.BiblioWayPointCompass"};
@@ -51,7 +51,7 @@ public class EventItemToss
 		}
 		return false;
 	}
-	
+
 	public static boolean hasProperContainer(String input, Container contained)
 	{
 		if (input.equals("item.AtlasBook"))

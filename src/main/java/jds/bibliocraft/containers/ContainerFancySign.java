@@ -13,22 +13,22 @@ public class ContainerFancySign extends Container
 {
 	private TileEntityFancySign tileEntity;
 	protected SlotFancySign slot;
-	
+
 	public ContainerFancySign(InventoryPlayer inventoryPlayer, TileEntityFancySign tile)
 	{
 		tileEntity = tile;
-		addSlotToContainer(this.slot = new SlotFancySign(this, tileEntity, 0, 194, 154)); 
+		addSlotToContainer(this.slot = new SlotFancySign(this, tileEntity, 0, 194, 154));
 		addSlotToContainer(this.slot = new SlotFancySign(this, tileEntity, 1, 222, 154));
 		bindPlayerInventory(inventoryPlayer);
 		//this.
 	}
-	
+
 	@Override
 	public boolean canInteractWith(EntityPlayer player)
 	{
-		return tileEntity.isUsableByPlayer(player);
+		return tileEntity.isUseableByPlayer(player);
 	}
-	
+
 	protected void bindPlayerInventory(InventoryPlayer inventoryPlayer)
 	{
 		for (int i = 0; i < 3; i++)
@@ -38,16 +38,16 @@ public class ContainerFancySign extends Container
 				addSlotToContainer(new Slot(inventoryPlayer, j+i*9+9, 20+j*18, 159+i*18));
 			}
 		}
-		for (int i = 0; i < 9; i++) 
+		for (int i = 0; i < 9; i++)
 		{
 			addSlotToContainer(new Slot(inventoryPlayer, i, 20+i*18,217));
 		}
 	}
-	
+
 	@Override
 	public ItemStack transferStackInSlot(EntityPlayer player, int slot)
 	{
-		ItemStack stack = ItemStack.EMPTY;
+		ItemStack stack = null;
 		Slot slotObject = (Slot) inventorySlots.get(slot);
 	//null checks and checks if the item can be stacked (maxStackSize > 1)
 		if (slotObject != null && slotObject.getHasStack())
@@ -57,33 +57,33 @@ public class ContainerFancySign extends Container
 			Item toolTest = stack.getItem();
 
 
-			if (slot < 2) 
+			if (slot < 2)
 			{
-				if (!this.mergeItemStack(stackInSlot, 2, 38, true)) 
+				if (!this.mergeItemStack(stackInSlot, 2, 38, true))
 				{
-					return ItemStack.EMPTY;
+					return null;
 				}
 			}
 
 			else if (!this.mergeItemStack(stackInSlot, 0, 2, false))
 			{
-				return ItemStack.EMPTY;
+				return null;
 			}
 
-			
-			if (stackInSlot.getCount() == 0)
+
+			if (stackInSlot.stackSize == 0)
 			{
-				slotObject.putStack(ItemStack.EMPTY);
-			} else 
+				slotObject.putStack(null);
+			} else
 			{
 				slotObject.onSlotChanged();
 			}
-			
-			if (stackInSlot.getCount() == stack.getCount())
+
+			if (stackInSlot.stackSize == stack.stackSize)
 			{
-				return ItemStack.EMPTY;
+				return null;
 			}
-			slotObject.onTake(player, stackInSlot);
+			slotObject.onPickupFromSlot(player, stackInSlot);
 		}
 		return stack;
 	}

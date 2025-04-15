@@ -1,15 +1,14 @@
 package jds.bibliocraft.gui;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ChatAllowedCharacters;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.opengl.GL11;
+
 /**
  * This is total a copy paste of the GuiTextField class. I tried extending the class and overriding the drawText method
  * becasue I wanted text with no shadows, but that failed. So I did a big copy/paste and am editing tiny bits to suit my need.
@@ -61,9 +60,9 @@ public class GuiBiblioTextField extends Gui
 
     /** True if this textbox is visible */
     private boolean visible = true;
-    
+
     @SideOnly(Side.CLIENT)
-	public GuiBiblioTextField(FontRenderer par1FontRenderer, int par2, int par3, int par4, int par5) 
+	public GuiBiblioTextField(FontRenderer par1FontRenderer, int par2, int par3, int par4, int par5)
 	{
         this.fontRenderer = par1FontRenderer;
         this.xPos = par2;
@@ -71,7 +70,7 @@ public class GuiBiblioTextField extends Gui
         this.width = par4;
         this.height = par5;
 	}
-	
+
     /**
      * Increments the cursor counter
      */
@@ -121,7 +120,7 @@ public class GuiBiblioTextField extends Gui
     public void writeText(String par1Str)
     {
         String s1 = "";
-        String s2 = ChatAllowedCharacters.filterAllowedCharacters(par1Str);
+        String s2 = ChatAllowedCharacters.filerAllowedCharacters(par1Str);
         int i = this.cursorPosition < this.selectionEnd ? this.cursorPosition : this.selectionEnd;
         int j = this.cursorPosition < this.selectionEnd ? this.selectionEnd : this.cursorPosition;
         int k = this.maxStringLength - this.text.length() - (i - this.selectionEnd);
@@ -572,21 +571,19 @@ public class GuiBiblioTextField extends Gui
             par2 = par4;
             par4 = i1;
         }
-        
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder worldrenderer = tessellator.getBuffer();
-        GlStateManager.color(0.0F, 0.0F, 255.0F, 255.0F);
-        GlStateManager.disableTexture2D();
-        GlStateManager.enableColorLogic();
-        GlStateManager.colorLogicOp(5387);
-        worldrenderer.begin(7, DefaultVertexFormats.POSITION);
-        worldrenderer.pos((double)par1, (double)par4, 0.0D).endVertex();
-        worldrenderer.pos((double)par3, (double)par4, 0.0D).endVertex();
-        worldrenderer.pos((double)par3, (double)par2, 0.0D).endVertex();
-        worldrenderer.pos((double)par1, (double)par2, 0.0D).endVertex();
+        Tessellator tessellator = Tessellator.instance;
+        GL11.glColor4f(0.0F, 0.0F, 255.0F, 255.0F);
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glEnable(GL11.GL_COLOR_LOGIC_OP);
+        GL11.glLogicOp(GL11.GL_OR_REVERSE);
+        tessellator.startDrawingQuads();
+        tessellator.addVertex((double)par1, (double)par4, 0.0D);
+        tessellator.addVertex((double)par3, (double)par4, 0.0D);
+        tessellator.addVertex((double)par3, (double)par2, 0.0D);
+        tessellator.addVertex((double)par1, (double)par2, 0.0D);
         tessellator.draw();
-        GlStateManager.disableColorLogic();
-        GlStateManager.enableTexture2D();
+        GL11.glDisable(GL11.GL_COLOR_LOGIC_OP);
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
     }
 
     public void setMaxStringLength(int par1)

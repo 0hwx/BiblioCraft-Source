@@ -1,49 +1,42 @@
 package jds.bibliocraft.blocks;
 
+import cpw.mods.fml.common.network.NetworkRegistry;
 import jds.bibliocraft.CommonProxy;
 import jds.bibliocraft.network.BiblioNetworking;
 import jds.bibliocraft.network.packet.client.BiblioSoundPlayer;
-import jds.bibliocraft.network.packet.client.BiblioStockLog;
 import jds.bibliocraft.tileentities.TileEntityBell;
-import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
+
 
 public class BlockBell extends BiblioSimpleBlock
 {
 	public static final BlockBell instance = new BlockBell();
 	public static final String name = "Bell";
 	public static final float range = 32.0F;
-	
+
 	public BlockBell()
 	{
-		super(Material.IRON, SoundType.METAL, name);
+		super(Material.iron, soundTypeMetal, name);
 	}
-	
+
 	@Override
-	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess blockAccess, BlockPos pos)
+	public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z)
 	{
 		return this.getBlockBounds(0.4F, 0.0F, 0.4F, 0.6F, 0.2F, 0.6F);
 	}
-	
+
 	@Override
-	public boolean onBlockActivatedCustomCommands(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ)
+	public boolean onBlockActivatedCustomCommands(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ)
 	{
 		if (!world.isRemote)
 		{
 			//world.playSound(null, pos.getX(), pos.getY(), pos.getZ(), CommonProxy.SOUND_DING, SoundCategory.BLOCKS, 1.0F, 1.0F);
-			TargetPoint target = new TargetPoint(world.provider.getDimension(), pos.getX(), pos.getY(), pos.getZ(), range);
-			BiblioNetworking.INSTANCE.sendToAllAround(new BiblioSoundPlayer(CommonProxy.SOUND_BELL_DING_TEXT, pos, 1.0F, 1.0F), target);
+			NetworkRegistry.TargetPoint target = new NetworkRegistry.TargetPoint(world.provider.dimensionId, x, y, z, range);
+			BiblioNetworking.INSTANCE.sendToAllAround(new BiblioSoundPlayer(CommonProxy.SOUND_BELL_DING_TEXT, x, y, z, 1.0F, 1.0F), target);
 		}
 		return true;
 	}
@@ -53,9 +46,9 @@ public class BlockBell extends BiblioSimpleBlock
 	{
 		return new TileEntityBell();
 	}
-	
+
 	@Override
-	public boolean hasTileEntity(IBlockState state)
+	public boolean hasTileEntity()
 	{
 		return true;
 	}

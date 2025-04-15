@@ -15,7 +15,7 @@ public class ContainerTypeMachine extends Container
 	//protected SlotPlate plateSlot;
 	//protected SlotSignedBook bookSlot;
 
-	
+
 	public ContainerTypeMachine(TileEntityTypeMachine tile)
 	{
 		tileEntity = tile;
@@ -25,17 +25,17 @@ public class ContainerTypeMachine extends Container
 		//addSlotToContainer(this.chaseSlot = new SlotChase(this, tileEntity, 1, 134, 8));
 		//addSlotToContainer(this.plateSlot = new SlotPlate(this, tileEntity, 2, 134, 62));
 	}
-	
+
 	@Override
 	public boolean canInteractWith(EntityPlayer player)
 	{
-		return tileEntity.isUsableByPlayer(player);
+		return tileEntity.isUseableByPlayer(player);
 	}
-	
+
 	@Override
 	public ItemStack transferStackInSlot(EntityPlayer player, int slot)
 	{
-		ItemStack stack = ItemStack.EMPTY;
+		ItemStack stack = null;
 		Slot slotObject = (Slot) inventorySlots.get(slot);
 	//null checks and checks if the item can be stacked (maxStackSize > 1)
 		if (slotObject != null && slotObject.getHasStack())
@@ -49,7 +49,7 @@ public class ContainerTypeMachine extends Container
 			{
 				if (!this.mergeItemStack(stackInSlot, 2, 38, true))  // changing 9 to 6
 				{
-					return ItemStack.EMPTY;
+					return null;
 				}
 			}
 			//places it into the tileEntity is possible since its in the player inventory
@@ -57,25 +57,25 @@ public class ContainerTypeMachine extends Container
 			// This needs some tweakage to accomadate my needs, but will work genericly for now
 			else if (!this.mergeItemStack(stackInSlot, 0, 2, false)) // use this line to limit what can be shift-clicked into place
 			{
-				return ItemStack.EMPTY;
+				return null;
 			}
 
-			
-			if (stackInSlot.getCount() == 0)
+
+			if (stackInSlot.stackSize == 0)
 			{
-				slotObject.putStack(ItemStack.EMPTY);
-			} else 
+				slotObject.putStack(null);
+			} else
 			{
 				slotObject.onSlotChanged();
 			}
-			
-			if (stackInSlot.getCount() == stack.getCount())
+
+			if (stackInSlot.stackSize == stack.stackSize)
 			{
-				return ItemStack.EMPTY;
+				return null;
 			}
-			slotObject.onTake(player, stackInSlot);
+			slotObject.onPickupFromSlot(player, stackInSlot);
 		}
 		return stack;
 	}
-	
+
 }

@@ -7,24 +7,24 @@ import jds.bibliocraft.containers.ContainerArmor;
 import jds.bibliocraft.tileentities.TileEntityArmorStand;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.util.text.translation.I18n;
+import net.minecraft.client.resources.I18n;
 
 public class GuiArmorStand extends GuiContainer
 {
-	
-	
+
+
 	public GuiArmorStand (InventoryPlayer inventoryPlayer, TileEntityArmorStand armorStand)
 	{
 		super (new ContainerArmor(inventoryPlayer, armorStand));
 	}
-	
+
 	@Override
 	protected void drawGuiContainerForegroundLayer(int var1, int var2)
 	{
-		this.fontRenderer.drawString(I18n.translateToLocal("gui.armorstand"), 8, 6, 4210752); // changing out "Armor Stand"
-		this.fontRenderer.drawString(I18n.translateToLocal("container.inventory"), 8, ySize - 96 + 2, 4210752);
+		this.fontRendererObj.drawString(I18n.format("gui.armorstand"), 8, 6, 4210752); // changing out "Armor Stand"
+		this.fontRendererObj.drawString(I18n.format("container.inventory"), 8, ySize - 96 + 2, 4210752);
 	}
-	
+
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float var1, int var2, int var3)
 	{
@@ -39,6 +39,6 @@ public class GuiArmorStand extends GuiContainer
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         super.drawScreen(mouseX, mouseY, partialTicks);
-        this.renderHoveredToolTip(mouseX, mouseY);
+//        this.renderHoveredToolTip(mouseX, mouseY);
     }
 }

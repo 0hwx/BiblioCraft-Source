@@ -1,18 +1,19 @@
 package jds.bibliocraft;
 
 
+import cpw.mods.fml.client.event.ConfigChangedEvent;
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemPotion;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.fml.client.event.ConfigChangedEvent;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-public class Config 
+
+public class Config
 {
 	//public static int readingenchantID;
 	//public static int deathcompenchantID;
@@ -38,7 +39,7 @@ public class Config
 	public static int defaultBigBookTextScale = 0;
 	public static double renderDistancePainting;
 	public static Configuration bConfig;
-	
+
 
 	public static boolean emitLight;
 
@@ -51,17 +52,17 @@ public class Config
 	public static boolean enableWoodLabel;
 	public static boolean enableWritingdesk;
 	public static boolean enableTable;
-	public static boolean enablePrintpressTypeMachine; 
+	public static boolean enablePrintpressTypeMachine;
 	public static boolean enableLamp;
 	public static boolean enableLantern;
 	public static boolean enableCookieJar;
 	public static boolean enableDinnerPlate;
 	public static boolean enableDiscRack;
-	public static boolean enableMapFrame; 
-	public static boolean enableSeat; 
+	public static boolean enableMapFrame;
+	public static boolean enableSeat;
 	public static boolean enableRedstonebook;
 	public static boolean enableReadingglasses;
-	public static boolean enableTapemeasure; 
+	public static boolean enableTapemeasure;
 	public static boolean enableDrill;
 	public static boolean enableLock;
 	public static boolean enableClipboard;
@@ -81,15 +82,15 @@ public class Config
 	public static boolean enableDeathCompass;
 	public static boolean enableFurniturePaneler;
 	public static boolean enablePlumbLine;
-	
+
 	public static boolean enableFramedChest;
 	public static boolean enableStockroomCatalog;
-	
+
 	public static boolean enableLockRecipe;
 	public static boolean enableRecipeBookCrafting;
 	public static boolean enablePublicTypesettingBooks;
-	
-	
+
+
 	public static boolean forceFastRenderShelf;
 	public static boolean forceFastRenderPotionShelf;
 	public static boolean forceFastRenderFancySign;
@@ -99,17 +100,17 @@ public class Config
 	public static boolean forceFastRenderToolrack;
 	public static boolean forceFastRenderDinnerPlate;
 	public static boolean forceFastRenderDiscRack;
-	
-	
+
+
 	public static void init(FMLPreInitializationEvent event)
 	{
 		bConfig = new Configuration(event.getSuggestedConfigurationFile());
 		bConfig.load();
 		loadConfig();
-		
+
 		FMLCommonHandler.instance().bus().register(new ConfigUpdateListener());
 	}
-	
+
 	public static void loadConfig()
 	{
 		bConfig.addCustomCategoryComment("Blocks Enabled", "Here you can disable or re-enable any blocks or items you choose. Change value to false to disable selected block or item.");
@@ -155,12 +156,12 @@ public class Config
 		enableLockRecipe = bConfig.get(Configuration.CATEGORY_GENERAL, "EnableLockAndKeyRecipe", false).getBoolean(false);
 		enableFramedChest = bConfig.get("Blocks Enabled",  "FramedChest", true).getBoolean(true);
 		enableStockroomCatalog = bConfig.get("Blocks Enabled",  "StockroomCatalog", true).getBoolean(true);
-		
+
 		enableRecipeBookCrafting = bConfig.get(Configuration.CATEGORY_GENERAL,  "EnableCraftingWithRecipieBooks", true, "This option enables crafting to be done inside a recipe book with no workbench.").getBoolean(true);
 		enablePublicTypesettingBooks = bConfig.get(Configuration.CATEGORY_GENERAL,  "EnablePublicTypesettingBooks", false, "This option forces all new books added to the typesetting table to be public").getBoolean(false);
-		
-		
-		
+
+
+
 		forceFastRenderShelf = bConfig.get("Force Fast Render",  "Shelf", false).getBoolean(false);
 		forceFastRenderPotionShelf = bConfig.get("Force Fast Render",  "PotionShelf", true).getBoolean(true);
 		forceFastRenderFancySign = bConfig.get("Force Fast Render",  "FancySign", true).getBoolean(true);
@@ -170,21 +171,21 @@ public class Config
 		forceFastRenderToolrack = bConfig.get("Force Fast Render",  "ToolRack", false).getBoolean(false);
 		forceFastRenderDinnerPlate = bConfig.get("Force Fast Render",  "DinnerPlate", false).getBoolean(false);
 		forceFastRenderDiscRack = bConfig.get("Force Fast Render",  "DiscRack", false).getBoolean(false);
-				
+
 		//readingenchantID = bConfig.get("Custom Enchantments", "ReadingEnchant", 196).getInt();
 		//deathcompenchantID = bConfig.get("Custom Enchantments", "DeathCompassEnchant", 197).getInt();
 
 		//bConfig.addCustomCategoryComment("Text Colors", "This is were you can change the color of the text rendered on blocks when using the reading glasses. The value given is a combined RGB value. For ex. 16777215=white, 255=red, 65280=green, 16711680=blue, 16776960=aqua. A google search for these values can assit in finding a chart to show colors and codes.");
 		//color = bConfig.get("Text Colors", "ReadingGlassesTextColor", 16777215).getInt();
-		
+
 		emitLight = bConfig.get(Configuration.CATEGORY_GENERAL, "EnableLightEmission", true, "Setting this to false will disable light emission from the Shelf, Label, Display Case and Table when a block that gives off light is placed on them.").getBoolean(true);
 		//allowEmptyBooks = bConfig.get(Configuration.CATEGORY_GENERAL, "AllowEmptyBooks", false, "Should blank books be allowed on Bookcases? (true or false)").getBoolean(false);
-		allowedBooks = bConfig.get(Configuration.CATEGORY_GENERAL, 
-				"AllowedBooks","book, map, journal, plan, thaumonomicon, necronomicon, lexicon, print, notes, spell, library, tome, encyclopedia", 
+		allowedBooks = bConfig.get(Configuration.CATEGORY_GENERAL,
+				"AllowedBooks","book, map, journal, plan, thaumonomicon, necronomicon, lexicon, print, notes, spell, library, tome, encyclopedia",
 				"These are the keywords that are compared against the item names to determine if the item can be placed on a Bookcase. Add more keywords if needed."
 				).getString();//.value.split(",");
 		books = allowedBooks.split(",");
-		additionalTools = bConfig.get(Configuration.CATEGORY_GENERAL, 
+		additionalTools = bConfig.get(Configuration.CATEGORY_GENERAL,
 				"AdditionalTools", "sprayer, wand, rod, scepter, wrench, screwdriver, meter, handsaw, gun, cutter, scoop, soldering, painter, reader, shovel, grafter, pickaxe, pipette, magnifying, sword, axe, hammer",
 				"These are the names of additional tools that can be added to the Tool Rack. Added keywords will allow additional items to be placed on this block."
 				).getString();//.value.split(",");
@@ -194,8 +195,8 @@ public class Config
 				"These are keywords that add additional support for more types of potions and items. Add more keyworks if you wish to allow more types of items to be displayed."
 				).getString(); //.value.split(",");
 		potions = additionalPotions.split(",");
-		additionalDiscs = bConfig.get(Configuration.CATEGORY_GENERAL, "AdditionalDiscs", 
-				"disc, disk", 
+		additionalDiscs = bConfig.get(Configuration.CATEGORY_GENERAL, "AdditionalDiscs",
+				"disc, disk",
 				"These are keywords that add additional support for more types of discs and items that are allowed to be placed on the disc rack. Add more keywords if you wish to allow more types of items to be displayed"
 				).getString();
 		discs = additionalDiscs.split(",");
@@ -206,7 +207,7 @@ public class Config
 		chairRedstone = bConfig.get(Configuration.CATEGORY_GENERAL, "ChairRedstone", true, "Setting this to false will deactivate the redstone signal output from seats when a player is sitting").getBoolean(true);
 		mapUpdateRate = bConfig.get(Configuration.CATEGORY_GENERAL, "MapUpdateRate", 10, "Default is 1 update per 10 ticks, just like Item Frames. The number indicates how many ticks before an update packet is sent to clients. Lower numbers means more, faster updates.").getInt();
 		checkforupdate = bConfig.get(Configuration.CATEGORY_GENERAL, "CheckForUpdates", true, "Setting this to false will permanently disable update checking").getBoolean(true);
-		
+
 		//useTextureSheet = bConfig.get(Configuration.CATEGORY_GENERAL, "UseTextureSheets", false, "If this is set to true, various models will use their own dedicated texture sheet, otherwise, models will use textures from vanilla planks. Supports Bookcase, Potion Shelf, Generic Shelf, Tool Rack, Display Case, and Label.").getBoolean(false);
 		defaultBigBookTextScale = bConfig.getInt(Configuration.CATEGORY_GENERAL, "DefaultBigBookTextScale", 0, 0, 7, "This value will set the default text scale of text in the Big Book. Choose a positive integer between 0 and 7. 0 is the smallest scale and 7 is the largest scale.");
 		if (checkforupdate)
@@ -214,14 +215,14 @@ public class Config
 			bConfig.addCustomCategoryComment("Stored Variables", "These are the variables used by BiblioCraft to track if the player has already recieved an update message for a new version. These should not need to be edited.");
 			lastCheckedversion = bConfig.get("Stored Variables", "lastVersionChecked", VersionCheck.currentversion).getString();
 		}
-		
+
 		renderDistancePainting = bConfig.get(Configuration.CATEGORY_GENERAL, "PaintingRenderDistance", 64.0, "This will adjust the maximium render distance at which paintings can be seen. The default is 64.0 blocks.").getDouble();
-		
+
 		bConfig.save();
-		
-		
+
+
 	}
-	
+
 	public static boolean testDiscValidity(String itemName)
 	{
 		boolean haveMatch = false;
@@ -240,23 +241,23 @@ public class Config
 		}
 		return haveMatch;
 	}
-	
+
 	public static boolean testBookValidity(ItemStack stack)
 	{
 		// Current fix. Player can name any ItemStack `book` and have it accepted.
 		ItemStack clone = stack.copy();
 		String nameBefore = clone.getDisplayName();
-		clone.clearCustomName();
+		clone.func_135074_t();
 		if (!nameBefore.equals(clone.getDisplayName())) {
 			return false;
 		}
 		boolean haveMatch = false;
-		if (stack != ItemStack.EMPTY)
+		if (stack != null)
 		{
 			//System.out.println(itemName); // turn this off before release
 			String testName = stack.getUnlocalizedName().toLowerCase();
 			String displayName = stack.getDisplayName().trim().toLowerCase();
-			
+
 			//System.out.println(testName);
 			for (int x=0; x < books.length; x++)
 			{
@@ -265,33 +266,33 @@ public class Config
 					if (testName.contains("shelf") || testName.contains("case") || testName.contains("stand") || testName.contains("planks") || testName.contains("tile.wood"))
 					{
 						break;
-					} 
-					else 
+					}
+					else
 					{
 						haveMatch = true;
 						break;
 					}
 				}
 			}
-			
-			if (testName.contains("ub@") || testName.contains("vv@") || testName.contains("vw@") || testName.contains("manual") || 
-				testName.contains("catalogue") || testName.contains("railcraft.routing.table") || testName.contains("compendium") || 
+
+			if (testName.contains("ub@") || testName.contains("vv@") || testName.contains("vw@") || testName.contains("manual") ||
+				testName.contains("catalogue") || testName.contains("railcraft.routing.table") || testName.contains("compendium") ||
 				testName.contains("guide") || testName.contains("atlas") || testName.contains("item.itemeldritchobject.1") || testName.contains("diary") ||
-				testName.contains("rites") || testName.contains("stockroomcatalog") || testName.contains("herbarium") || testName.contains("portfolio") || testName.contains("folder") || 
-				testName.contains("on_the_dynamics_of_integration")) 
+				testName.contains("rites") || testName.contains("stockroomcatalog") || testName.contains("herbarium") || testName.contains("portfolio") || testName.contains("folder") ||
+				testName.contains("on_the_dynamics_of_integration"))
 			{
-				haveMatch = true; 
+				haveMatch = true;
 			}
 		}
 		return haveMatch;
 	}
-	
+
 	public static boolean testToolValidity(String toolName, String toolcodeName)
 	{
 		toolcodeName = toolcodeName.toLowerCase();
 		boolean haveMatch = false;
 		String testName = toolName.trim().toLowerCase();
-		
+
 		for (int x=0; x < tools.length; x++)
 		{
 			if (testName.contains(tools[x].trim().toLowerCase()))
@@ -305,9 +306,9 @@ public class Config
 			haveMatch = false;
 		}
 		//System.out.println(toolcodeName);
-		// this is where I can add a check for coded names and I will get TCon's stuff here. No problems. 
-		if (toolcodeName.contains("tconstruct.items.tools") || toolcodeName.contains("item.tool") || toolcodeName.contains("hammer") || toolcodeName.contains("wrench") || 
-			toolcodeName.contains("scythe") || toolcodeName.contains("staff") || toolcodeName.contains("chisel") ||  toolcodeName.contains("maptool") || toolcodeName.contains("handdrill") ||  
+		// this is where I can add a check for coded names and I will get TCon's stuff here. No problems.
+		if (toolcodeName.contains("tconstruct.items.tools") || toolcodeName.contains("item.tool") || toolcodeName.contains("hammer") || toolcodeName.contains("wrench") ||
+			toolcodeName.contains("scythe") || toolcodeName.contains("staff") || toolcodeName.contains("chisel") ||  toolcodeName.contains("maptool") || toolcodeName.contains("handdrill") ||
 			toolcodeName.contains("dagger") ||  toolcodeName.contains("metagenerated_tool") ||  toolcodeName.contains("gt.metatool") || toolcodeName.contains("item.infitool") ||
 			toolcodeName.contains("cleaver") || toolcodeName.contains("hatchet") || toolcodeName.contains("mattock") || toolcodeName.contains("excavator") || toolcodeName.contains("frypan") || toolcodeName.contains("battlesign") ||
 			toolcodeName.contains("grapple") || toolcodeName.contains("chemthrower") || toolcodeName.contains("revolver") || toolcodeName.contains("rapier") || toolcodeName.contains("shortbow") || toolcodeName.contains("shuriken") ||
@@ -315,9 +316,9 @@ public class Config
 		{
 			haveMatch = true;
 		}
-		
+
 		return haveMatch;
-	} 
+	}
 
 	public static boolean testPotionValidity(String potName, String potDisplayName, Item potion)
 	{
@@ -326,20 +327,20 @@ public class Config
 			String displayName = potDisplayName.trim().toLowerCase();
 			for (int x=0; x < potions.length; x++)
 			{
-				if (testName.contains(potions[x].trim().toLowerCase()) || displayName.contains(potions[x].trim().toLowerCase()) || potion instanceof ItemPotion || testName.contains("potion") || testName.contains("jarfilled") || testName.contains("fillingagent") || 
+				if (testName.contains(potions[x].trim().toLowerCase()) || displayName.contains(potions[x].trim().toLowerCase()) || potion instanceof ItemPotion || testName.contains("potion") || testName.contains("jarfilled") || testName.contains("fillingagent") ||
 					testName.contains("flask")  || displayName.contains("drink") || testName.contains("elixir")  || displayName.contains("elixir") || testName.contains("jellyitem") ||
 					testName.contains("jellyitem") || testName.contains("milkshakeitem") || testName.contains("nutellaitem") || testName.contains("vegemiteitem") || testName.contains("sauceitem") ||
 					testName.contains("juiceitem") || testName.contains("smoothieitem") || testName.contains("wateritem") || testName.contains("sodaitem") || testName.contains("brewitem") ||
-					testName.contains("butteritem") || testName.contains("milkitem") || testName.contains("dressingitem") || testName.contains("coffee") || testName.contains("espressoitem") || 
-					testName.contains("milkitem") || testName.contains("oilitem") || testName.contains("ketchup") || testName.contains("syrupitem") || testName.contains("chutneyitem") || 
-					testName.contains("milkitem") || testName.contains("teaitem") || testName.contains("vinegaritem") || testName.contains("eggnog") || testName.contains("lemonaide") || 
+					testName.contains("butteritem") || testName.contains("milkitem") || testName.contains("dressingitem") || testName.contains("coffee") || testName.contains("espressoitem") ||
+					testName.contains("milkitem") || testName.contains("oilitem") || testName.contains("ketchup") || testName.contains("syrupitem") || testName.contains("chutneyitem") ||
+					testName.contains("milkitem") || testName.contains("teaitem") || testName.contains("vinegaritem") || testName.contains("eggnog") || testName.contains("lemonaide") ||
 					testName.contains("hotchocolate") || testName.contains("mustard") || testName.contains("yogurtitem") || testName.contains("creamitem"))
 				{
 					haveMatch = true;
 					break;
 				}
 			}
-			
+
 			for (int x=0; x < witcheryPotions.length; x++)
 			{
 				if (potName.contains(witcheryPotions[x]))
@@ -347,7 +348,7 @@ public class Config
 					haveMatch = true;
 				}
 			}
-			
+
 			if (testName.contains("shelf"))
 			{
 				haveMatch = false;
@@ -357,25 +358,25 @@ public class Config
 
 	public static boolean isBlock(ItemStack stack)
 	{
-		if (stack != ItemStack.EMPTY)
+		if (stack != null)
 		{
 			String itemName = stack.getUnlocalizedName().toLowerCase();
 			//System.out.println("Item Test Name: "+itemName);
-			if (stack.getItem() instanceof ItemBlock || !(itemName.contains("item")) || !(stack.getItem() instanceof Item) || Block.getBlockFromItem(stack.getItem()) != Block.getBlockFromItem(ItemStack.EMPTY.getItem()))
+			if (stack.getItem() instanceof ItemBlock || !(itemName.contains("item")) || !(stack.getItem() instanceof Item) || Block.getBlockFromItem(stack.getItem()) != Block.getBlockFromItem(null))
 			{
 				return true;
 			}
 		}
 		return false;
-		
+
 	}
-	
+
 	public static class ConfigUpdateListener
 	{
 		@SubscribeEvent
 		public void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent eventArgs)
 		{
-			if (eventArgs.getModID().equals(BiblioCraft.MODID))
+			if (eventArgs.modID.equals(BiblioCraft.MODID))
 			{
 				loadConfig();
 			}

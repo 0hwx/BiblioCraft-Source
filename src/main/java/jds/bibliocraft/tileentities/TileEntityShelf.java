@@ -3,20 +3,18 @@ package jds.bibliocraft.tileentities;
 import jds.bibliocraft.blocks.BlockShelf;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
 
-public class TileEntityShelf extends BiblioTileEntity 
+public class TileEntityShelf extends BiblioTileEntity
 {
 	private boolean hasTop;
-	
-	public TileEntityShelf() 
+
+	public TileEntityShelf()
 	{
 		super(16, true);
 	}
 
 	@Override
-	public void setInventorySlotContentsAdditionalCommands(int slot, ItemStack stack) 
+	public void setInventorySlotContentsAdditionalCommands(int slot, ItemStack stack)
 	{
 
 	}
@@ -28,19 +26,44 @@ public class TileEntityShelf extends BiblioTileEntity
 	}
 
 	@Override
-	public NBTTagCompound writeCustomNBTData(NBTTagCompound nbt) 
+	public NBTTagCompound writeCustomNBTData(NBTTagCompound nbt)
 	{
 		nbt.setBoolean("hasTop", this.hasTop);
 		return nbt;
 	}
-	
-	@Override
+
+    @Override
+    public ItemStack getStackInSlotOnClosing(int index) {
+        return null;
+    }
+
+    @Override
+    public String getInventoryName() {
+        return "";
+    }
+
+    @Override
+    public boolean hasCustomInventoryName() {
+        return false;
+    }
+
+    @Override
 	public int getInventoryStackLimit()
 	{
 		return 64;
 	}
-	    
-    @Override 
+
+    @Override
+    public void openInventory() {
+
+    }
+
+    @Override
+    public void closeInventory() {
+
+    }
+
+    @Override
 	public boolean isItemValidForSlot(int slot, ItemStack itemstack)
 	{
 		return true;
@@ -54,7 +77,7 @@ public class TileEntityShelf extends BiblioTileEntity
     	}
     	return false;
     }
-	
+
     public void removeStuff(int slot)
     {
     	ItemStack returnValue = null;
@@ -66,7 +89,7 @@ public class TileEntityShelf extends BiblioTileEntity
     		returnValue = slotStack;
     	}
     }
-    
+
     public boolean addStuff(int slot, ItemStack stack)
     {
     	if (inventory[slot] == null)
@@ -84,24 +107,29 @@ public class TileEntityShelf extends BiblioTileEntity
     public void setTop(boolean noblock)
     {
     	hasTop = noblock;
-    	getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+        getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
     }
-    
+
     public boolean getTop()
     {
     	return hasTop;
     }
 
-	@Override
-	public String getName() 
-	{
-		return BlockShelf.name;
-	}
-	
-	@Override
-	public ITextComponent getDisplayName() 
-	{
-		ITextComponent chat = new TextComponentString(getName());
-		return chat;
-	}
+//	@Override
+//	public String getName()
+//	{
+//		return BlockShelf.name;
+//	}
+//
+//	@Override
+//	public ITextComponent getDisplayName()
+//	{
+//		ITextComponent chat = new ChatComponentText(getName());
+//		return chat;
+//	}
+
+    @Override
+    public int[] getAccessibleSlotsFromSide(int p_94128_1_) {
+        return new int[0];
+    }
 }

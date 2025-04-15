@@ -6,14 +6,16 @@ import jds.bibliocraft.network.packet.Utils;
 import jds.bibliocraft.tileentities.TileEntityDesk;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+
+import cpw.mods.fml.common.network.ByteBufUtils;
+import cpw.mods.fml.common.network.simpleimpl.IMessage;
+import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 
 public class BiblioMCBEdit implements IMessage {
-    BlockPos pos;
+    int posX;
+    int posY;
+    int posZ;
     int currentPage;
     ItemStack book;
 
@@ -21,22 +23,28 @@ public class BiblioMCBEdit implements IMessage {
 
     }
 
-    public BiblioMCBEdit(BlockPos pos, int currentPage, ItemStack book) {
-        this.pos = pos;
+    public BiblioMCBEdit(int posX, int posY, int posZ, int currentPage, ItemStack book) {
+        this.posX = posX;
+        this.posY = posY;
+        this.posZ = posZ;
         this.currentPage = currentPage;
         this.book = book;
     }
 
     @Override
     public void fromBytes(ByteBuf buf) {
-        this.pos = BlockPos.fromLong(buf.readLong());
+        this.posX = buf.readInt();
+        this.posY = buf.readInt();
+        this.posZ = buf.readInt();
         this.currentPage = buf.readInt();
         this.book = ByteBufUtils.readItemStack(buf);
     }
 
     @Override
     public void toBytes(ByteBuf buf) {
-        buf.writeLong(this.pos.toLong());
+        buf.writeInt(this.posX);
+        buf.writeInt(this.posY);
+        buf.writeInt(this.posZ);
         buf.writeInt(this.currentPage);
         ByteBufUtils.writeItemStack(buf, this.book);
     }
@@ -45,21 +53,19 @@ public class BiblioMCBEdit implements IMessage {
 
         @Override
         public IMessage onMessage(BiblioMCBEdit message, MessageContext ctx) {
-            ctx.getServerHandler().player.getServerWorld().addScheduledTask(() -> {
-                EntityPlayerMP player = ctx.getServerHandler().player;
-                if (message.book != ItemStack.EMPTY) {
+                EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+                if (message.book != null) {
                     if (Config.testBookValidity(message.book)) {
                         // TODO: distance from player to position
-                        if (Utils.hasPointLoaded(player, message.pos)) {
-                            TileEntityDesk deskTile = (TileEntityDesk) player.world.getTileEntity(message.pos);
+                        if (Utils.hasPointLoaded(player, message.posX, message.posY, message.posZ)) {
+                            TileEntityDesk deskTile = (TileEntityDesk) player.worldObj.getTileEntity(message.posX, message.posY, message.posZ);
                             if (deskTile != null) {
                                 deskTile.overwriteWrittenBook(message.book);
                                 deskTile.setCurrentPage(message.currentPage);
-                            }   
+                            }
                         }
                     }
                 }
-            });
             return null;
         }
 

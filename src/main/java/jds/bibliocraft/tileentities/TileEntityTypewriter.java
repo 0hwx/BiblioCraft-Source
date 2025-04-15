@@ -5,6 +5,7 @@ import java.util.List;
 import jds.bibliocraft.CommonProxy;
 import jds.bibliocraft.blocks.BlockTypeWriter;
 import jds.bibliocraft.storygen.BookGenUtil;
+import net.minecraft.client.renderer.texture.ITickable;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.monster.EntityCreeper;
 import net.minecraft.entity.monster.EntityEnderman;
@@ -26,14 +27,9 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ITickable;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.AxisAlignedBB;
 
-public class TileEntityTypewriter extends BiblioTileEntity implements ITickable 
+public class TileEntityTypewriter extends BiblioTileEntity implements ITickable
 {
 	private BookGenUtil bookgen;
 	public int bookWriteCounts = 0;
@@ -46,14 +42,14 @@ public class TileEntityTypewriter extends BiblioTileEntity implements ITickable
 	public boolean soundEndBell = false;
 	public boolean soundRemoveBook = false;
 	public int soundCount = 0;
-	
+
 	public boolean showText = false;
-	
+
 	public TileEntityTypewriter()
 	{
 		super(2, false); // 1 slot for blank paper, 1 slot for a finished book, only 1 book at a time, machine stops working if slot is full.
 	}
-	
+
 	public void setShowText(boolean setter)
 	{
 		showText = setter;
@@ -62,8 +58,8 @@ public class TileEntityTypewriter extends BiblioTileEntity implements ITickable
 	{
 		return showText;
 	}
-	
-	
+
+
     public void setBookWriteCount(int cont, boolean human)
     {
     	this.bookWriteCounts = cont;
@@ -82,99 +78,124 @@ public class TileEntityTypewriter extends BiblioTileEntity implements ITickable
     			this.soundTyping = true;
     		}
     	}
-    	getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+        getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
     }
-    
+
     public int getBookWriteCount()
     {
     	return this.bookWriteCounts;
     }
-    
+
     public int addPaper(ItemStack paper)
     {
     	ItemStack currentPaper = getStackInSlot(0);
     	int currentPaperStackSize = 0;
-    	if (currentPaper != ItemStack.EMPTY)
+    	if (currentPaper != null)
     	{
-    		currentPaperStackSize = currentPaper.getCount();
+    		currentPaperStackSize = currentPaper.stackSize;
     		if (currentPaperStackSize == 64)
     		{
     			return -1;
     		}
     	}
-    	
-    	this.soundPaperAdd = true; 
+
+    	this.soundPaperAdd = true;
     	ItemStack newpaper = paper.copy();
-    	if (currentPaperStackSize+paper.getCount() <= 64)
+    	if (currentPaperStackSize+paper.stackSize <= 64)
     	{
-    		newpaper.setCount(newpaper.getCount() + currentPaperStackSize);
+    		newpaper.stackSize =(newpaper.stackSize + currentPaperStackSize);
     		setInventorySlotContents(0, paper);
     		return 0;
     	}
     	else
     	{
-    		int returnSize = currentPaperStackSize + paper.getCount() - 64;
-    		newpaper.setCount(64);
+    		int returnSize = currentPaperStackSize + paper.stackSize - 64;
+    		newpaper.stackSize =(64);
     		setInventorySlotContents(0, newpaper);
     		return returnSize;
     	}
     }
-    
+
     public boolean getHasPaper()
     {
-    	if (getStackInSlot(0) != ItemStack.EMPTY)
+    	if (getStackInSlot(0) != null)
     	{
     		return true;
     	}
     	return false;
     }
-    
+
     public boolean getHasEnoughPaper()
     {
     	ItemStack paper = getStackInSlot(0);
-    	if (paper != ItemStack.EMPTY)
+    	if (paper != null)
     	{
-    		if (paper.getCount() >= 8)
+    		if (paper.stackSize >= 8)
     		{
     			return true;
     		}
     	}
     	return false;
     }
-    
+
     public boolean removePaperForBook()
     {
     	ItemStack paper = getStackInSlot(0);
-    	if (paper.getCount() == 8)
+    	if (paper.stackSize == 8)
     	{
-    		this.setInventorySlotContents(0, ItemStack.EMPTY);
+    		this.setInventorySlotContents(0, null);
     		return true;
     	}
-    	else if (paper.getCount() > 8)
+    	else if (paper.stackSize > 8)
     	{
         	ItemStack paperCopy = paper.copy();
-        	paperCopy.setCount(paper.getCount() - 8);
+        	paperCopy.stackSize = (paper.stackSize - 8);
         	this.setInventorySlotContents(0, paperCopy);
         	return true;
     	}
     	return false;
     }
-	
-	@Override
+
+    @Override
+    public ItemStack getStackInSlotOnClosing(int index) {
+        return null;
+    }
+
+    @Override
+    public String getInventoryName() {
+        return "";
+    }
+
+    @Override
+    public boolean hasCustomInventoryName() {
+        return false;
+    }
+
+    @Override
 	public int getInventoryStackLimit()
 	{
 		return 64;
 	}
-    
-    private int counter = 0;
-    
+
     @Override
-    public void update()
+    public void openInventory() {
+
+    }
+
+    @Override
+    public void closeInventory() {
+
+    }
+
+    private int counter = 0;
+
+    @Override
+    public void tick()
     {
-    	if (counter == 100 && !this.world.isRemote)
+    	if (counter == 100 && !this.worldObj.isRemote)
     	{
     		counter = 0;
-    		if (this.getStackInSlot(1) == ItemStack.EMPTY)
+    		if (this.getStackInSlot(1) == null)
     		{
     			if (this.getHasEnoughPaper())
     			{
@@ -183,7 +204,7 @@ public class TileEntityTypewriter extends BiblioTileEntity implements ITickable
 	    			{
 	    				if (this.removePaperForBook())
 	    				{
-	    					if (!this.world.isRemote)
+	    					if (!this.worldObj.isRemote)
 	    					{
 	    						this.writeCustomBook();
 	    					}
@@ -196,7 +217,7 @@ public class TileEntityTypewriter extends BiblioTileEntity implements ITickable
 	    				{
 	    					this.setBookWriteCount(this.bookWriteCounts+1, false);
 	    				}
-	    				
+
 	    			}
     			}
     		}
@@ -209,10 +230,10 @@ public class TileEntityTypewriter extends BiblioTileEntity implements ITickable
     	{
     		counter++;
     	}
-    	
+
     	this.soundMonitor();
     }
-    
+
     public void soundMonitor()
     {
     	if (this.soundEndBell)
@@ -221,63 +242,63 @@ public class TileEntityTypewriter extends BiblioTileEntity implements ITickable
     		{
     			this.soundEndBell = false;
     			this.soundCount = 0;
-    			
+
     		}
     		else
     		{
     			this.soundCount++;
     		}
     	}
-    	
+
     	if (this.soundPaperAdd)
     	{
     		if (this.soundCount > 10)
     		{
     			this.soundPaperAdd = false;
     			this.soundCount = 0;
-    			
+
     		}
     		else
     		{
     			this.soundCount++;
     		}
     	}
-    	
+
     	if (this.soundRemoveBook)
     	{
     		if (this.soundCount > 10)
     		{
     			this.soundRemoveBook = false;
     			this.soundCount = 0;
-    			
+
     		}
     		else
     		{
     			this.soundCount++;
     		}
     	}
-    	
+
     	if (this.soundTyping)
     	{
     		if (this.soundCount > 10)
     		{
     			this.soundTyping = false;
     			this.soundCount = 0;
-    			
+
     		}
     		else
     		{
     			this.soundCount++;
     		}
     	}
-    	
+
     	if (this.soundTypingHuman)
     	{
     		if (this.soundCount > 10)
     		{
     			this.soundTypingHuman = false;
     			this.soundCount = 0;
-    			
+
     		}
     		else
     		{
@@ -285,11 +306,11 @@ public class TileEntityTypewriter extends BiblioTileEntity implements ITickable
     		}
     	}
     }
-    
-    public void writeCustomBook() 
+
+    public void writeCustomBook()
     {
     	this.bookgen = new BookGenUtil(this.entityType, this.entityName);
-		ItemStack newBook = new ItemStack(Items.WRITTEN_BOOK, 1, 0);
+		ItemStack newBook = new ItemStack(Items.written_book, 1, 0);
 		NBTTagCompound bookTag = new NBTTagCompound();
 		NBTTagList bookTagList = new NBTTagList();
 		//stasis page
@@ -316,7 +337,7 @@ public class TileEntityTypewriter extends BiblioTileEntity implements ITickable
 		//resolution
 		nbtPage = new NBTTagString(bookgen.getResolution(this.entityType, this.entityName));
 		bookTagList.appendTag(nbtPage);
-		
+
 		bookTag.setTag("title", new NBTTagString(bookgen.getBookTitle()));
 		bookTag.setTag("author", new NBTTagString(this.entityName));
 		bookTag.setTag("pages", bookTagList);
@@ -325,12 +346,12 @@ public class TileEntityTypewriter extends BiblioTileEntity implements ITickable
 		bookTag.setTag("resolved", resolve);
 		newBook.setTagCompound(bookTag);
 		newBook.setTagCompound(bookTag);
-		
+
 		this.setInventorySlotContents(1, newBook);
 		this.soundEndBell = true;
-		getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+        getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
     }
-    
+
     public void scanForEntityes()
     {
     	double xAdjust = 0.0;
@@ -345,11 +366,11 @@ public class TileEntityTypewriter extends BiblioTileEntity implements ITickable
     		case EAST:{xAdjust =  0.0; zAdjust =  1.0; xAdjust2 = 1.0; zAdjust2 = 2.0; break;}
     		default: break;
     	}
-    	
-		AxisAlignedBB bb = new AxisAlignedBB(this.pos.getX()+xAdjust, this.pos.getY(), this.pos.getZ()+zAdjust, this.pos.getX()+xAdjust2, this.pos.getY(), this.pos.getZ()+zAdjust2);
-		List checkEntities = this.world.getEntitiesWithinAABB(EntityCreature.class, bb);
-		// need to make lists of all things that can write books. 
-		
+
+		AxisAlignedBB bb = AxisAlignedBB.getBoundingBox(this.xCoord+xAdjust, this.yCoord, this.zCoord+zAdjust, this.xCoord+xAdjust2, this.yCoord, this.zCoord+zAdjust2);
+		List checkEntities = this.worldObj.getEntitiesWithinAABB(EntityCreature.class, bb);
+		// need to make lists of all things that can write books.
+
 		this.foundValidEntity = false;
 		this.entityName = "";
 		this.entityType = 0;
@@ -358,7 +379,7 @@ public class TileEntityTypewriter extends BiblioTileEntity implements ITickable
 			EntityCreature guy = (EntityCreature)checkEntities.get(x);
 			if (guy instanceof EntityVillager)
 			{
-				if (testFoundEntity(guy, 1)) {return;}	
+				if (testFoundEntity(guy, 1)) {return;}
 			}
 			else if (guy instanceof EntityPig || guy instanceof EntityPigZombie)
 			{
@@ -404,7 +425,7 @@ public class TileEntityTypewriter extends BiblioTileEntity implements ITickable
 
 		}
     }
-    
+
     private boolean testFoundEntity(EntityCreature guy, int type)
     {
 		if (guy.getCustomNameTag().length() > 0)
@@ -416,10 +437,10 @@ public class TileEntityTypewriter extends BiblioTileEntity implements ITickable
 		}
     	return false;
     }
-    
+
     public void addToDesk()
     {
-		TileEntity lowerTile = this.world.getTileEntity(new BlockPos(pos.getX(), pos.getY() - 1, pos.getZ()));
+		TileEntity lowerTile = this.worldObj.getTileEntity(xCoord, yCoord - 1, zCoord);
 		if (lowerTile != null && lowerTile instanceof TileEntityDesk)
 		{
 			TileEntityDesk desk = (TileEntityDesk)lowerTile;
@@ -428,25 +449,25 @@ public class TileEntityTypewriter extends BiblioTileEntity implements ITickable
 			if (left >= 0)
 			{
 				desk.setInventorySlotContents(left, this.getStackInSlot(1));
-				this.setInventorySlotContents(1, ItemStack.EMPTY);
+				this.setInventorySlotContents(1, null);
 				this.setBookWriteCount(0, false);
 			}
-			else if (right >= 0) 
+			else if (right >= 0)
 			{
 				desk.setInventorySlotContents(right, this.getStackInSlot(1));
-				this.setInventorySlotContents(1, ItemStack.EMPTY);
+				this.setInventorySlotContents(1, null);
 				this.setBookWriteCount(0, false);
 			}
 		}
     }
-    
+
 	@Override
 	public boolean isItemValidForSlot(int slot, ItemStack itemstack)
 	{
 		Item stackitem = itemstack.getItem();
-		if (stackitem != ItemStack.EMPTY.getItem())
+		if (stackitem != null)
 		{
-			if (stackitem == Items.PAPER)
+			if (stackitem == Items.paper)
 			{
 				return true;
 			}
@@ -454,17 +475,17 @@ public class TileEntityTypewriter extends BiblioTileEntity implements ITickable
 		return false;
 	}
 
-	@Override
-	public String getName() 
-	{
-		return BlockTypeWriter.name;
-	}
+//	@Override
+//	public String getName()
+//	{
+//		return BlockTypeWriter.name;
+//	}
 
 	@Override
 	public void setInventorySlotContentsAdditionalCommands(int slot, ItemStack stack) {}
 
 	@Override
-	public void loadCustomNBTData(NBTTagCompound nbt) 
+	public void loadCustomNBTData(NBTTagCompound nbt)
 	{
 		this.bookWriteCounts = nbt.getInteger("bookWriteCount");
 		this.soundEndBell = nbt.getBoolean("soundEndBell");
@@ -474,38 +495,38 @@ public class TileEntityTypewriter extends BiblioTileEntity implements ITickable
 		this.soundTypingHuman = nbt.getBoolean("soundTypingHuman");
 		if (this.soundPaperAdd)
 		{
-			world.playSound(pos.getX(), pos.getY(), pos.getZ(), CommonProxy.SOUND_TYPEWRITER_ADDPAPER, SoundCategory.BLOCKS, 0.7F, 1.0F, false);
+			worldObj.playSound(xCoord, yCoord, zCoord, CommonProxy.SOUND_TYPEWRITER_ADDPAPER, 0.7F, 1.0F, false);
 			//worldObj.playSound(x, y, z, soundIn, category, volume, pitch, distanceDelay);
 			this.soundPaperAdd = false;
 		}
-		
+
 		if (this.soundTyping)
 		{
-			world.playSound(pos.getX(), pos.getY(), pos.getZ(), CommonProxy.SOUND_TYPEWRITER_TYPEING, SoundCategory.BLOCKS, 0.7F, 1.0F, false);
+            worldObj.playSound(xCoord, yCoord, zCoord, CommonProxy.SOUND_TYPEWRITER_TYPEING, 0.7F, 1.0F, false);
 			this.soundTyping = false;
 		}
-		
+
 		if (this.soundEndBell)
 		{
-			world.playSound(pos.getX(), pos.getY(), pos.getZ(), CommonProxy.SOUND_TYPEWRITER_ENDBELL, SoundCategory.BLOCKS, 0.7F, 1.0F, false);
+            worldObj.playSound(xCoord, yCoord, zCoord, CommonProxy.SOUND_TYPEWRITER_ENDBELL, 0.7F, 1.0F, false);
 			this.soundEndBell = false;
 		}
-		
+
 		if (this.soundRemoveBook)
 		{
-			world.playSound(pos.getX(), pos.getY(), pos.getZ(), CommonProxy.SOUND_TYPEWRITER_REMOVEBOOK, SoundCategory.BLOCKS, 0.7F, 1.0F, false);
+            worldObj.playSound(xCoord, yCoord, zCoord, CommonProxy.SOUND_TYPEWRITER_REMOVEBOOK, 0.7F, 1.0F, false);
 			this.soundRemoveBook = false;
 		}
-		
+
 		if (this.soundTypingHuman)
 		{
-			world.playSound(pos.getX(), pos.getY(), pos.getZ(), CommonProxy.SOUND_TYPEWRITER_TYPESINGLE, SoundCategory.BLOCKS, 0.7F, 1.0F, false);
+            worldObj.playSound(xCoord, yCoord, zCoord, CommonProxy.SOUND_TYPEWRITER_TYPESINGLE, 0.7F, 1.0F, false);
 			this.soundTypingHuman = false;
 		}
 	}
 
 	@Override
-	public NBTTagCompound writeCustomNBTData(NBTTagCompound nbt) 
+	public NBTTagCompound writeCustomNBTData(NBTTagCompound nbt)
 	{
 		nbt.setInteger("bookWriteCount", this.bookWriteCounts);
 		nbt.setBoolean("soundEndBell", this.soundEndBell);
@@ -515,11 +536,16 @@ public class TileEntityTypewriter extends BiblioTileEntity implements ITickable
     	nbt.setBoolean("soundTypingHuman", this.soundTypingHuman);
 		return nbt;
 	}
-	
-	@Override
-	public ITextComponent getDisplayName() 
-	{
-		ITextComponent chat = new TextComponentString(getName());
-		return chat;
-	}
+
+//	@Override
+//	public ITextComponent getDisplayName()
+//	{
+//		ITextComponent chat = new ChatComponentText(getName());
+//		return chat;
+//	}
+
+    @Override
+    public int[] getAccessibleSlotsFromSide(int p_94128_1_) {
+        return new int[0];
+    }
 }

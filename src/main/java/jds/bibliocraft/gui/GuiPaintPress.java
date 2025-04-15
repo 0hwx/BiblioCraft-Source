@@ -17,7 +17,7 @@ import net.minecraft.entity.item.EntityPainting.EnumArt;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.translation.I18n;
+import net.minecraft.client.resources.I18n;
 
 public class GuiPaintPress extends GuiContainer
 {
@@ -26,35 +26,35 @@ public class GuiPaintPress extends GuiContainer
 	private TileEntityPaintPress paintPress;
 	private EnumArt[] vanillaArtList = EnumArt.values();
 	private EnumBiblioPaintings[] biblioArtList = EnumBiblioPaintings.values();
-	
+
 	private String[] customArtNames = null;
 	private int[] customArtHeights = null;
 	private int[] customArtWidths = null;
 	private ResourceLocation[] customArtResources = null;
 	private int pagesTotal = 1;
 	private int pagesCurrent = 0;
-	
+
 	private int tab = 0;
-	
+
 	private int showCount = 0;
 	private int artCount = 0;
 	private boolean drawCheck = false;
-	
+
 	private int selectedTypeArt = 0; // 0 = biblioart, 1 = vanillaart, 2 = customart
 	private int selectedVanillaArt = -1;
 	private int selectedBiblioArt = -1;
 	private int selectedCustomArt = -1;
 	private String selectedArtTitle = "blank";
-	
-	
-	private String sBibliocraft = I18n.translateToLocal("itemGroup.BiblioCraft");
-	private String sVanilla = I18n.translateToLocal("gui.paintpress.vanilla");
-	private String sCustom = I18n.translateToLocal("gui.paintpress.custom");
-	
+
+
+	private String sBibliocraft = I18n.format("itemGroup.BiblioCraft");
+	private String sVanilla = I18n.format("gui.paintpress.vanilla");
+	private String sCustom = I18n.format("gui.paintpress.custom");
+
 	private GuiButton applyPainting;
 	private GuiButtonNextPage pageNext;
 	private GuiButtonNextPage pagePrev;
-	
+
 	public GuiPaintPress(InventoryPlayer inventoryPlayer, TileEntityPaintPress tile)
 	{
 		super(new ContainerPaintPress(inventoryPlayer, tile));
@@ -64,14 +64,14 @@ public class GuiPaintPress extends GuiContainer
 		this.selectedTypeArt = this.paintPress.selectedPaintingType; //this.paintPress.getPaintingType();
 		this.selectedArtTitle = this.paintPress.selectedPaintingTitle; //getPaintingTitle();
 		this.tab = this.selectedTypeArt;
-		
+
 		this.customArtNames = PaintingUtil.customArtNames;
 		if (this.customArtNames != null)
 		{
 			this.customArtResources = PaintingUtil.customArtResources;
 			this.customArtHeights = PaintingUtil.customArtHeights;
 			this.customArtWidths = PaintingUtil.customArtWidths;
-			
+
 			float baseNum = this.customArtNames.length / 32.0f;
 			int roundDown =  this.customArtNames.length / 32;
 			if ((baseNum-roundDown) > 0.0f)
@@ -88,19 +88,19 @@ public class GuiPaintPress extends GuiContainer
 			}
 			//System.out.println(this.pagesTotal);
 		}
-		
+
 		//this.scanJarForArt();
-		
-		updateArtSelection(); 
+
+		updateArtSelection();
 	}
-	
-	
+
+
 	private void updateArtSelection()
 	{
 		switch (this.selectedTypeArt)
 		{
 			case 0:
-			{	
+			{
 				for (int i = 0; i < biblioArtList.length; i++)
 				{
 					if (this.selectedArtTitle.contentEquals(this.biblioArtList[i].title))
@@ -111,7 +111,7 @@ public class GuiPaintPress extends GuiContainer
 				break;
 			}
 			case 1:
-			{	
+			{
 				for (int i = 0; i < vanillaArtList.length; i++)
 				{
 					if (this.selectedArtTitle.contentEquals(this.vanillaArtList[i].title))
@@ -137,7 +137,7 @@ public class GuiPaintPress extends GuiContainer
 			}
 		}
 	}
-	
+
     @Override
     public void initGui()
     {
@@ -145,11 +145,11 @@ public class GuiPaintPress extends GuiContainer
 		int w = (width - this.guiWidth) / 2;
 		int h = (height - this.guiHeight) / 2;
     	buttonList.clear();
-    	buttonList.add(this.applyPainting = new GuiButton(0, w+52, h+137, 60, 20, I18n.translateToLocal("gui.paintpress.transfer"))); 
-    	
+    	buttonList.add(this.applyPainting = new GuiButton(0, w+52, h+137, 60, 20, I18n.format("gui.paintpress.transfer")));
+
     	buttonList.add(this.pagePrev = new GuiButtonNextPage(1, w+9, h+134, false));
     	buttonList.add(this.pageNext = new GuiButtonNextPage(2, w+222, h+134, true));
-    	
+
     	if (this.pagesTotal > 1 && this.tab == 2 && this.pagesTotal != this.pagesCurrent+1)
     	{
     		this.pageNext.enabled = true;
@@ -171,20 +171,20 @@ public class GuiPaintPress extends GuiContainer
     		this.pagePrev.visible = false;
     	}
     }
-    
+
     @Override
     public void onGuiClosed()
     {
     	sendPacket(false);
     }
-    
+
     @Override
     protected void actionPerformed(GuiButton click)
     {
     	if (click.id == 0)
     	{
     		// clicked the apply button.
-    		// should probly send a packet to the tile entity and make the magic happen on the tile entity. 
+    		// should probly send a packet to the tile entity and make the magic happen on the tile entity.
     		sendPacket(true);
     	}
     	if (click.id == 1)
@@ -206,42 +206,34 @@ public class GuiPaintPress extends GuiContainer
     		}
     	}
     }
-    
+
     private void sendPacket(boolean applyToCanvas)
     {
-    	if (!applyToCanvas || (applyToCanvas && this.paintPress.getStackInSlot(0) != ItemStack.EMPTY))
+    	if (!applyToCanvas || (applyToCanvas && this.paintPress.getStackInSlot(0) != null))
     	{
-			BiblioNetworking.INSTANCE.sendToServer(new BiblioPaintPress(this.paintPress.getPos(), this.selectedTypeArt, this.selectedArtTitle, applyToCanvas));
+			BiblioNetworking.INSTANCE.sendToServer(new BiblioPaintPress(this.paintPress.xCoord, this.paintPress.yCoord, this.paintPress.zCoord, this.selectedTypeArt, this.selectedArtTitle, applyToCanvas));
 	    	// ByteBuf buffer = Unpooled.buffer();
 	    	// buffer.writeInt(this.paintPress.getPos().getX());
 	    	// buffer.writeInt(this.paintPress.getPos().getY());
 	    	// buffer.writeInt(this.paintPress.getPos().getZ());
-	    	
+
 	    	// buffer.writeInt(this.selectedTypeArt);
 	    	// ByteBufUtils.writeUTF8String(buffer, this.selectedArtTitle);
-	    	
+
 	    	// buffer.writeBoolean(applyToCanvas);
-	    	
+
 	    	// BiblioCraft.ch_BiblioPaintPress.sendToServer(new FMLProxyPacket(new PacketBuffer(buffer), "BiblioPaintPress"));
     	}
     }
-    
-    
+
+
     @Override
     protected void mouseClicked(int mousex, int mousey, int click)
     {
-		try 
-		{
-			super.mouseClicked(mousex, mousey, click);
-		}
-		catch (IOException e) 
-		{
-		
-			e.printStackTrace();
-		}
- 		int w = (width - this.guiWidth) / 2;
+        super.mouseClicked(mousex, mousey, click);
+        int w = (width - this.guiWidth) / 2;
  		int h = (height - this.guiHeight) / 2;
- 		
+
  		// check for tab clicks
  		if (mousey > h && mousey <= h+12)
  		{
@@ -273,14 +265,14 @@ public class GuiPaintPress extends GuiContainer
 	 			}
 	 		}
  		}
- 		
+
  		if (this.tab == 0)
  		{
- 			
+
 			for (int j = 0; j < 4; j++)
 			{
 				for (int i = 0; i < 8; i++)
-				{ 	
+				{
 					if (i+j*8 < this.biblioArtList.length)
 					{
 						if (mousex > (w+12+i*29) && mousex <= (w+40+i*29) && mousey > (h+19+j*29) && mousey < (h+47+j*29)) // returns true if mouse is hovering over square
@@ -304,14 +296,14 @@ public class GuiPaintPress extends GuiContainer
 			}
  		}
  		// check for vanilla painting clicks
- 		
+
 		if (this.tab == 1)
 		{
 			this.artCount = 0;
 			for (int j = 0; j < 4; j++)
 			{
 				for (int i = 0; i < 8; i++)
-				{ 
+				{
 					if (this.artCount < this.vanillaArtList.length)
 					{
 						if (mousex > (w+12+i*29) && mousex <= (w+40+i*29) && mousey > (h+19+j*29) && mousey < (h+47+j*29)) // returns true if mouse is hovering over square
@@ -335,7 +327,7 @@ public class GuiPaintPress extends GuiContainer
 				}
 			}
 		}
- 		
+
 		if (this.tab == 2)
 		{
 			// check for custom painting clicks
@@ -344,7 +336,7 @@ public class GuiPaintPress extends GuiContainer
 				for (int j = 0; j < 4; j++)
 				{
 					for (int i = 0; i < 8; i++)
-					{ 
+					{
 						if (i+j*8+(32*(this.pagesCurrent)) < this.customArtNames.length)
 						{
 							if (mousex > (w+12+i*29) && mousex <= (w+40+i*29) && mousey > (h+19+j*29) && mousey < (h+47+j*29)) // returns true if mouse is hovering over square
@@ -369,26 +361,26 @@ public class GuiPaintPress extends GuiContainer
 		}
     	// System.out.println("click = "+click+"  "+mousex+"    "+mousey);
     }
-    
+
     private void setTab(int tabe)
     {
     	this.tab = tabe;
     	this.initGui();
     }
-    
-    @Override	
+
+    @Override
 	public void updateScreen()
     {
         super.updateScreen();
     }
-    
+
     @Override
     protected void keyTyped(char par1, int key)
     {
     	//System.out.println("char = "+par1+"   key = "+key);
     	if (key == 1)
     	{
-    		 this.mc.player.closeScreen();
+    		 this.mc.thePlayer.closeScreen();
     	}
     	if (key == 15) // tab key
     	{
@@ -402,17 +394,17 @@ public class GuiPaintPress extends GuiContainer
     		}
     	}
     }
-	
+
 	@Override
 	protected void drawGuiContainerForegroundLayer(int var1, int var2)
 	{
 		//draw text and stuff here
         //the parameters for drawString are: string, x, y, color
-		//this.fontRenderer.drawString(I18n.translateToLocal("gui.cookiejar"), 8, 6, 4210752);
+		//this.fontRenderer.drawString(I18n.format("gui.cookiejar"), 8, 6, 4210752);
 		//draws "Inventory" or your regional equivalent
-		//this.fontRenderer.drawString(I18n.translateToLocal("container.inventory"), 8, ySize - 96 + 2, 4210752);
+		//this.fontRenderer.drawString(I18n.format("container.inventory"), 8, ySize - 96 + 2, 4210752);
 	}
-	
+
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float floaty, int mousex, int mousey)
 	{
@@ -424,7 +416,7 @@ public class GuiPaintPress extends GuiContainer
 		int x = (width - this.guiWidth) / 2;
 		int y = (height - this.guiHeight) / 2;
 		this.drawTexturedModalRect(x, y, 0, 0, this.guiWidth, this.guiHeight);
-		
+
 		if (this.tab == 0)
 		{
 			this.drawTexturedModalRect(x+14, y, 0, 244, 75, 12);
@@ -437,10 +429,10 @@ public class GuiPaintPress extends GuiContainer
 		{
 			this.drawTexturedModalRect(x+166, y, 0, 244, 75, 12);
 		}
-		
+
 		this.mc.getTextureManager().bindTexture(CommonProxy.PAINTINGPRESSBUTTONS);
-		
-		
+
+
 		if (this.tab == 0)
 		{
 			// draw buttons for bibliocraft art
@@ -454,8 +446,8 @@ public class GuiPaintPress extends GuiContainer
 					{
 						this.mc.getTextureManager().bindTexture(CommonProxy.PAINTINGPRESSBUTTONS);
 						this.drawTexturedModalRect(x+12+i*29, y+19+(j*29), 0, 0, 28, 28);
-						
-						
+
+
 						if (mousex > (x+12+i*29) && mousex <= (x+40+i*29) && mousey > (y+19+(j*29)) && mousey < (y+47+(j*29))) // returns true if mouse is hovering over square
 						{
 							if (i+j*8 == this.selectedBiblioArt)
@@ -472,21 +464,21 @@ public class GuiPaintPress extends GuiContainer
 						{
 							this.drawTexturedModalRect(x+12+i*29, y+19+(j*29), 60, 0, 28, 28);
 							drawCheck = true;
-							
+
 						}
 						else
 						{
 							this.drawTexturedModalRect(x+12+i*29, y+19+(j*29), 0, 0, 28, 28);
 						}
-						
-						
+
+
 						this.mc.getTextureManager().bindTexture(biblioArtList[i+j*8].paintingTextures[0][0]);
 						float scaler = 24.0f / 256.0f;
 						float antiScaler = 1.0f / scaler;
 						GL11.glScalef(scaler, scaler, scaler);
 						this.drawTexturedModalRect((int)((x+14+i*29)*antiScaler), (int)((y+21+(j*29))*antiScaler), 0, 0, 256, 256);
 						GL11.glScalef(antiScaler, antiScaler, antiScaler);
-						
+
 						if (drawCheck)
 						{
 							this.mc.getTextureManager().bindTexture(CommonProxy.PAINTINGPRESSBUTTONS);
@@ -503,10 +495,10 @@ public class GuiPaintPress extends GuiContainer
 			for (int j = 0; j < 4; j++)
 			{
 				for (int i = 0; i < 8; i++)
-				{ 
+				{
 					if (this.artCount < this.vanillaArtList.length)
 					{
-						
+
 						this.mc.getTextureManager().bindTexture(CommonProxy.PAINTINGPRESSBUTTONS);
 						if (mousex > (x+12+i*29) && mousex <= (x+40+i*29) && mousey > (y+19+j*29) && mousey < (y+47+j*29)) // returns true if mouse is hovering over square
 						{
@@ -524,15 +516,15 @@ public class GuiPaintPress extends GuiContainer
 						{
 							this.drawTexturedModalRect(x+12+i*29, y+19+j*29, 60, 0, 28, 28);
 							drawCheck = true;
-							
+
 						}
 						else
 						{
 							this.drawTexturedModalRect(x+12+i*29, y+19+j*29, 0, 0, 28, 28);
 						}
-	 
+
 						drawVanillaPainting(x+i*29, y+j*29, this.artCount);
-						
+
 						if (drawCheck)
 						{
 							this.mc.getTextureManager().bindTexture(CommonProxy.PAINTINGPRESSBUTTONS);
@@ -544,7 +536,7 @@ public class GuiPaintPress extends GuiContainer
 				}
 			}
 		}
-		
+
 		if (this.tab == 2)
 		{
 			if (this.customArtNames != null)
@@ -552,13 +544,13 @@ public class GuiPaintPress extends GuiContainer
 				for (int j = 0; j < 4; j++)
 				{
 					for (int i = 0; i < 8; i++)
-					{ 
+					{
 						if (i+j*8+(32*(this.pagesCurrent)) < this.customArtNames.length)
 						{
 							this.mc.getTextureManager().bindTexture(CommonProxy.PAINTINGPRESSBUTTONS);
 							this.drawTexturedModalRect(x+12+i*29, y+19+j*29, 0, 0, 28, 28);
-							
-							
+
+
 							if (mousex > (x+12+i*29) && mousex <= (x+40+i*29) && mousey > (y+19+j*29) && mousey < (y+47+j*29)) // returns true if mouse is hovering over square
 							{
 								if (i+j*8+(32*(this.pagesCurrent)) == this.selectedCustomArt)
@@ -575,14 +567,14 @@ public class GuiPaintPress extends GuiContainer
 							{
 								this.drawTexturedModalRect(x+12+i*29, y+19+j*29, 60, 0, 28, 28);
 								drawCheck = true;
-								
+
 							}
 							else
 							{
 								this.drawTexturedModalRect(x+12+i*29, y+19+j*29, 0, 0, 28, 28);
 							}
-							
-							
+
+
 
 								this.mc.getTextureManager().bindTexture(new ResourceLocation("bibliocraft","textures/custompaintings/"+customArtNames[i+j*8+(32*(this.pagesCurrent))]));
 								float scaler = 24.0f / 256.0f;
@@ -590,8 +582,8 @@ public class GuiPaintPress extends GuiContainer
 								GL11.glScalef(scaler, scaler, scaler);
 								this.drawTexturedModalRect((int)((x+14+i*29)*antiScaler), (int)((y+21+j*29)*antiScaler), 0, 0, 256, 256);
 								GL11.glScalef(antiScaler, antiScaler, antiScaler);
-							
-							
+
+
 							if (drawCheck)
 							{
 								this.mc.getTextureManager().bindTexture(CommonProxy.PAINTINGPRESSBUTTONS);
@@ -603,16 +595,16 @@ public class GuiPaintPress extends GuiContainer
 				}
 			}
 		}
-		
-		this.fontRenderer.drawString(this.sBibliocraft, x+25, y+3, 0x000000, false); 
-		this.fontRenderer.drawString(this.sVanilla, x+110, y+3, 0x000000, false);
-		this.fontRenderer.drawString(this.sCustom, x+186, y+3, 0x000000, false);
+
+		this.fontRendererObj.drawString(this.sBibliocraft, x+25, y+3, 0x000000, false);
+		this.fontRendererObj.drawString(this.sVanilla, x+110, y+3, 0x000000, false);
+		this.fontRendererObj.drawString(this.sCustom, x+186, y+3, 0x000000, false);
 		if (this.tab == 2)
 		{
-			this.fontRenderer.drawString(I18n.translateToLocal("gui.paintpress.page")+" "+(this.pagesCurrent+1)+" "+I18n.translateToLocal("gui.paintpress.of")+" "+this.pagesTotal, x+145, y+143, 0x000000, false);
+			this.fontRendererObj.drawString(I18n.format("gui.paintpress.page")+" "+(this.pagesCurrent+1)+" "+I18n.format("gui.paintpress.of")+" "+this.pagesTotal, x+145, y+143, 0x000000, false);
 		}
 	}
-	
+
 	private void drawVanillaPainting(int x, int y, int paintingNum)
 	{
 		this.mc.getTextureManager().bindTexture(CommonProxy.PAINTINGSHEET);
@@ -621,7 +613,7 @@ public class GuiPaintPress extends GuiContainer
 		{
 			scale = 24.0 / this.vanillaArtList[paintingNum].sizeY;
 		}
-		
+
 		double invertedScale = 1.0/scale;
 		int adjustx = 0;
 		int adjusty = 0;
@@ -635,7 +627,7 @@ public class GuiPaintPress extends GuiContainer
 			{
 				adjusty = 6;
 			}
-			
+
 			if (this.vanillaArtList[paintingNum].sizeY == 48)
 			{
 				adjusty = 2;
@@ -646,11 +638,11 @@ public class GuiPaintPress extends GuiContainer
 		this.drawTexturedModalRect((int)((x+14+adjustx)*invertedScale), (int)((y+22+adjusty)*invertedScale), (this.vanillaArtList[paintingNum].offsetX), (this.vanillaArtList[paintingNum].offsetY), (this.vanillaArtList[paintingNum].sizeX), (this.vanillaArtList[paintingNum].sizeY));
 		GL11.glScaled(1.0/scale, 1.0/scale, 1.0/scale);
 	}
-	
+
 	@Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         super.drawScreen(mouseX, mouseY, partialTicks);
-        this.renderHoveredToolTip(mouseX, mouseY);
+//        this.renderHoveredToolTip(mouseX, mouseY);
     }
 }

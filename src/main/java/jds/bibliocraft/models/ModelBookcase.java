@@ -1,28 +1,70 @@
 package jds.bibliocraft.models;
 
-import jds.bibliocraft.blocks.BlockBookcase;
-import jds.bibliocraft.blocks.BlockBookcaseCreative;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.model.AdvancedModelLoader;
+import net.minecraftforge.client.model.IModelCustom;
 
-public class ModelBookcase extends BiblioModelWood
+public class ModelBookcase
 {
-	public static final ModelResourceLocation modelResourceLocation = new ModelResourceLocation("bibliocraft:" + BlockBookcase.name);
-	public static final ModelResourceLocation modelResourceLocationFilledBookcase = new ModelResourceLocation("bibliocraft:" + BlockBookcaseCreative.name);
+    private IModelCustom model = AdvancedModelLoader.loadModel(new ResourceLocation("bibliocraft", "models/block/bookcase.obj"));
 
-	public ModelBookcase()
-	{
-		super("bibliocraft:block/bookcase.obj");
-		this.wrapper = this;
-	}
-	
-	@Override
-	public String getTextureLocation(String resourceLocation, String textureLocation) 
-	{
-		String returnValue = resourceLocation;
-		if (!returnValue.contentEquals("bibliocraft:models/bookcase_books"))
-		{
-			returnValue = textureLocation;
-		}
-		return returnValue;
-	}
+
+    public ModelBookcase() {}
+
+    public void renderBookcase() {
+        this.model.renderPart("bookcase");
+    }
+
+    public void renderbook(int Count) {
+        switch (Count) {
+            case 0:
+                this.model.renderPart("book1");
+                break;
+            case 1:
+                this.model.renderPart("book2");
+                break;
+            case 2:
+                this.model.renderPart("book3");
+                break;
+            case 3:
+                this.model.renderPart("book4");
+                break;
+            case 4:
+                this.model.renderPart("book5");
+                break;
+            case 5:
+                this.model.renderPart("book6");
+                break;
+            case 6:
+                this.model.renderPart("book7");
+                break;
+            case 7:
+                this.model.renderPart("book8");
+                break;
+            case 8:
+                this.model.renderPart("book9");
+                break;
+            case 9:
+                this.model.renderPart("book10");
+                break;
+            case 10:
+                this.model.renderPart("book11");
+                break;
+            case 11:
+                this.model.renderPart("book12");
+                break;
+            case 12:
+                this.model.renderPart("book13");
+                break;
+            case 13:
+                this.model.renderPart("book14");
+                break;
+            case 14:
+                this.model.renderPart("book15");
+                break;
+            case 15:
+                this.model.renderPart("book16");
+                break;
+        }
+    }
 }

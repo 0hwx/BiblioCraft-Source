@@ -17,56 +17,53 @@ import jds.bibliocraft.items.ItemSeatBack5;
 import jds.bibliocraft.states.TextureState;
 import jds.bibliocraft.tileentities.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntitySeat;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.Block;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.model.TRSRTransformation;
+import net.minecraftforge.common.util.ForgeDirection;
 
 public class BlockSeat extends BiblioWoodBlock
 {
 	public static final String name = "Seat";
 	public static final BlockSeat instance = new BlockSeat();
-	
+
 	public BlockSeat()
 	{
 		super(name, false);
-		
+
 	}
-	
+
 	@Override
-	public boolean onBlockActivatedCustomCommands(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing face, float hitX, float hitY, float hitZ) 
+	public boolean onBlockActivatedCustomCommands(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ)
 	{
-		TileEntity tile = world.getTileEntity(pos);
+		TileEntity tile = world.getTileEntity(x, y, z);
 		if (!world.isRemote && tile != null && tile instanceof TileEntitySeat)
 		{
 			TileEntitySeat seatTile = (TileEntitySeat)tile;
-			ItemStack playerStack = player.getHeldItem(EnumHand.MAIN_HAND);
-			if (playerStack != ItemStack.EMPTY)
+			ItemStack playerStack = player.getHeldItem();
+			if (playerStack != null)
 			{
-				if (playerStack.getItem() == Item.getItemFromBlock(Blocks.CARPET))
+				if (playerStack.getItem() == Item.getItemFromBlock(Blocks.carpet))
 				{
-					if (face == EnumFacing.UP || face == EnumFacing.DOWN)
+					if (ForgeDirection.getOrientation(side) == ForgeDirection.UP || ForgeDirection.getOrientation(side) == ForgeDirection.DOWN)
 					{
 						int returnStackSize = seatTile.addSeatCover(playerStack);
 						if (returnStackSize != -1)
 						{
 							if (returnStackSize == 0)
 							{
-								player.inventory.setInventorySlotContents(player.inventory.currentItem, ItemStack.EMPTY);
+								player.inventory.setInventorySlotContents(player.inventory.currentItem, null);
 							}
 							else
 							{
-								playerStack.setCount(returnStackSize);
+								playerStack.stackSize = (returnStackSize);
 								player.inventory.setInventorySlotContents(player.inventory.currentItem, playerStack);
 							}
 							return true;
@@ -79,11 +76,11 @@ public class BlockSeat extends BiblioWoodBlock
 						{
 							 if (returnStackSize == 0)
 							 {
-								player.inventory.setInventorySlotContents(player.inventory.currentItem, ItemStack.EMPTY);
+								player.inventory.setInventorySlotContents(player.inventory.currentItem, null);
 							 }
 							 else
 							 {
-								 playerStack.setCount(returnStackSize);
+								 playerStack.stackSize = (returnStackSize);
 								 player.inventory.setInventorySlotContents(player.inventory.currentItem, playerStack);
 							 }
 						}
@@ -98,11 +95,11 @@ public class BlockSeat extends BiblioWoodBlock
 					{
 						if (returnStackSize == 0)
 						{
-							player.inventory.setInventorySlotContents(player.inventory.currentItem, ItemStack.EMPTY);
+							player.inventory.setInventorySlotContents(player.inventory.currentItem, null);
 						}
 						else
 						{
-							playerStack.setCount(returnStackSize);
+							playerStack.stackSize = (returnStackSize);
 							player.inventory.setInventorySlotContents(player.inventory.currentItem, playerStack);
 						}
 						return true;
@@ -111,7 +108,7 @@ public class BlockSeat extends BiblioWoodBlock
 			}
 			if (!seatTile.getHasSitter())
 			{
-				sitDown(player, world, pos, seatTile);
+				sitDown(player, world, x, y, z, seatTile);
 				seatTile.setSitter(true);
 			}
 			else if (player.isSneaking())
@@ -121,61 +118,61 @@ public class BlockSeat extends BiblioWoodBlock
 		}
 		return true;
 	}
-	
-	public void sitDown(EntityPlayer player, World world, BlockPos pos, TileEntitySeat tile)
+
+	public void sitDown(EntityPlayer player, World world, int x, int y, int z, TileEntitySeat tile)
 	{
-		EntitySeat seatEntity = new EntitySeat(world, pos.getX(), pos.getY() + 1.0d, pos.getZ(), tile);
-		world.spawnEntity(seatEntity);
-		player.startRiding(seatEntity, true);
-		 
+		EntitySeat seatEntity = new EntitySeat(world, x, y + 1.0d, z, tile);
+		world.spawnEntityInWorld(seatEntity);
+		player.mountEntity(seatEntity); //todo check this
+
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(World worldIn, int meta) 
+	public TileEntity createNewTileEntity(World worldIn, int meta)
 	{
 		return new TileEntitySeat();
 	}
 
-	@Override
-	public List<String> getModelParts(BiblioTileEntity tile) 
-	{
-		List<String> modelParts = new ArrayList<String>();
-		modelParts.add("stool");
-		modelParts.add("seat");
+//	@Override
+//	public List<String> getModelParts(BiblioTileEntity tile)
+//	{
+//		List<String> modelParts = new ArrayList<String>();
+//		modelParts.add("stool");
+//		modelParts.add("seat");
+//
+//		if (tile instanceof TileEntitySeat)
+//		{
+//			TileEntitySeat seat = (TileEntitySeat)tile;
+//			if (!seat.getSouthConnect() && !seat.getNorthConnect() && !seat.getEastConnect() && !seat.getWestConnect())
+//			{
+//				modelParts.add("leg1");
+//				modelParts.add("leg2");
+//				modelParts.add("leg3");
+//				modelParts.add("leg4");
+//				modelParts.add("brace1");
+//				modelParts.add("brace2");
+//				modelParts.add("brace3");
+//				modelParts.add("brace4");
+//			}
+//			else
+//			{
+//				modelParts = getSeatAndLegParts(seat, modelParts);
+//			}
+//
+//			if (seat.getHasBack() > 0)
+//			{
+//				modelParts = getSeatBackParts(seat, modelParts);
+//			}
+//
+//			if (seat.isCarpetFull())
+//			{
+//				modelParts.add("carpet");
+//			}
+//
+//		}
+//		return modelParts;
+//	}
 
-		if (tile instanceof TileEntitySeat)
-		{
-			TileEntitySeat seat = (TileEntitySeat)tile;
-			if (!seat.getSouthConnect() && !seat.getNorthConnect() && !seat.getEastConnect() && !seat.getWestConnect())
-			{
-				modelParts.add("leg1");
-				modelParts.add("leg2");
-				modelParts.add("leg3");
-				modelParts.add("leg4");
-				modelParts.add("brace1");
-				modelParts.add("brace2");
-				modelParts.add("brace3");
-				modelParts.add("brace4");
-			}
-			else
-			{
-				modelParts = getSeatAndLegParts(seat, modelParts);
-			}
-			
-			if (seat.getHasBack() > 0)
-			{
-				modelParts = getSeatBackParts(seat, modelParts);
-			}
-			
-			if (seat.isCarpetFull())
-			{
-				modelParts.add("carpet");
-			}
-			
-		}
-		return modelParts;
-	}
-	
 	public List<String> getSeatBackParts(TileEntitySeat tile, List<String> parts)
 	{
 		SeatHelper adjust = new SeatHelper(tile.getSouthConnect(), tile.getWestConnect(), tile.getNorthConnect(), tile.getEastConnect(), tile.getAngle());
@@ -183,7 +180,7 @@ public class BlockSeat extends BiblioWoodBlock
 		boolean northConnect = adjust.getNorthConnect();
 		boolean eastConnect = adjust.getEastConnect();
 		boolean westConnect = adjust.getWestConnect();
-		
+
 		switch (tile.getHasBack())
 		{
 			case 1:
@@ -241,7 +238,7 @@ public class BlockSeat extends BiblioWoodBlock
 		}
 		return parts;
 	}
-	
+
 	public List<String> getSeatAndLegParts(TileEntitySeat tile, List<String> parts)
 	{
 		SeatHelper adjust = new SeatHelper(tile.getSouthConnect(), tile.getWestConnect(), tile.getNorthConnect(), tile.getEastConnect(), tile.getAngle());
@@ -249,14 +246,14 @@ public class BlockSeat extends BiblioWoodBlock
 		boolean northConnect = adjust.getNorthConnect();
 		boolean eastConnect = adjust.getEastConnect();
 		boolean westConnect = adjust.getWestConnect();
-		
+
 		parts = getSeatParts(parts, southConnect, northConnect, eastConnect, westConnect);
 		parts = getLegParts(parts, southConnect, northConnect, eastConnect, westConnect);
 		return parts;
 	}
-	
+
 	public List<String> getSeatParts(List<String> parts, boolean southConnect, boolean northConnect, boolean eastConnect, boolean westConnect)
-	{		
+	{
 		if (southConnect)
 		{
 			parts.add("bench1");
@@ -292,7 +289,7 @@ public class BlockSeat extends BiblioWoodBlock
 		}
 		return parts;
 	}
-	
+
 	public List<String> getLegParts(List<String> parts, boolean southConnect, boolean northConnect, boolean eastConnect, boolean westConnect)
 	{
 		boolean leg1 = true;
@@ -359,7 +356,7 @@ public class BlockSeat extends BiblioWoodBlock
 		{
 			parts.add("leg4");
 		}
-		
+
 		if (leg1 && leg2)
 		{
 			parts.add("brace1");
@@ -380,28 +377,28 @@ public class BlockSeat extends BiblioWoodBlock
 	}
 
 	@Override
-	public void additionalPlacementCommands(BiblioTileEntity biblioTile, EntityLivingBase player) 
+	public void additionalPlacementCommands(BiblioTileEntity biblioTile, EntityLivingBase player)
 	{
-		
-		
+
+
 	}
 
+//	@Override
+//	public TRSRTransformation getAdditionalTransforms(TRSRTransformation transform, BiblioTileEntity tile)
+//	{
+//		transform = transform.compose(new TRSRTransformation(new Vector3f(-0.0f, 0.0f, -0.0f),
+//			     new Quat4f(0.0f, 1.0f, 0.0f, 1.0f),
+//			     new Vector3f(1.0f, 1.0f, 1.0f),
+//			     new Quat4f(0.0f, 1.0f, 0.0f, 1.0f)));
+//		return transform;
+//	}
+
 	@Override
-	public TRSRTransformation getAdditionalTransforms(TRSRTransformation transform, BiblioTileEntity tile) 
-	{
-		transform = transform.compose(new TRSRTransformation(new Vector3f(-0.0f, 0.0f, -0.0f), 
-			     new Quat4f(0.0f, 1.0f, 0.0f, 1.0f), 
-			     new Vector3f(1.0f, 1.0f, 1.0f), 
-			     new Quat4f(0.0f, 1.0f, 0.0f, 1.0f)));
-		return transform;
-	}
-    
-	@Override
-	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess blockAccess, BlockPos pos)
+	public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z)
 	{
 		return this.getBlockBounds(0.16F, 0.0F, 0.16F, 0.84F, 0.74F, 0.84F);
 	}
-    
+
 	@Override
     public TextureState addAdditionTextureStateInformation(BiblioTileEntity tile, TextureState state)
     {
@@ -417,9 +414,9 @@ public class BlockSeat extends BiblioWoodBlock
 		}
 		return state;
     }
-	
+
 	@Override
-    public boolean canProvidePower(IBlockState state)
+    public boolean canProvidePower()
     {
 		if (Config.chairRedstone)
 		{
@@ -430,18 +427,18 @@ public class BlockSeat extends BiblioWoodBlock
 			return false;
 		}
     }
-	
+
 	@Override
-	public int getStrongPower(IBlockState state,IBlockAccess world, BlockPos pos,  EnumFacing side)
+	public int isProvidingStrongPower(IBlockAccess worldIn, int x, int y, int z, int side)
     {
-		
-		return getWeakPower(state, world, pos, side);
+
+		return isProvidingWeakPower(worldIn, x, y, z, side);
     }
-	
+
 	@Override
-	public int getWeakPower(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side)
+	  public int isProvidingWeakPower(IBlockAccess world, int x, int y, int z, int side)
     {
-		TileEntity tile = world.getTileEntity(pos);
+		TileEntity tile = world.getTileEntity(x, y, z);
 		if (Config.chairRedstone && tile != null && tile instanceof TileEntitySeat)
 		{
 			TileEntitySeat seat = (TileEntitySeat)tile;
@@ -452,9 +449,9 @@ public class BlockSeat extends BiblioWoodBlock
 		}
 		return 0;
     }
-	
+
 	// on block broken additional thing
-	private void breakConnectsFix(World world, BlockPos pos, TileEntitySeat tileSeat)
+	private void breakConnectsFix(World world, int x, int y, int z, TileEntitySeat tileSeat)
     {
     	boolean northConnect = tileSeat.getNorthConnect();
 		boolean southConnect = tileSeat.getSouthConnect();
@@ -462,10 +459,10 @@ public class BlockSeat extends BiblioWoodBlock
 		boolean westConnect = tileSeat.getWestConnect();
 		TileEntity tile;
 		TileEntitySeat adjTile;
-		// south == PosK, ,east == posI, ,north == negK, ,west == negI 
+		// south == PosK, ,east == posI, ,north == negK, ,west == negI
 		if (northConnect)
 		{
-			tile = world.getTileEntity(new BlockPos(pos.getX(), pos.getY(), pos.getZ() - 1));
+			tile = world.getTileEntity(x, y, z - 1);
 			if (tile != null && tile instanceof TileEntitySeat)
 			{
 				adjTile = (TileEntitySeat)tile;
@@ -474,7 +471,7 @@ public class BlockSeat extends BiblioWoodBlock
 		}
 		if (southConnect)
 		{
-			tile = world.getTileEntity(new BlockPos(pos.getX(), pos.getY(), pos.getZ() + 1));
+			tile = world.getTileEntity(x, y, z + 1);
 			if (tile != null && tile instanceof TileEntitySeat)
 			{
 				adjTile = (TileEntitySeat)tile;
@@ -483,7 +480,7 @@ public class BlockSeat extends BiblioWoodBlock
 		}
 		if (eastConnect)
 		{
-			tile = world.getTileEntity(new BlockPos(pos.getX() + 1, pos.getY(), pos.getZ()));
+			tile = world.getTileEntity(x + 1, y, z);
 			if (tile != null && tile instanceof TileEntitySeat)
 			{
 				adjTile = (TileEntitySeat)tile;
@@ -492,7 +489,7 @@ public class BlockSeat extends BiblioWoodBlock
 		}
 		if (westConnect)
 		{
-			tile = world.getTileEntity(new BlockPos(pos.getX() - 1, pos.getY(), pos.getZ()));
+			tile = world.getTileEntity(x - 1, y, z);
 			if (tile != null && tile instanceof TileEntitySeat)
 			{
 				adjTile = (TileEntitySeat)tile;
@@ -500,15 +497,15 @@ public class BlockSeat extends BiblioWoodBlock
 			}
 		}
     }
-	
+
 	@Override
-	public void breakBlock(World world, BlockPos pos, IBlockState state)
+	public void breakBlock(World world, int x, int y, int z, Block blockBroken, int meta)
 	{
-		TileEntity tile = world.getTileEntity(pos);
+		TileEntity tile = world.getTileEntity(x, y, z);
 		if (tile != null && tile instanceof TileEntitySeat)
 		{
-			breakConnectsFix(world, pos, (TileEntitySeat)tile);
+			breakConnectsFix(world, x, y, z, (TileEntitySeat)tile);
 		}
-		super.breakBlock(world, pos, state);
+		super.breakBlock(world, x, y, z, blockBroken, meta);
 	}
 }

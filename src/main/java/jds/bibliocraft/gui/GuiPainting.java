@@ -18,7 +18,7 @@ import net.minecraft.entity.item.EntityPainting.EnumArt;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.translation.I18n;
+import net.minecraft.client.resources.I18n;
 
 public class GuiPainting extends GuiContainer
 {
@@ -27,20 +27,20 @@ public class GuiPainting extends GuiContainer
 	TileEntityPainting painting;
 	private EnumArt[] vanillaArtList = EnumArt.values();
 	private EnumBiblioPaintings[] biblioArtList = EnumBiblioPaintings.values();
-	
-	private String sScale = I18n.translateToLocal("gui.painting.scale"); 
-	private String sResolution = I18n.translateToLocal("gui.painting.resolution"); //"Pixel Size";
-	private String sSizeTitle = I18n.translateToLocal("gui.painting.aspectRatio"); //"Aspect Ratio";
-	private String sPaintingFinalSize = I18n.translateToLocal("gui.painting.size"); //"Painting Size";
-	private String sPaintingRotation = I18n.translateToLocal("gui.painting.rotation"); //"Rotation";
-	private String sCanvasCorner = I18n.translateToLocal("gui.painting.corner"); //"Master Corner";
-	
+
+	private String sScale = I18n.format("gui.painting.scale");
+	private String sResolution = I18n.format("gui.painting.resolution"); //"Pixel Size";
+	private String sSizeTitle = I18n.format("gui.painting.aspectRatio"); //"Aspect Ratio";
+	private String sPaintingFinalSize = I18n.format("gui.painting.size"); //"Painting Size";
+	private String sPaintingRotation = I18n.format("gui.painting.rotation"); //"Rotation";
+	private String sCanvasCorner = I18n.format("gui.painting.corner"); //"Master Corner";
+
 	private int canvasScale = 1;
 	private int canvasResolution = 0;
 	private int canvasSize = 0;
 	private int canvasCorner = 0; // 0 == bottom left corner, and  clockwise from there
 	private int canvasRotation = 0;
-	
+
 	private GuiButtonAddSubtract bScalePos;
 	private GuiButtonAddSubtract bScaleNeg;
 	private GuiButtonAddSubtract bResPos;
@@ -49,51 +49,51 @@ public class GuiPainting extends GuiContainer
 	private GuiButtonAddSubtract bSizeNeg;
 	private GuiButtonAddSubtract bRotPos;
 	private GuiButtonAddSubtract bRotNeg;
-	
+
 	private GuiButtonAddSubtract bAspectXPos;
 	private GuiButtonAddSubtract bAspectXNeg;
 	private GuiButtonAddSubtract bAspectYPos;
 	private GuiButtonAddSubtract bAspectYNeg;
-	
+
 	private GuiButton hideFrameButton;
-	
+
 	private String paintingTitle = "";
 	private int paintingType = 0;
 	private int paintingNumber = 0;
-	
+
 	private int resx = 0;
 	private int resy = 0;
-	
+
 	private String rsScale = "";
 	private String rsPixelSize = "";
 	private String rsAspectRatio = "";
 	private String rsFinalSize = "";
-	
+
 	private String[] customArtNames = null;
 	private int[] customArtHeights = null;
 	private int[] customArtWidths = null;
 	private ResourceLocation[] customArtResources = null;
 	private int customPaintingAspectX = 1;
-	private int customPaintingAspectY = 1; 
-	
+	private int customPaintingAspectY = 1;
+
 	private boolean hideFrame = false;
 	private EnumPaintingFrame frameType;
-	private String hideFrameButtonText = I18n.translateToLocal("gui.painting.hideFrame"); 
+	private String hideFrameButtonText = I18n.format("gui.painting.hideFrame");
 
-	
+
 	public GuiPainting(InventoryPlayer inventoryPlayer, TileEntityPainting tile)
 	{
 		super(new ContainerPainting(inventoryPlayer, tile));
 		this.xSize = this.guiWidth;
 		this.ySize = this.guiHeight;
 		this.painting = tile;
-		this.frameType = tile.getFrameStyle(); 
+		this.frameType = tile.getFrameStyle();
 		this.hideFrame = tile.getHideFrame();
 		if (this.hideFrame)
 		{
-			this.hideFrameButtonText = I18n.translateToLocal("gui.painting.showFrame");
+			this.hideFrameButtonText = I18n.format("gui.painting.showFrame");
 		}
-		
+
 		this.customArtNames = PaintingUtil.customArtNames;
 		if (this.customArtNames != null)
 		{
@@ -102,13 +102,13 @@ public class GuiPainting extends GuiContainer
 			this.customArtWidths = PaintingUtil.customArtWidths;
 			//System.out.println(this.customArtResources.length);
 		}
-		
+
 		this.initData();
 	}
-	
+
 	public void initData()
 	{
-		if (this.painting.getStackInSlot(0) == ItemStack.EMPTY)
+		if (this.painting.getStackInSlot(0) == null)
 		{
 			//System.out.println("null slot");
 			this.paintingTitle = "blank";
@@ -133,9 +133,9 @@ public class GuiPainting extends GuiContainer
 			this.customPaintingAspectY = this.painting.getCustomPaintingAspectY();
 			this.getPaintingNumber();
 		}
-		
+
 	}
-	
+
 	private void resetData()
 	{
 		this.paintingTitle = "blank";
@@ -147,7 +147,7 @@ public class GuiPainting extends GuiContainer
 		this.customPaintingAspectX = 1;
 		this.customPaintingAspectY = 1;
 	}
-	
+
 	public void getPaintingNumber()
 	{
 		if (paintingType == 0)
@@ -186,7 +186,7 @@ public class GuiPainting extends GuiContainer
 			}
 		}
 	}
-	
+
     @Override
     public void initGui()
     {
@@ -194,66 +194,66 @@ public class GuiPainting extends GuiContainer
 		int w = (width - this.guiWidth) / 2;
 		int h = (height - this.guiHeight) / 2;
     	buttonList.clear();
-    	
+
     	buttonList.add(bScalePos = new GuiButtonAddSubtract(0, w+71, h+14, 0, 1.0f));
-    	buttonList.add(bScaleNeg = new GuiButtonAddSubtract(1, w+6, h+14, 1, 1.0f));	
-    	
+    	buttonList.add(bScaleNeg = new GuiButtonAddSubtract(1, w+6, h+14, 1, 1.0f));
+
     	buttonList.add(bResPos = new GuiButtonAddSubtract(2, w+71, h+40, 0, 1.0f));
-    	buttonList.add(bResNeg = new GuiButtonAddSubtract(3, w+6, h+40, 1, 1.0f));	
-    	
+    	buttonList.add(bResNeg = new GuiButtonAddSubtract(3, w+6, h+40, 1, 1.0f));
+
     	buttonList.add(bSizePos = new GuiButtonAddSubtract(4, w+71, h+66, 0, 1.0f));
-    	buttonList.add(bSizeNeg = new GuiButtonAddSubtract(5, w+6, h+66, 1, 1.0f));	
-    	
+    	buttonList.add(bSizeNeg = new GuiButtonAddSubtract(5, w+6, h+66, 1, 1.0f));
+
     	buttonList.add(bRotPos = new GuiButtonAddSubtract(6, w+144, h+92, 0, 1.0f));
-    	buttonList.add(bRotNeg = new GuiButtonAddSubtract(7, w+114, h+92, 1, 1.0f));	
-    	
+    	buttonList.add(bRotNeg = new GuiButtonAddSubtract(7, w+114, h+92, 1, 1.0f));
+
     	buttonList.add(bAspectXPos = new GuiButtonAddSubtract(8, w+10, h+65, 0, 0.7f));
     	buttonList.add(bAspectXNeg = new GuiButtonAddSubtract(9, w+10, h+73, 1, 0.7f));
     	buttonList.add(bAspectYPos = new GuiButtonAddSubtract(10, w+71, h+65, 0, 0.75f));
     	buttonList.add(bAspectYNeg = new GuiButtonAddSubtract(11, w+71, h+73, 1, 0.75f));
-    	
+
     	//bAspectXPos.scale = 0.75f;
     	//bAspectXPos.antiscale = 1.0f / 0.75f;
-    	
+
     	buttonList.add(new GuiButtonClipboard(100, w+106, h+58, 17, 17, "", false));
     	buttonList.add(new GuiButtonClipboard(100, w+106, h+16, 17, 17, "", false));
     	buttonList.add(new GuiButtonClipboard(100, w+148, h+58, 17, 17, "", false));
     	buttonList.add(new GuiButtonClipboard(100, w+148, h+16, 17, 17, "", false));
-    	
+
 		if (this.frameType == EnumPaintingFrame.BORDERLESS)
 		{
 			buttonList.add(hideFrameButton = new GuiButton(12, w+45, h-20, 80, 20, hideFrameButtonText));
 		}
     }
-    
+
     @Override
     public void onGuiClosed()
     {
     	sendPacket();
     }
-    
+
     public void sendPacket()
     {
-		BiblioNetworking.INSTANCE.sendToServer(new BiblioPainting(this.painting.getPos(), this.canvasCorner, this.canvasScale, this.canvasResolution, this.canvasSize, this.canvasRotation, this.customPaintingAspectX, this.customPaintingAspectY, this.hideFrame));
+		BiblioNetworking.INSTANCE.sendToServer(new BiblioPainting(this.painting.xCoord, this.painting.yCoord, this.painting.zCoord, this.canvasCorner, this.canvasScale, this.canvasResolution, this.canvasSize, this.canvasRotation, this.customPaintingAspectX, this.customPaintingAspectY, this.hideFrame));
     	// ByteBuf buffer = Unpooled.buffer();
     	// buffer.writeInt(this.painting.getPos().getX());
     	// buffer.writeInt(this.painting.getPos().getY());
     	// buffer.writeInt(this.painting.getPos().getZ());
-    	
+
     	// buffer.writeInt(this.canvasCorner);
     	// buffer.writeInt(this.canvasScale);
     	// buffer.writeInt(this.canvasResolution);
     	// buffer.writeInt(this.canvasSize);
-    	
+
     	// buffer.writeInt(this.canvasRotation);
-    	
+
     	// buffer.writeInt(this.customPaintingAspectX);
     	// buffer.writeInt(this.customPaintingAspectY);
-    	
+
     	// buffer.writeBoolean(this.hideFrame);
     	// BiblioCraft.ch_BiblioPainting.sendToServer(new FMLProxyPacket(new PacketBuffer(buffer), "BiblioPainting"));
     }
-    
+
     @Override
     protected void actionPerformed(GuiButton click)
     {
@@ -290,11 +290,11 @@ public class GuiPainting extends GuiContainer
     			}
     			else if (this.paintingType == 1)
     			{
-    				
+
     			}
     			else if (this.paintingType == 2)
     			{
-    				
+
     			}
     			break;
     		}
@@ -319,11 +319,11 @@ public class GuiPainting extends GuiContainer
     			}
     			else if (this.paintingType == 1)
     			{
-    				
+
     			}
     			else if (this.paintingType == 2)
     			{
-    				
+
     			}
     			break;
     		}
@@ -393,12 +393,12 @@ public class GuiPainting extends GuiContainer
     			if (this.hideFrame)
     			{
     				this.hideFrame = false;
-    				this.hideFrameButtonText = I18n.translateToLocal("gui.painting.hideFrame");
+    				this.hideFrameButtonText = I18n.format("gui.painting.hideFrame");
     			}
     			else
     			{
     				this.hideFrame = true;
-    				this.hideFrameButtonText = I18n.translateToLocal("gui.painting.showFrame"); 
+    				this.hideFrameButtonText = I18n.format("gui.painting.showFrame");
     			}
     			initGui();
     			break;
@@ -406,22 +406,15 @@ public class GuiPainting extends GuiContainer
     	}
     	//System.out.println(click.id);
     }
-    
+
     @Override
     protected void mouseClicked(int mousex, int mousey, int click)
     {
-    	try
-		{
-			super.mouseClicked(mousex, mousey, click);
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-    	
- 		int w = (width - this.guiWidth) / 2;
+        super.mouseClicked(mousex, mousey, click);
+
+        int w = (width - this.guiWidth) / 2;
  		int h = (height - this.guiHeight) / 2;
- 		
+
  		if (mousex > w+106 && mousex <= w+106+16 && mousey > h+59 && mousey <= h+59+16)
  		{
  			this.canvasCorner = 0;
@@ -438,29 +431,29 @@ public class GuiPainting extends GuiContainer
  		{
  			this.canvasCorner = 3;
  		}
- 		
+
  		if (mousex > w+78 && mousex <= w+80+16 && mousey > h+87 && mousey <= h+89+16)
  		{
  			resetData();
  			sendPacket();
  		}
     }
-    
-    @Override	
+
+    @Override
 	public void updateScreen()
     {
         super.updateScreen();
     }
-    
+
     @Override
     protected void keyTyped(char par1, int key)
     {
     	if (key == 1)
     	{
-    		 this.mc.player.closeScreen();
+    		 this.mc.thePlayer.closeScreen();
     	}
     }
-    
+
 	@Override
 	protected void drawGuiContainerForegroundLayer(int var1, int var2)
 	{
@@ -468,9 +461,9 @@ public class GuiPainting extends GuiContainer
 		int y = (height - this.guiHeight) / 2;
 		//draw text and stuff here
         //the parameters for drawString are: string, x, y, color
-		//this.fontRenderer.drawString(I18n.translateToLocal("gui.cookiejar"), 8, 6, 4210752);
+		//this.fontRenderer.drawString(I18n.format("gui.cookiejar"), 8, 6, 4210752);
 		//draws "Inventory" or your regional equivalent
-		//this.fontRenderer.drawString(I18n.translateToLocal("container.inventory"), 8, ySize - 96 + 2, 4210752);
+		//this.fontRenderer.drawString(I18n.format("container.inventory"), 8, ySize - 96 + 2, 4210752);
 		if (this.painting.getContainerUpdate())
 		{
 			//System.out.println("container has been updated");
@@ -498,7 +491,7 @@ public class GuiPainting extends GuiContainer
 		}
 
 	}
-	
+
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float floaty, int mousex, int mousey)
 	{
@@ -511,7 +504,7 @@ public class GuiPainting extends GuiContainer
 		int y = (height - this.guiHeight) / 2;
 		this.drawTexturedModalRect(x, y, 0, 0, this.guiWidth, this.guiHeight);
 		//this.canvasCorner = 0;
-		
+
 		switch (this.canvasCorner)
 		{
 			case 0:{this.drawTexturedModalRect(x+106, y+59, 0, 211, 16, 16); this.drawTexturedModalRect(x+111, y+48, 20, 218, 22, 22); break;}
@@ -519,7 +512,7 @@ public class GuiPainting extends GuiContainer
 			case 2:{this.drawTexturedModalRect(x+148, y+17, 0, 211, 16, 16); this.drawTexturedModalRect(x+137, y+22, 46, 192, 22, 22); break;}
 			case 3:{this.drawTexturedModalRect(x+148, y+59, 0, 211, 16, 16); this.drawTexturedModalRect(x+137, y+48, 46, 218, 22, 22); break;}
 		}
-		
+
 		switch (this.canvasRotation)
 		{
 			case 0:{this.drawTexturedModalRect(x+130, y+93, 39, 240, 10, 10); break;}
@@ -529,14 +522,14 @@ public class GuiPainting extends GuiContainer
 		}
 
 		this.rsScale = this.canvasScale+"x";
-		this.fontRenderer.drawString(this.sScale, x+28, y+5, 4210752);
-		this.fontRenderer.drawString(this.rsScale, x+46-(this.rsScale.length()*8/2), y+16, 0xFFFFFF);
-		this.fontRenderer.drawString(this.sResolution, x+19, y+31, 4210752);
-		this.fontRenderer.drawString(this.sSizeTitle, x+12, y+57, 4210752);
-		this.fontRenderer.drawString(this.sCanvasCorner, x+97, y+5, 4210752);
-		this.fontRenderer.drawString(this.sPaintingFinalSize, x+12, y+82, 4210752);
-		this.fontRenderer.drawString(this.sPaintingRotation, x+115, y+82, 4210752);
-		
+		this.fontRendererObj.drawString(this.sScale, x+28, y+5, 4210752);
+		this.fontRendererObj.drawString(this.rsScale, x+46-(this.rsScale.length()*8/2), y+16, 0xFFFFFF);
+		this.fontRendererObj.drawString(this.sResolution, x+19, y+31, 4210752);
+		this.fontRendererObj.drawString(this.sSizeTitle, x+12, y+57, 4210752);
+		this.fontRendererObj.drawString(this.sCanvasCorner, x+97, y+5, 4210752);
+		this.fontRendererObj.drawString(this.sPaintingFinalSize, x+12, y+82, 4210752);
+		this.fontRendererObj.drawString(this.sPaintingRotation, x+115, y+82, 4210752);
+
 		//System.out.println((this.rsScale.length()*5/2));
 		if (!(this.paintingTitle.contentEquals("blank")))
 		{
@@ -550,7 +543,7 @@ public class GuiPainting extends GuiContainer
 				this.bAspectYPos.visible = false;
 				this.bAspectYNeg.enabled = false;
 				this.bAspectYNeg.visible = false;
-				
+
 				if (this.biblioArtList[this.paintingNumber].resolution.length > 1)
 				{
 					this.bResPos.enabled = true;
@@ -565,7 +558,7 @@ public class GuiPainting extends GuiContainer
 					this.bResNeg.enabled = false;
 					this.bResNeg.visible = false;
 				}
-				
+
 				if (this.biblioArtList[this.paintingNumber].sizeX.length > 1)
 				{
 					this.bSizePos.enabled = true;
@@ -620,14 +613,14 @@ public class GuiPainting extends GuiContainer
 
 				this.resx = vanillaArtList[this.paintingNumber].sizeX;
 				this.resy = vanillaArtList[this.paintingNumber].sizeY;
-				
-				
+
+
 				this.rsAspectRatio = (int)((resx*1.0)/16.0)+":"+(int)((resy*1.0)/16.0);
-				
+
 				this.rsFinalSize = (this.canvasScale*(int)((resx*1.0)/16.0)+" x "+(this.canvasScale*(int)((resy*1.0)/16.0)));
-				
-				
-				
+
+
+
 			}
 			else if (this.paintingType == 2)
 			{
@@ -647,11 +640,11 @@ public class GuiPainting extends GuiContainer
 				this.bAspectYPos.visible = true;
 				this.bAspectYNeg.enabled = true;
 				this.bAspectYNeg.visible = true;
-				
+
 				//GL11.glScaled(0.5, 0.5, 0.5);
 				//this.bAspectXPos.drawButton(mc, mousex, mousey);
 				//GL11.glScaled(2, 2, 2);
-				
+
 				if (this.customArtNames != null)
 				{
 					this.resx = this.customArtWidths[this.paintingNumber];
@@ -662,9 +655,9 @@ public class GuiPainting extends GuiContainer
 			}
 			//System.out.println(this.rsFinalSize.length()*3 / 2);
 			this.rsPixelSize = resx+"x"+resy;
-			this.fontRenderer.drawString(this.rsPixelSize, x+53-(this.rsPixelSize.length()*8/2), y+42, 0xFFFFFF);
-			this.fontRenderer.drawString(this.rsAspectRatio, x+50-(this.rsAspectRatio.length()*8/2), y+68, 0xFFFFFF);
-			this.fontRenderer.drawString(this.rsFinalSize, x+46-(this.rsFinalSize.length()*7/2), y+92, 0X00FF00, true);
+			this.fontRendererObj.drawString(this.rsPixelSize, x+53-(this.rsPixelSize.length()*8/2), y+42, 0xFFFFFF);
+			this.fontRendererObj.drawString(this.rsAspectRatio, x+50-(this.rsAspectRatio.length()*8/2), y+68, 0xFFFFFF);
+			this.fontRendererObj.drawString(this.rsFinalSize, x+46-(this.rsFinalSize.length()*7/2), y+92, 0X00FF00, true);
 		}
 		else
 		{
@@ -676,7 +669,7 @@ public class GuiPainting extends GuiContainer
 			this.bSizePos.visible = false;
 			this.bSizeNeg.enabled = false;
 			this.bSizeNeg.visible = false;
-			
+
 			this.bAspectXPos.enabled = false;
 			this.bAspectXPos.visible = false;
 			this.bAspectXNeg.enabled = false;
@@ -687,7 +680,7 @@ public class GuiPainting extends GuiContainer
 			this.bAspectYNeg.visible = false;
 		}
 	}
-	
+
 	private int roundNum(float num)
 	{
 		int roundDown = (int)num;
@@ -701,12 +694,12 @@ public class GuiPainting extends GuiContainer
 			return roundDown;
 		}
 	}
-	
+
 	@Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         super.drawScreen(mouseX, mouseY, partialTicks);
-        this.renderHoveredToolTip(mouseX, mouseY);
+//        this.renderHoveredToolTip(mouseX, mouseY);
     }
-    
+
 }

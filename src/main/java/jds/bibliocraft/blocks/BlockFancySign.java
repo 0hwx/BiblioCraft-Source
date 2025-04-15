@@ -12,29 +12,25 @@ import jds.bibliocraft.helpers.EnumShiftPosition;
 import jds.bibliocraft.helpers.EnumVertPosition;
 import jds.bibliocraft.tileentities.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityFancySign;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
-import net.minecraftforge.common.model.TRSRTransformation;
+
 
 public class BlockFancySign extends BiblioWoodBlock
 {
 	public static final String name = "FancySign";
 	public static final BlockFancySign instance = new BlockFancySign();
-	
-	public BlockFancySign() 
+
+	public BlockFancySign()
 	{
 		super(name, false);
 	}
-	
-	@Override 
+
+	@Override
 	public CustomBlockItemDataPack getCustomDataOnHarvest(BiblioTileEntity tile)
 	{
 		CustomBlockItemDataPack data = new CustomBlockItemDataPack();
@@ -46,44 +42,44 @@ public class BlockFancySign extends BiblioWoodBlock
 		}
 		return data;
 	}
-	
+
 	@Override
-	public boolean onBlockActivatedCustomCommands(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ) 
+	public boolean onBlockActivatedCustomCommands(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ)
 	{
 		if (!world.isRemote && player.isSneaking())
 		{
-			player.openGui(BiblioCraft.instance, 0, world, pos.getX(), pos.getY(), pos.getZ()); 
+			player.openGui(BiblioCraft.instance, 0, world, x, y, z);
 		}
 		return true;
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(World worldIn, int meta) 
+	public TileEntity createNewTileEntity(World worldIn, int meta)
 	{
 		return new TileEntityFancySign();
 	}
 
-	@Override
-	public List<String> getModelParts(BiblioTileEntity tile) 
-	{
-		List<String> modelParts = new ArrayList<String>();
-		modelParts.add("sign");
-		modelParts.add("front");
-		if (tile.getVertPosition() == EnumVertPosition.FLOOR)
-		{
-			modelParts.add("feetBottom");
-		}
-		if (tile.getVertPosition() == EnumVertPosition.CEILING)
-		{
-			modelParts.add("feetTop");
-		}
-		return modelParts;
-	}
+//	@Override
+//	public List<String> getModelParts(BiblioTileEntity tile)
+//	{
+//		List<String> modelParts = new ArrayList<String>();
+//		modelParts.add("sign");
+//		modelParts.add("front");
+//		if (tile.getVertPosition() == EnumVertPosition.FLOOR)
+//		{
+//			modelParts.add("feetBottom");
+//		}
+//		if (tile.getVertPosition() == EnumVertPosition.CEILING)
+//		{
+//			modelParts.add("feetTop");
+//		}
+//		return modelParts;
+//	}
 
 	@Override
-	public void additionalPlacementCommands(BiblioTileEntity biblioTile, EntityLivingBase player) 
+	public void additionalPlacementCommands(BiblioTileEntity biblioTile, EntityLivingBase player)
 	{
-	     int pitch = MathHelper.floor(player.rotationPitch * 3.0F / 180.0F + 0.5D) & 3;
+	     int pitch = MathHelper.floor_double(player.rotationPitch * 3.0F / 180.0F + 0.5D) & 3;
 	     ++pitch;
 	     pitch %= 4;
 	     if (pitch == 0)
@@ -100,35 +96,35 @@ public class BlockFancySign extends BiblioWoodBlock
 	     }
 	}
 
-	@Override
-	public TRSRTransformation getAdditionalTransforms(TRSRTransformation transform, BiblioTileEntity tile) 
-	{
-		transform = transform.compose(new TRSRTransformation(new Vector3f(-0.0f, 0.0f, -0.0f), 
-			     new Quat4f(0.0f, 1.0f, 0.0f, 1.0f), 
-			     new Vector3f(1.0f, 1.0f, 1.0f), 
-			     new Quat4f(0.0f, 1.0f, 0.0f, 1.0f)));
-		if (tile.getShiftPosition() == EnumShiftPosition.HALF_SHIFT)
-		{
-			transform = transform.compose(new TRSRTransformation(new Vector3f(-0.178f, 0.0f, 0.0f), 
-				     new Quat4f(0.0f, 0.0f, 0.0f, 1.0f), 
-				     new Vector3f(1.0f, 1.0f, 1.0f), 
-				     new Quat4f(0.0f, 0.0f, 0.0f, 1.0f)));
-		}
-		else if (tile.getShiftPosition() == EnumShiftPosition.FULL_SHIFT)
-		{
-			transform = transform.compose(new TRSRTransformation(new Vector3f(-0.427f, 0.0f, 0.0f), 
-				     new Quat4f(0.0f, 0.0f, 0.0f, 1.0f), 
-				     new Vector3f(1.0f, 1.0f, 1.0f), 
-				     new Quat4f(0.0f, 0.0f, 0.0f, 1.0f)));
-		}
-		return transform;
-	}
-	
+//	@Override
+//	public TRSRTransformation getAdditionalTransforms(TRSRTransformation transform, BiblioTileEntity tile)
+//	{
+//		transform = transform.compose(new TRSRTransformation(new Vector3f(-0.0f, 0.0f, -0.0f),
+//			     new Quat4f(0.0f, 1.0f, 0.0f, 1.0f),
+//			     new Vector3f(1.0f, 1.0f, 1.0f),
+//			     new Quat4f(0.0f, 1.0f, 0.0f, 1.0f)));
+//		if (tile.getShiftPosition() == EnumShiftPosition.HALF_SHIFT)
+//		{
+//			transform = transform.compose(new TRSRTransformation(new Vector3f(-0.178f, 0.0f, 0.0f),
+//				     new Quat4f(0.0f, 0.0f, 0.0f, 1.0f),
+//				     new Vector3f(1.0f, 1.0f, 1.0f),
+//				     new Quat4f(0.0f, 0.0f, 0.0f, 1.0f)));
+//		}
+//		else if (tile.getShiftPosition() == EnumShiftPosition.FULL_SHIFT)
+//		{
+//			transform = transform.compose(new TRSRTransformation(new Vector3f(-0.427f, 0.0f, 0.0f),
+//				     new Quat4f(0.0f, 0.0f, 0.0f, 1.0f),
+//				     new Vector3f(1.0f, 1.0f, 1.0f),
+//				     new Quat4f(0.0f, 0.0f, 0.0f, 1.0f)));
+//		}
+//		return transform;
+//	}
+
     @Override
-	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess blockAccess, BlockPos pos)
+	public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z)
 	{
 		AxisAlignedBB output = this.getBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
-		TileEntity tile = blockAccess.getTileEntity(pos);
+		TileEntity tile = world.getTileEntity(x, y, z);
 		if (tile != null && tile instanceof TileEntityFancySign)
     	{
     		TileEntityFancySign sign = (TileEntityFancySign)tile;
@@ -139,15 +135,15 @@ public class BlockFancySign extends BiblioWoodBlock
     			{
     				if (shift == EnumShiftPosition.NO_SHIFT)
     				{
-    					output = this.getBlockBounds(0.94F, 0.2F, 0.0F, 1.0F, 0.8F, 1.0F); 
+    					output = this.getBlockBounds(0.94F, 0.2F, 0.0F, 1.0F, 0.8F, 1.0F);
     				}
     				else if (shift == EnumShiftPosition.HALF_SHIFT)
     				{
-    					output = this.getBlockBounds(0.51F, 0.2F, 0.0F, 0.57F, 0.8F, 1.0F); 
+    					output = this.getBlockBounds(0.51F, 0.2F, 0.0F, 0.57F, 0.8F, 1.0F);
     				}
     				else if (shift == EnumShiftPosition.FULL_SHIFT)
     				{
-    					output = this.getBlockBounds(0.07F, 0.2F, 0.0F, 0.01F, 0.8F, 1.0F); 
+    					output = this.getBlockBounds(0.07F, 0.2F, 0.0F, 0.01F, 0.8F, 1.0F);
     				}
     				break;
 				}
@@ -155,15 +151,15 @@ public class BlockFancySign extends BiblioWoodBlock
     			{
      				if (shift == EnumShiftPosition.NO_SHIFT)
     				{
-     					output = this.getBlockBounds(0.0F, 0.2F, 0.94F, 1.0F, 0.8F, 1.0F); 
+     					output = this.getBlockBounds(0.0F, 0.2F, 0.94F, 1.0F, 0.8F, 1.0F);
     				}
     				else if (shift == EnumShiftPosition.HALF_SHIFT)
     				{
-    					output = this.getBlockBounds(0.0F, 0.2F, 0.51F, 1.0F, 0.8F, 0.57F); 
+    					output = this.getBlockBounds(0.0F, 0.2F, 0.51F, 1.0F, 0.8F, 0.57F);
     				}
     				else if (shift == EnumShiftPosition.FULL_SHIFT)
     				{
-    					output = this.getBlockBounds(0.0F, 0.2F, 0.07F, 1.0F, 0.8F, 0.01F); 
+    					output = this.getBlockBounds(0.0F, 0.2F, 0.07F, 1.0F, 0.8F, 0.01F);
     				}
     				break;
 				}
@@ -171,15 +167,15 @@ public class BlockFancySign extends BiblioWoodBlock
     			{
      				if (shift == EnumShiftPosition.NO_SHIFT)
     				{
-     					output = this.getBlockBounds(0.0F, 0.2F, 0.0F, 0.06F, 0.8F, 1.0F); 
+     					output = this.getBlockBounds(0.0F, 0.2F, 0.0F, 0.06F, 0.8F, 1.0F);
     				}
     				else if (shift == EnumShiftPosition.HALF_SHIFT)
     				{
-    					output = this.getBlockBounds(0.43F, 0.2F, 0.0F, 0.49F, 0.8F, 1.0F); 
+    					output = this.getBlockBounds(0.43F, 0.2F, 0.0F, 0.49F, 0.8F, 1.0F);
     				}
     				else if (shift == EnumShiftPosition.FULL_SHIFT)
     				{
-    					output = this.getBlockBounds(0.93F, 0.2F, 0.0F, 0.99F, 0.8F, 1.0F); 
+    					output = this.getBlockBounds(0.93F, 0.2F, 0.0F, 0.99F, 0.8F, 1.0F);
     				}
     				break;
 				}
@@ -187,7 +183,7 @@ public class BlockFancySign extends BiblioWoodBlock
     			{
      				if (shift == EnumShiftPosition.NO_SHIFT)
     				{
-     					output = this.getBlockBounds(0.0F, 0.2F, 0.0F, 1.0F, 0.8F, 0.06F); 
+     					output = this.getBlockBounds(0.0F, 0.2F, 0.0F, 1.0F, 0.8F, 0.06F);
     				}
     				else if (shift == EnumShiftPosition.HALF_SHIFT)
     				{

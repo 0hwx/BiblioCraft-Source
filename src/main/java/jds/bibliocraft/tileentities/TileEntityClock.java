@@ -3,16 +3,12 @@ package jds.bibliocraft.tileentities;
 import jds.bibliocraft.CommonProxy;
 import jds.bibliocraft.blocks.BlockClock;
 import jds.bibliocraft.helpers.EnumVertPosition;
+import net.minecraft.client.renderer.texture.ITickable;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ITickable;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
 
-public class TileEntityClock extends BiblioTileEntity implements ITickable 
+public class TileEntityClock extends BiblioTileEntity implements ITickable
 {
 
 	//private int clockType = 0; // 0 = small, 1 = large bottom, 2, = large top
@@ -33,14 +29,14 @@ public class TileEntityClock extends BiblioTileEntity implements ITickable
 	public int[] chimeSettings = new int[48];
 	public int[] redstoneSettings = new int[48];
 	public boolean isRedstonePulse = true;
-	
+
 	public TileEntityClock()
 	{
 		super(0, true);
 	}
-	
 
-	
+
+
 	public void setSettingFromGui(int[] dings, int[] powers, boolean tickToggle, boolean chimeToggle, boolean redstoneToggle, boolean ispulsing)
 	{
 		this.chimeSettings = dings;
@@ -49,10 +45,10 @@ public class TileEntityClock extends BiblioTileEntity implements ITickable
 		this.chimes = chimeToggle;
 		this.redstone = redstoneToggle;
 		this.isRedstonePulse = ispulsing;
-		getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+        getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
-	
-	
+
+
 	@Override
 	public void loadCustomNBTData(NBTTagCompound nbt)
 	{
@@ -64,11 +60,11 @@ public class TileEntityClock extends BiblioTileEntity implements ITickable
 		this.redstone = nbt.getBoolean("toggleRedstone");
 		this.isRedstonePulse = nbt.getBoolean("redstonePulse");
 	}
-	
+
 	@Override
 	public NBTTagCompound writeCustomNBTData(NBTTagCompound nbt)
     {
-    	//super.writeToNBT(nbt);  	
+    	//super.writeToNBT(nbt);
     	nbt.setIntArray("chimeSettings", this.chimeSettings);
     	nbt.setIntArray("redstoneSettings", this.redstoneSettings);
     	nbt.setBoolean("tickSound", this.tickSound);
@@ -77,22 +73,22 @@ public class TileEntityClock extends BiblioTileEntity implements ITickable
     	nbt.setBoolean("redstonePulse", this.isRedstonePulse);
     	return nbt;
     }
-	
-	
-    
+
+
+
     @Override
-    public void update()
+    public void tick()
     {
     	if (this.getVertPosition() != EnumVertPosition.FLOOR)
     	{
-    		long time = this.world.getWorldTime();
+    		long time = this.worldObj.getWorldTime();
     		this.activityCount = (int) ((time%24000)/500)+24;
 	    	if (activityCount >= 48)
 	    	{
 	    		this.activityCount -= 48;
 	    	}
-	    	
-	    	if (this.world.isRemote)
+
+	    	if (this.worldObj.isRemote)
 	    	{
 		    	this.hourCount = (int) ((time%24000)/1000)*15;
 		    	this.secondCount = (int) ((time%24000)/16.667)*6;
@@ -101,24 +97,24 @@ public class TileEntityClock extends BiblioTileEntity implements ITickable
 				{
 					this.pendulumCount = (float) ((Math.PI/18)*Math.cos(coscount)*(360/Math.PI));
 				}
-				
+
 				if (this.getVertPosition() == EnumVertPosition.CEILING)
-				{	
+				{
 					this.pendulumCount = (float) ((Math.PI/72)*Math.cos(coscount)*(360/Math.PI));
 				}
-				
+
 				if (this.tickSound)
 				{
 					if (time%40 == 37)
 					{
-						this.getWorld().playSound(pos.getX(), pos.getY(), pos.getZ(), CommonProxy.SOUND_CLOCK_TOCK, SoundCategory.BLOCKS, 0.4F, 1.0F, false);
+						this.getWorldObj().playSoundEffect(xCoord, yCoord, zCoord, CommonProxy.SOUND_CLOCK_TOCK, 0.4F, 1.0F);
 					}
 					else if (time%40 == 17)
 					{
-						this.getWorld().playSound(pos.getX(), pos.getY(), pos.getZ(), CommonProxy.SOUND_CLOCK_TICK, SoundCategory.BLOCKS, 0.4F, 1.0F, false);
+						this.getWorldObj().playSoundEffect(xCoord, yCoord, zCoord, CommonProxy.SOUND_CLOCK_TICK, 0.4F, 1.0F);
 					}
 				}
-				
+
 				if (this.chimes)
 				{
 					if (this.chimePerformed && this.chimeLastPerformed != this.activityCount)
@@ -126,15 +122,15 @@ public class TileEntityClock extends BiblioTileEntity implements ITickable
 						this.chimePerformed = false;
 						this.chimeLastPerformed = -1;
 					}
-					
+
 					if (!this.chimePerformed && this.chimeSettings[activityCount] == 1)
 					{
 						this.chimePerformed = true;
 						this.chimeLastPerformed = activityCount;
-						this.getWorld().playSound(pos.getX(), pos.getY(), pos.getZ(), CommonProxy.SOUND_CLOCK_CHIME, SoundCategory.BLOCKS, 0.4F, 1.0F, false);
+						this.getWorldObj().playSoundEffect(xCoord, yCoord, zCoord, CommonProxy.SOUND_CLOCK_CHIME, 0.4F, 1.0F);
 					}
 				}
-				
+
 	    	}
 	    	else
 	    	{
@@ -145,7 +141,7 @@ public class TileEntityClock extends BiblioTileEntity implements ITickable
 	    	}
     	}
     }
-    
+
     // This only runs on the floor piece?
     // TODO it would be great if I should enable this to follow the minute hand instead of the hour hand
     public void redstoneAlgo()
@@ -156,7 +152,7 @@ public class TileEntityClock extends BiblioTileEntity implements ITickable
 			this.redstoneLastPerformed = -1;
 			//this.setActivateRedstone(false);
 		}
-		
+
 		if (!this.redstonePerformed && this.redstoneSettings[activityCount] == 1)
 		{
 			if (this.isRedstonePulse)
@@ -164,13 +160,13 @@ public class TileEntityClock extends BiblioTileEntity implements ITickable
 				this.redstonePerformed = true;
 				this.redstoneLastPerformed = this.activityCount;
 			}
-			
+
 			if (!redstoneActive)
 			{
 				this.setActivateRedstone(true);
 				if (this.getVertPosition() == EnumVertPosition.CEILING)
 				{
-					TileEntity tile = this.world.getTileEntity(new BlockPos(this.pos.getX(), this.pos.getY() - 1, this.pos.getZ()));
+					TileEntity tile = this.worldObj.getTileEntity(xCoord, yCoord - 1, zCoord);
 					if (tile != null && tile instanceof TileEntityClock)
 					{
 						TileEntityClock bottomClock = (TileEntityClock)tile;
@@ -179,7 +175,7 @@ public class TileEntityClock extends BiblioTileEntity implements ITickable
 				}
 			}
 		}
-		
+
 		if (!this.redstonePerformed && this.redstoneSettings[activityCount] == 0 && !isRedstonePulse)
 		{
 			if (redstoneActive)
@@ -187,7 +183,7 @@ public class TileEntityClock extends BiblioTileEntity implements ITickable
 				this.setActivateRedstone(false);
 				if (this.getVertPosition() == EnumVertPosition.CEILING)
 				{
-					TileEntity tile = this.world.getTileEntity(new BlockPos(this.pos.getX(), this.pos.getY() - 1, this.pos.getZ()));
+					TileEntity tile = this.worldObj.getTileEntity(xCoord, yCoord - 1, zCoord);
 					if (tile != null && tile instanceof TileEntityClock)
 					{
 						TileEntityClock bottomClock = (TileEntityClock)tile;
@@ -196,7 +192,7 @@ public class TileEntityClock extends BiblioTileEntity implements ITickable
 				}
 			}
 		}
-		
+
 		if (this.redstoneActive)
 		{
 			if (this.redstonePerformed && this.redstoneCount < 40) // this determines the length of the redstone pulse
@@ -210,7 +206,7 @@ public class TileEntityClock extends BiblioTileEntity implements ITickable
 				this.setActivateRedstone(false);
 				if (this.getVertPosition() == EnumVertPosition.CEILING)
 				{
-					TileEntity tile = this.world.getTileEntity(new BlockPos(this.pos.getX(), this.pos.getY() - 1, this.pos.getZ()));
+					TileEntity tile = this.worldObj.getTileEntity(xCoord, yCoord - 1, zCoord);
 					if (tile != null && tile instanceof TileEntityClock)
 					{
 						TileEntityClock bottomClock = (TileEntityClock)tile;
@@ -220,7 +216,7 @@ public class TileEntityClock extends BiblioTileEntity implements ITickable
 			}
 		}
     }
-    
+
     public void setActivateRedstone(boolean toggle)
     {
     	//System.out.println("set activated redstone  "+toggle);
@@ -230,11 +226,11 @@ public class TileEntityClock extends BiblioTileEntity implements ITickable
 
 
 
-	@Override
-	public String getName() 
-	{
-		return BlockClock.name;
-	}
+//	@Override
+//	public String getName()
+//	{
+//		return BlockClock.name;
+//	}
 
 
 
@@ -242,16 +238,46 @@ public class TileEntityClock extends BiblioTileEntity implements ITickable
 	public void setInventorySlotContentsAdditionalCommands(int slot, ItemStack stack) { }
 
 
-	@Override
-	public int getInventoryStackLimit() 
+    @Override
+    public ItemStack getStackInSlotOnClosing(int index) {
+        return null;
+    }
+
+    @Override
+    public String getInventoryName() {
+        return "";
+    }
+
+    @Override
+    public boolean hasCustomInventoryName() {
+        return false;
+    }
+
+    @Override
+	public int getInventoryStackLimit()
 	{
 		return 0;
 	}
-	
-	@Override
-	public ITextComponent getDisplayName() 
-	{
-		ITextComponent chat = new TextComponentString(getName());
-		return chat;
-	}
+
+    @Override
+    public void openInventory() {
+
+    }
+
+    @Override
+    public void closeInventory() {
+
+    }
+
+    @Override
+    public int[] getAccessibleSlotsFromSide(int p_94128_1_) {
+        return new int[0];
+    }
+
+//    @Override
+//	public ITextComponent getDisplayName()
+//	{
+//		ITextComponent chat = new ChatComponentText(getName());
+//		return chat;
+//	}
 }

@@ -1,5 +1,6 @@
 package jds.bibliocraft;
 
+import cpw.mods.fml.common.registry.GameRegistry;
 import jds.bibliocraft.helpers.RecipeBiblioAtlas;
 import jds.bibliocraft.items.ItemAtlas;
 import jds.bibliocraft.items.ItemAtlasPlate;
@@ -32,163 +33,166 @@ import jds.bibliocraft.items.ItemStockroomCatalog;
 import jds.bibliocraft.items.ItemTape;
 import jds.bibliocraft.items.ItemTapeMeasure;
 import jds.bibliocraft.items.ItemWaypointCompass;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.oredict.RecipeSorter;
 
 
-public class ItemLoader 
+public class ItemLoader
 {
-	//public static Enchantment readingChant;
-	//public static Enchantment deathCompChant;
-	
-	
-	
-	
-	public static void initItems(RegistryEvent.Register<Item> event)
+	public static Enchantment readingChant;
+	public static Enchantment deathCompChant;
+
+
+
+
+	public static void initItems()
 	{
-		
+
 		// OBJ models
 		if (Config.enableWaypointCompass)
 		{
-			//GameRegistry.registerItem(ItemWaypointCompass.instance, ItemWaypointCompass.name);
-			event.getRegistry().register(ItemWaypointCompass.instance);
+			GameRegistry.registerItem(ItemWaypointCompass.instance, ItemWaypointCompass.name);
 		}
 		if (Config.enableMapFrame)
 		{
-			event.getRegistry().register(ItemMapTool.instance);
+            GameRegistry.registerItem(ItemMapTool.instance, ItemMapTool.name);
 		}
 		if (Config.enableSeat)
 		{
-			event.getRegistry().register(ItemSeatBack.instance);
-			event.getRegistry().register(ItemSeatBack2.instance);
-			event.getRegistry().register(ItemSeatBack3.instance);
-			event.getRegistry().register(ItemSeatBack4.instance);
-			event.getRegistry().register(ItemSeatBack5.instance);
+            GameRegistry.registerItem(ItemSeatBack.instance, ItemSeatBack.name);
+            GameRegistry.registerItem(ItemSeatBack2.instance, ItemSeatBack2.name);
+            GameRegistry.registerItem(ItemSeatBack3.instance, ItemSeatBack3.name);
+            GameRegistry.registerItem(ItemSeatBack4.instance, ItemSeatBack4.name);
+            GameRegistry.registerItem(ItemSeatBack5.instance, ItemSeatBack5.name);
 		}
-		
+
 		// Vanilla models
 		if (Config.enableStockroomCatalog)
 		{
-			event.getRegistry().register(ItemStockroomCatalog.instance);
+            GameRegistry.registerItem(ItemStockroomCatalog.instance, ItemStockroomCatalog.name);
 		}
-		
+
 		if (Config.enablePlumbLine)
 		{
-			event.getRegistry().register(ItemPlumbLine.instance);
+            GameRegistry.registerItem(ItemPlumbLine.instance, ItemPlumbLine.name);
+
 		}
-		
+
 		if (Config.enableFurniturePaneler)
 		{
-			event.getRegistry().register(ItemFramingSaw.instance);
-			event.getRegistry().register(ItemFramingBoard.instance);
-			event.getRegistry().register(ItemFramingSheet.instance);
+            GameRegistry.registerItem(ItemFramingSaw.instance, ItemFramingSaw.name);
+            GameRegistry.registerItem(ItemFramingBoard.instance, ItemFramingBoard.name);
+            GameRegistry.registerItem(ItemFramingSheet.instance, ItemFramingSheet.name);
 		}
-		
+
 		if (Config.enableTesterItem)
 		{
-			event.getRegistry().register(ItemNameTester.instance);
+            GameRegistry.registerItem(ItemNameTester.instance, ItemNameTester.name);
+
 		}
-		
+
 		if (Config.enableAtlas)
 		{
-			event.getRegistry().register(ItemAtlas.instance);
-			event.getRegistry().register(ItemAtlasPlate.instance);
+            GameRegistry.registerItem(ItemAtlas.instance, ItemAtlas.name);
+            GameRegistry.registerItem(ItemAtlasPlate.instance, ItemAtlasPlate.name);
 		}
-		
+
 		if (Config.enableAtlas && Config.enableDeathCompass)
 		{
-			event.getRegistry().register(ItemDeathCompass.instance);
+            GameRegistry.registerItem(ItemDeathCompass.instance, ItemDeathCompass.name);
 			//deathCompChant = new EnchantmentDeathCompass();
 		}
-		
+
 		if (Config.enablePainting)
 		{
-			event.getRegistry().register(ItemPaintingCanvas.instance);
+            GameRegistry.registerItem(ItemPaintingCanvas.instance, ItemPaintingCanvas.name);
+
 		}
 		if (Config.enableBigBook)
 		{
-			event.getRegistry().register(ItemBigBook.instance);
+            GameRegistry.registerItem(ItemBigBook.instance, ItemBigBook.name);
+
 		}
-		
+
 		if (Config.enableFancyWorkbench)
 		{
-			event.getRegistry().register(ItemRecipeBook.instance);
+            GameRegistry.registerItem(ItemRecipeBook.instance, ItemRecipeBook.name);
 		}
-		
+
 		if (Config.enableSlottedBook)
 		{
-			event.getRegistry().register(ItemSlottedBook.instance);
+            GameRegistry.registerItem(ItemSlottedBook.instance, ItemSlottedBook.name);
 		}
-		
+
 		if (Config.enableHandDrill)
 		{
-			event.getRegistry().register(ItemHandDrill.instance);
+            GameRegistry.registerItem(ItemHandDrill.instance, ItemHandDrill.name);
 		}
 
 		if (Config.enableTapemeasure)
 		{
-			event.getRegistry().register(ItemTapeMeasure.instance);
-			event.getRegistry().register(ItemTape.instance);
+            GameRegistry.registerItem(ItemTapeMeasure.instance, ItemTapeMeasure.name);
+            GameRegistry.registerItem(ItemTape.instance, ItemTape.name);
 		}
 		if (Config.enablePrintpressTypeMachine)
 		{
-			event.getRegistry().register(ItemChase.instance);
-			event.getRegistry().register(ItemPlate.instance);
-			event.getRegistry().register(ItemEnchantedPlate.instance);
+            GameRegistry.registerItem(ItemChase.instance, ItemChase.name);
+            GameRegistry.registerItem(ItemPlate.instance, ItemPlate.name);
+            GameRegistry.registerItem(ItemEnchantedPlate.instance, ItemEnchantedPlate.name);
 		}
 		if (Config.enableRedstonebook)
 		{
-			event.getRegistry().register(ItemRedstoneBook.instance);
+            GameRegistry.registerItem(ItemRedstoneBook.instance, ItemRedstoneBook.name);
 		}
 		if (Config.enableReadingglasses)
 		{
-			event.getRegistry().register(ItemReadingGlasses.instance);
+            GameRegistry.registerItem(ItemReadingGlasses.instance, ItemReadingGlasses.name);
 		}
 		if (Config.enableDrill)
 		{
-			event.getRegistry().register(ItemDrill.instance);
+            GameRegistry.registerItem(ItemDrill.instance, ItemDrill.name);
 		}
 		if (Config.enableLock)
 		{
-			event.getRegistry().register(ItemLock.instance);
+            GameRegistry.registerItem(ItemLock.instance, ItemLock.name);
 		}
 		if (Config.enableClipboard)
 		{
-			event.getRegistry().register(ItemClipboard.instance);
+            GameRegistry.registerItem(ItemClipboard.instance, ItemClipboard.name);
 		}
 		//readingChant = new EnchantmentReading();
-		//Enchantment.addToBookList(readingChant); 
-		
-		
+		//Enchantment.addToBookList(readingChant);
+
+
 	}
 
-	public static void addRecipies(RegistryEvent.Register<IRecipe> event)
-	{
-		
-		ItemStack enchantedbook = new ItemStack(Items.ENCHANTED_BOOK, 1, 0);
-		ItemStack enchantedreadingbook = new ItemStack(Items.ENCHANTED_BOOK, 1, 0);
-		if (Config.enableAtlas)
-		{
-			if (Config.enableDeathCompass && Config.enableWaypointCompass)
-			{			
-				ResourceLocation regName = new ResourceLocation("bibliocraft:enchantedatlas");
-				ResourceLocation regNameb = new ResourceLocation("bibliocraft:enchantedatlasalt");
-				ItemStack waypointCompass = new ItemStack(ItemWaypointCompass.instance, 1, 0);
-				ItemStack enderPearl = new ItemStack(Items.ENDER_PEARL, 1, 0);
-				RecipeSorter.register("bibliocraft:enchantedatlas", RecipeBiblioAtlas.class, RecipeSorter.Category.SHAPED, "");
-				IRecipe recipea = RecipeBiblioAtlas.addAtlasEnchantRecipe(new ItemStack(ItemAtlas.instance, 1, 0), "PBP", "CAC", "PBP", 'P', enderPearl, 'B', enchantedbook, 'C', waypointCompass, 'A', new ItemStack(ItemAtlas.instance));
-				recipea.setRegistryName(regName);
-				event.getRegistry().register(recipea);
-				IRecipe recipeb =  RecipeBiblioAtlas.addAtlasEnchantRecipe(new ItemStack(ItemAtlas.instance, 1, 0), "PCP", "BAB", "PCP", 'P', enderPearl, 'B', enchantedbook, 'C', waypointCompass, 'A', new ItemStack(ItemAtlas.instance));
-				recipeb.setRegistryName(regNameb);
-				event.getRegistry().register(recipeb);
-			}
-		}
-		
-	}
+//	public static void addRecipies(RegistryEvent.Register<IRecipe> event)
+//	{
+//
+//		ItemStack enchantedbook = new ItemStack(Items.enchanted_book, 1, 0);
+//		ItemStack enchantedreadingbook = new ItemStack(Items.enchanted_book, 1, 0);
+//		if (Config.enableAtlas)
+//		{
+//			if (Config.enableDeathCompass && Config.enableWaypointCompass)
+//			{
+//				ResourceLocation regName = new ResourceLocation("bibliocraft:enchantedatlas");
+//				ResourceLocation regNameb = new ResourceLocation("bibliocraft:enchantedatlasalt");
+//				ItemStack waypointCompass = new ItemStack(ItemWaypointCompass.instance, 1, 0);
+//				ItemStack enderPearl = new ItemStack(Items.ENDER_PEARL, 1, 0);
+//				RecipeSorter.register("bibliocraft:enchantedatlas", RecipeBiblioAtlas.class, RecipeSorter.Category.SHAPED, "");
+//				IRecipe recipea = RecipeBiblioAtlas.addAtlasEnchantRecipe(new ItemStack(ItemAtlas.instance, 1, 0), "PBP", "CAC", "PBP", 'P', enderPearl, 'B', enchantedbook, 'C', waypointCompass, 'A', new ItemStack(ItemAtlas.instance));
+//				recipea.setUnlocalizedName(regName);
+//				event.getRegistry().register(recipea);
+//				IRecipe recipeb =  RecipeBiblioAtlas.addAtlasEnchantRecipe(new ItemStack(ItemAtlas.instance, 1, 0), "PCP", "BAB", "PCP", 'P', enderPearl, 'B', enchantedbook, 'C', waypointCompass, 'A', new ItemStack(ItemAtlas.instance));
+//				recipeb.setUnlocalizedName(regNameb);
+//				event.getRegistry().register(recipeb);
+//			}
+//		}
+//
+//	}
 }

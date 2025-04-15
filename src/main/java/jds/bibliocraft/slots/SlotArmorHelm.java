@@ -3,7 +3,6 @@ package jds.bibliocraft.slots;
 import jds.bibliocraft.containers.ContainerArmor;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
-import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
@@ -16,27 +15,27 @@ public class SlotArmorHelm extends Slot
 {
 
 	final ContainerArmor armorStand;
-	
+
 	public SlotArmorHelm(ContainerArmor armorContainer, IInventory iInventory, int i, int j, int k)
 	{
 		super(iInventory, i, j, k);
 		this.armorStand = armorContainer;
 	}
-	
+
 	@Override
 	public boolean isItemValid(ItemStack stack)
 	{
 		//armorStand.
-		if (stack == ItemStack.EMPTY)
+		if (stack == null)
 		{
 			return false;
 		}
 		//Item helmItem = stack.getItem();
 		// here is where we can setup conditions to test if an item is valid
-		
+
 		Item helmItem = stack.getItem();
 		//System.out.println(helmItem.getItemDisplayName(stack));
-		if (helmItem instanceof ItemSkull || Block.isEqualTo(Block.getBlockFromItem(helmItem), Blocks.PUMPKIN))//helmItem == Blocks.pumpkin.getIdFromBlock(BlockPumpkin))//stack.itemID == 86)
+		if (helmItem instanceof ItemSkull || Block.isEqualTo(Block.getBlockFromItem(helmItem), Blocks.pumpkin))//helmItem == Blocks.pumpkin.getIdFromBlock(BlockPumpkin))//stack.itemID == 86)
 		{
 			return true;
 		}
@@ -45,8 +44,8 @@ public class SlotArmorHelm extends Slot
 		if (helmItem instanceof ItemArmor)
 		{
 			ItemArmor armorHelm = (ItemArmor)helmItem;
-			EntityEquipmentSlot armorType = armorHelm.armorType;
-			if (armorType == EntityEquipmentSlot.HEAD)
+			int armorType = armorHelm.armorType;
+			if (armorType == 0)
 			{
 			return true;
 			}
@@ -59,11 +58,11 @@ public class SlotArmorHelm extends Slot
 		{
 			return false;
 		}
-		
+
 		//return true;
 	}
-	
-	
+
+
 	@Override
 	public int getSlotStackLimit()
     {

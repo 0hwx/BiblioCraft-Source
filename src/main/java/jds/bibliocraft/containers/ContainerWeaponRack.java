@@ -21,25 +21,25 @@ public class ContainerWeaponRack extends Container
 {
 	protected TileEntityToolRack tileEntity;
 	protected SlotWeaponRack toolSlot;
-	
+
 	public ContainerWeaponRack(InventoryPlayer inventoryPlayer, TileEntityToolRack tile)
 	{
 		tileEntity = tile;
-		
-		addSlotToContainer(this.toolSlot = new SlotWeaponRack(this, tileEntity, 0, 53, 15)); 
+
+		addSlotToContainer(this.toolSlot = new SlotWeaponRack(this, tileEntity, 0, 53, 15));
 		addSlotToContainer(this.toolSlot = new SlotWeaponRack(this, tileEntity, 1, 107, 15));
 		addSlotToContainer(this.toolSlot = new SlotWeaponRack(this, tileEntity, 2, 53, 53));
 		addSlotToContainer(this.toolSlot = new SlotWeaponRack(this, tileEntity, 3, 107, 53));
-		
+
 		bindPlayerInventory(inventoryPlayer);
 	}
-	
+
 	@Override
 	public boolean canInteractWith(EntityPlayer player)
 	{
-		return tileEntity.isUsableByPlayer(player);
+		return tileEntity.isUseableByPlayer(player);
 	}
-	
+
 	protected void bindPlayerInventory(InventoryPlayer inventoryPlayer)
 	{
 		for (int i = 0; i < 3; i++)
@@ -49,7 +49,7 @@ public class ContainerWeaponRack extends Container
 				addSlotToContainer(new Slot(inventoryPlayer, j+i*9+9, 8+j*18, 84+i*18));
 			}
 		}
-		for (int i = 0; i < 9; i++) 
+		for (int i = 0; i < 9; i++)
 		{
 			addSlotToContainer(new Slot(inventoryPlayer, i, 8+i*18,142));
 		}
@@ -60,7 +60,7 @@ public class ContainerWeaponRack extends Container
 @Override
 public ItemStack transferStackInSlot(EntityPlayer player, int slot)
 {
-	ItemStack stack = ItemStack.EMPTY;
+	ItemStack stack = null;
 	Slot slotObject = (Slot) inventorySlots.get(slot);
 
 	if (slotObject != null && slotObject.getHasStack())
@@ -74,29 +74,29 @@ public ItemStack transferStackInSlot(EntityPlayer player, int slot)
 		{
 			if (!this.mergeItemStack(stackInSlot, 4, 40, true))  // changing 9 to 6
 			{
-				return ItemStack.EMPTY;
+				return null;
 			}
 		}
 		else if (isItemTool(toolTest, stack) && !this.mergeItemStack(stackInSlot, 0, 4, false))
 		{
-			return ItemStack.EMPTY;
+			return null;
 		}
 
-		
-		if (stackInSlot.getCount() == 0)
+
+		if (stackInSlot.stackSize == 0)
 		{
-			slotObject.putStack(ItemStack.EMPTY);
-			
-		} else 
+			slotObject.putStack(null);
+
+		} else
 		{
 			slotObject.onSlotChanged();
 		}
-		
-		if (stackInSlot.getCount() == stack.getCount())
+
+		if (stackInSlot.stackSize == stack.stackSize)
 		{
-			return ItemStack.EMPTY;
+			return null;
 		}
-		slotObject.onTake(player, stackInSlot);
+		slotObject.onPickupFromSlot(player, stackInSlot);
 	}
 	return stack;
 }

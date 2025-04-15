@@ -1,97 +1,65 @@
 package jds.bibliocraft.models;
 
-import java.util.ArrayList;
-import java.util.List;
 
-import javax.vecmath.Quat4f;
-import javax.vecmath.Vector3f;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.model.AdvancedModelLoader;
+import net.minecraftforge.client.model.IModelCustom;
 
-import jds.bibliocraft.blocks.BlockCase;
-import jds.bibliocraft.helpers.EnumColor;
-import jds.bibliocraft.states.TextureState;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraftforge.common.model.TRSRTransformation;
 
-public class ModelCase extends BiblioModelWood
+public class ModelCase
 {
-	public static final ModelResourceLocation modelResourceLocation = new ModelResourceLocation("bibliocraft:" + BlockCase.name);
-	
-	private String innerColor = "minecraft:blocks/wool_colored_white";
+	private IModelCustom model = AdvancedModelLoader.loadModel(new ResourceLocation("bibliocraft", "models/block/case.obj"));
 
-	public ModelCase()
-	{
-		super("bibliocraft:block/case.obj");
-	}
-	
-	@Override
-	public String getTextureLocation(String resourceLocation, String textureLocation) 
-	{
-		String returnValue = resourceLocation;
-		if (resourceLocation.contentEquals("minecraft:blocks/planks_oak"))
-		{
-			returnValue = textureLocation;
-		}
-		if (resourceLocation.contentEquals("minecraft:blocks/wool_colored_white"))
-		{
-			returnValue = innerColor;
-		}
-		return returnValue; 
-	}
-	
-	@Override
-	public void loadAdditionalTextureStateStuff(TextureState state) 
-	{ 
-		if (state != null)
-		{
-			
-			this.innerColor = state.getColorOne().getWoolTextureString();
-		}
-		else
-		{
-			
-			this.innerColor = EnumColor.WHITE.getWoolTextureString();
-		}
-	}
-	
-	@Override
-	public TRSRTransformation getTweakedMasterTransform(TRSRTransformation transform)
-	{
-		// if vert position shows, move to floor. Wall is default
-		transform = transform.compose(new TRSRTransformation(new Vector3f(-0.22f, 0.0f, 0.0f), 
-										     				 new Quat4f(0.0f, -1.0f, 0.0f, 1.0f), 
-										     				 new Vector3f(1.0f, 1.0f, 1.0f), 
-					     									 new Quat4f(0.0f, 0.0f, 1.0f, 1.0f)));
-		return transform;
-	}
-	
-	public List<String> getDefaultVisiableModelParts()
-	{
-		List<String> modelParts = new ArrayList<String>();
-		modelParts.add("case_inside");
-		modelParts.add("case_bottom");
-		modelParts.add("case_lid_glass_item");
-		modelParts.add("case_lid_latch_item");
-		modelParts.add("case_lid_wood_item");
-		return modelParts;
-	}
-	
-	@Override
-	public TRSRTransformation getTweakedGUITransform(TRSRTransformation transform)
-	{
-		transform = transform.compose(new TRSRTransformation(new Vector3f(0.0f, 0.22f, 0.0f), 
-														     new Quat4f(0.0f, 0.0f, 0.0f, 1.0f), 
-														     new Vector3f(1.0f, 1.0f, 1.0f), 
-														     new Quat4f(0.0f, 0.0f, 0.0f, 1.0f)));
-		return transform;
-	}
-	
-	@Override
-	public TRSRTransformation getTweakedLeftHandTransform(TRSRTransformation transform)
-	{
-		transform = transform.compose(new TRSRTransformation(new Vector3f(0.0f, 0.0f, 0.0f), 
-				   new Quat4f(0.0f, 0.0f, 1.0f, 1.0f), 
-				   new Vector3f(1.0f, 1.0f, 1.0f), 
-				   new Quat4f(0.0f, 0.0f, 1.0f, 1.0f)));
-		return transform;
-	}
+    public ModelCase() {}
+
+    public void renderCase() {
+        this.model.renderAll();
+    }
+
+    public void rendercase_inside() {
+        this.model.renderPart("case_inside");
+    }
+
+    public void renderlid_wood_open() {
+        this.model.renderPart("case_lid_wood_open");
+    }
+
+    public void renderlid_latch_open() {
+        this.model.renderPart("case_lid_latch_open");
+    }
+
+    public void renderlid_glass_open() {
+        this.model.renderPart("case_lid_glass_open");
+    }
+
+    public void rendercase_lid_glass() {
+        this.model.renderPart("case_lid_glass");
+    }
+
+    public void rendercase_lid_latch() {
+        this.model.renderPart("case_lid_latch");
+    }
+    public void rendercase_lid_wood() {
+        this.model.renderPart("case_lid_wood");
+    }
+
+    public void rendercase_lid_glass_item() {
+        this.model.renderPart("case_lid_glass_item");
+    }
+
+    public void rendercase_lid_latch_item() {
+        this.model.renderPart("case_lid_latch_item");
+    }
+
+    public void rendercase_lid_wood_item() {
+        this.model.renderPart("case_lid_wood_item");
+    }
+
+    public void rendercase_bottom() {
+        this.model.renderPart("case_bottom");
+    }
+
+
+
+
 }

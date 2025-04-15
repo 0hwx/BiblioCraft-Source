@@ -1,23 +1,23 @@
 package jds.bibliocraft.helpers;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.item.crafting.ShapelessRecipes;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.NonNullList;
+
 
 public class RecipeShapelessFramedWood extends ShapelessRecipes
 {
 	//private static String textureString = "none";
 	private static ArrayList<WoodRegistryEntry> registry;
 
-	public RecipeShapelessFramedWood(ItemStack output, NonNullList<Ingredient> inputList) 
+	public RecipeShapelessFramedWood(ItemStack output, List<ItemStack> inputList)
 	{
-		super("", output, inputList);
+		super(output, inputList);
 		if (registry == null)
 			registry = new ArrayList<WoodRegistryEntry>();
 	}
@@ -26,26 +26,25 @@ public class RecipeShapelessFramedWood extends ShapelessRecipes
 	{
 		if (registry == null)
 			registry = new ArrayList<WoodRegistryEntry>();
-		
+
 		registry.add(entry);
 		//textureString = texture.getTextureString();
-		NonNullList<Ingredient> inputstacks = NonNullList.<Ingredient>create();
+        List<ItemStack> inputStacks = new ArrayList<>();
 		for (int i = 0; i < stuff.length; i++)
 		{
-			if (stuff[i] instanceof ItemStack)
-			{
-				inputstacks.add((Ingredient)stuff[i]);
-			}
+            if (stuff[i] instanceof ItemStack) {
+                inputStacks.add((ItemStack) stuff[i]);
+            }
 		}
-		
+
         NBTTagCompound tags = new NBTTagCompound();
         tags.setString("renderTexture", entry.getTextureString());
         stack.setTagCompound(tags);
-        
-		IRecipe shapedrecipe = new RecipeShapelessFramedWood(stack, inputstacks);
+
+		IRecipe shapedrecipe = new RecipeShapelessFramedWood(stack, inputStacks);
 		return shapedrecipe;
 	}
-	
+
 	@Override
     public ItemStack getCraftingResult(InventoryCrafting inv)
     {
@@ -66,12 +65,12 @@ public class RecipeShapelessFramedWood extends ShapelessRecipes
         itemstack.setTagCompound(tags);
         return itemstack;
     }
-	
+
 	private WoodRegistryEntry foundMatch(ItemStack stack)
 	{
 		//boolean result = false;
 		WoodRegistryEntry result = new WoodRegistryEntry("none", "none", "none", false);
-		
+
 		for (int i = 0; i < registry.size(); i++)
 		{
 			WoodRegistryEntry entry = registry.get(i);
@@ -81,7 +80,7 @@ public class RecipeShapelessFramedWood extends ShapelessRecipes
 				break;
 			}
 		}
-		
+
 		return result;
 	}
 }

@@ -7,10 +7,10 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class VersionCheck {
 	public static String currentversion = BiblioCraft.VERSION;
@@ -28,8 +28,8 @@ public class VersionCheck {
 	@SubscribeEvent
 	public void onWorldLoad(EntityJoinWorldEvent event) {
 		if (runEvent && Config.checkforupdate) {
-			if (event.getEntity() instanceof EntityPlayer && event.getWorld().isRemote) {
-				this.player = (EntityPlayer) event.getEntity();
+			if (event.entity instanceof EntityPlayer && event.world.isRemote) {
+				this.player = (EntityPlayer) event.entity;
 				runEvent = false;
 				new Thread(() -> {
 					getNetVersion(player);
@@ -133,7 +133,7 @@ public class VersionCheck {
 			// InputStream stream = updateMsg.openStream();
 			// byte[] data = new byte[stream.available()];
 			// stream.read(data);
-			player.sendMessage(new TextComponentString(data));
+			player.addChatMessage(new ChatComponentText(data));
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

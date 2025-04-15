@@ -13,7 +13,7 @@ public class ContainerDiscRack extends Container
 {
 	protected TileEntityDiscRack rackTile;
 	protected SlotDisc discSlot;
-	
+
 	public ContainerDiscRack(InventoryPlayer inventoryPlayer, TileEntityDiscRack tile)
 	{
 		rackTile = tile;
@@ -28,13 +28,13 @@ public class ContainerDiscRack extends Container
 		addSlotToContainer(this.discSlot = new SlotDisc(this, rackTile, 8, 152, 34));
 		bindPlayerInventory(inventoryPlayer);
 	}
-	
+
 	@Override
 	public boolean canInteractWith(EntityPlayer player)
 	{
-		return rackTile.isUsableByPlayer(player);
+		return rackTile.isUseableByPlayer(player);
 	}
-	
+
 	protected void bindPlayerInventory(InventoryPlayer inventoryPlayer)
 	{
 		for (int i = 0; i < 3; i++)
@@ -44,16 +44,16 @@ public class ContainerDiscRack extends Container
 				addSlotToContainer(new Slot(inventoryPlayer, j+i*9+9, 8+j*18, 84+i*18));
 			}
 		}
-		for (int i = 0; i < 9; i++) 
+		for (int i = 0; i < 9; i++)
 		{
 			addSlotToContainer(new Slot(inventoryPlayer, i, 8+i*18,142));
 		}
 	}
-	
+
 	@Override
 	public ItemStack transferStackInSlot(EntityPlayer player, int slot)
 	{
-		ItemStack stack = ItemStack.EMPTY;
+		ItemStack stack = null;
 		Slot slotObject = (Slot) inventorySlots.get(slot);
 	//null checks and checks if the item can be stacked (maxStackSize > 1)
 		if (slotObject != null && slotObject.getHasStack())
@@ -67,30 +67,30 @@ public class ContainerDiscRack extends Container
 			{
 				if (!this.mergeItemStack(stackInSlot, 9, 45, true))  // changing 9 to 6
 				{
-					return ItemStack.EMPTY;
+					return null;
 				}
 			}
 			//places it into the tileEntity is possible since its in the player inventory
 
 			else if (discSlot.isItemValid(stack) && !this.mergeItemStack(stackInSlot, 0, 9, false))
 			{
-				return ItemStack.EMPTY;
+				return null;
 			}
 
-			
-			if (stackInSlot.getCount() == 0)
+
+			if (stackInSlot.stackSize == 0)
 			{
-				slotObject.putStack(ItemStack.EMPTY);
-			} else 
+				slotObject.putStack(null);
+			} else
 			{
 				slotObject.onSlotChanged();
 			}
-			
-			if (stackInSlot.getCount() == stack.getCount())
+
+			if (stackInSlot.stackSize == stack.stackSize)
 			{
-				return ItemStack.EMPTY;
+				return null;
 			}
-			slotObject.onTake(player, stackInSlot);
+			slotObject.onPickupFromSlot(player, stackInSlot);
 		}
 		return stack;
 	}

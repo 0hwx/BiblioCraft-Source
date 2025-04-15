@@ -8,16 +8,16 @@ public class BlockBookcaseCreative extends BlockBookcase
 {
 	public static final String name = "BookcaseCreative";
 	public static final BlockBookcaseCreative instance = new BlockBookcaseCreative();
-	
+
 	public BlockBookcaseCreative()
 	{
 		super(name);
-		//setRegistryName(name);
+		//setUnlocalizedName(name);
 		//setUnlocalizedName(BlockBookcase.name);
-		//setRegistryName(name);
-		//setRegistryName("bibliocraft:" + name);
+		//setUnlocalizedName(name);
+		//setUnlocalizedName("bibliocraft:" + name);
 	}
-	
+
 	@Override
 	public void additionalPlacementCommands(BiblioTileEntity biblioTile, EntityLivingBase player)
 	{
@@ -27,5 +27,5 @@ public class BlockBookcaseCreative extends BlockBookcase
 			bookcase.addRandomBooksToShelf();
 		}
 	}
-    
+
 }

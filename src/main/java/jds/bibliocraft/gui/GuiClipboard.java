@@ -14,14 +14,13 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
 
 public class GuiClipboard extends GuiScreen
 {
 	public static final ResourceLocation book_png = new ResourceLocation("bibliocraft", "textures/gui/clipboardGUI.png");
     private int bookImageWidth = 192;
     private int bookImageHeight = 192;
-    
+
     private int button0state = 1;
     private int button1state = 0;
     private int button2state = 0;
@@ -31,7 +30,7 @@ public class GuiClipboard extends GuiScreen
     private int button6state = 0;
     private int button7state = 0;
     private int button8state = 0;
-    
+
     private String button0text = " ";
     private String button1text = " ";
     private String button2text = " ";
@@ -42,7 +41,7 @@ public class GuiClipboard extends GuiScreen
     private String button7text = " ";
     private String button8text = " ";
     private String titletext = " ";
-    
+
     private GuiBiblioTextField textField0;
     private GuiBiblioTextField textField1;
     private GuiBiblioTextField textField2;
@@ -53,29 +52,29 @@ public class GuiClipboard extends GuiScreen
     private GuiBiblioTextField textField7;
     private GuiBiblioTextField textField8;
     private GuiBiblioTextField textFieldTitle;
-    
+
     private GuiButtonNextPage buttonNextPage;
     private GuiButtonNextPage buttonPreviousPage;
-    
+
     private ItemStack clipStack;
     private int totalPages = 1;
     private int currentPage = 1;
-    
+
     private int tilex = 0;
     private int tiley = 0;
     private int tilez = 0;
-    
+
     private int fieldCharLimit = 23;
-    
+
     private boolean inInv;
-	
+
    // private GuiTextField texty;
-    public GuiClipboard(ItemStack stack, boolean eqippued, int tx, int ty, int tz) 
+    public GuiClipboard(ItemStack stack, boolean eqippued, int tx, int ty, int tz)
     {
     	clipStack = stack;
     	inInv = eqippued;
     	getNBTData();
-    	
+
     	if (!inInv)
     	{
     		tilex = tx;
@@ -125,7 +124,7 @@ public class GuiClipboard extends GuiScreen
     		}
     	}
     }
-    
+
     @Override
 	public void initGui()
 	{
@@ -146,17 +145,17 @@ public class GuiClipboard extends GuiScreen
     	buttonList.add(new GuiButtonClipboard(6, sidex, 117, 10, 10, "", true));
     	buttonList.add(new GuiButtonClipboard(7, sidex, 132, 10, 10, "", true));
     	buttonList.add(new GuiButtonClipboard(8, sidex, 147, 10, 10, "", true));
-    	
-    	this.textField0 = new GuiBiblioTextField(this.fontRenderer, sidex2, 29, 115, 10);
-    	this.textField1 = new GuiBiblioTextField(this.fontRenderer, sidex2, 44, 115, 10);
-    	this.textField2 = new GuiBiblioTextField(this.fontRenderer, sidex2, 59, 115, 10);
-    	this.textField3 = new GuiBiblioTextField(this.fontRenderer, sidex2, 74, 115, 10);
-    	this.textField4 = new GuiBiblioTextField(this.fontRenderer, sidex2, 89, 115, 10);
-    	this.textField5 = new GuiBiblioTextField(this.fontRenderer, sidex2, 104, 115, 10);
-    	this.textField6 = new GuiBiblioTextField(this.fontRenderer, sidex2, 119, 115, 10);
-    	this.textField7 = new GuiBiblioTextField(this.fontRenderer, sidex2, 134, 115, 10);
-    	this.textField8 = new GuiBiblioTextField(this.fontRenderer, sidex2, 149, 115, 10);
-    	this.textFieldTitle = new GuiBiblioTextField(this.fontRenderer, sidex2-10, 14, 125, 10);
+
+    	this.textField0 = new GuiBiblioTextField(this.fontRendererObj, sidex2, 29, 115, 10);
+    	this.textField1 = new GuiBiblioTextField(this.fontRendererObj, sidex2, 44, 115, 10);
+    	this.textField2 = new GuiBiblioTextField(this.fontRendererObj, sidex2, 59, 115, 10);
+    	this.textField3 = new GuiBiblioTextField(this.fontRendererObj, sidex2, 74, 115, 10);
+    	this.textField4 = new GuiBiblioTextField(this.fontRendererObj, sidex2, 89, 115, 10);
+    	this.textField5 = new GuiBiblioTextField(this.fontRendererObj, sidex2, 104, 115, 10);
+    	this.textField6 = new GuiBiblioTextField(this.fontRendererObj, sidex2, 119, 115, 10);
+    	this.textField7 = new GuiBiblioTextField(this.fontRendererObj, sidex2, 134, 115, 10);
+    	this.textField8 = new GuiBiblioTextField(this.fontRendererObj, sidex2, 149, 115, 10);
+    	this.textFieldTitle = new GuiBiblioTextField(this.fontRendererObj, sidex2-10, 14, 125, 10);
 
     	this.textField0.setEnableBackgroundDrawing(false);
     	this.textField1.setEnableBackgroundDrawing(false);
@@ -178,7 +177,7 @@ public class GuiClipboard extends GuiScreen
     	this.textField7.setTextColor(0x404040);
     	this.textField8.setTextColor(0x404040);
     	this.textFieldTitle.setTextColor(0x404040);
-    	
+
     	this.textField0.setText(button0text);
     	this.textField1.setText(button1text);
     	this.textField2.setText(button2text);
@@ -189,7 +188,7 @@ public class GuiClipboard extends GuiScreen
     	this.textField7.setText(button7text);
     	this.textField8.setText(button8text);
     	this.textFieldTitle.setText(titletext);
-    	
+
     	this.textField0.setMaxStringLength(fieldCharLimit);
     	this.textField1.setMaxStringLength(fieldCharLimit);
     	this.textField2.setMaxStringLength(fieldCharLimit);
@@ -206,16 +205,16 @@ public class GuiClipboard extends GuiScreen
         byte var2 = 2;
         this.buttonList.add(this.buttonNextPage = new GuiButtonNextPage(10, var1 + 120, var2 + 157, true));
         this.buttonList.add(this.buttonPreviousPage = new GuiButtonNextPage(11, var1 + 38, var2 + 157, false));
-    	
+
 	}
-    
+
     @Override
 	public void drawScreen(int par1, int par2, float par3)
     {
         //int var4 = this.mc.renderEngine.getTexture("/gui/book.png");
         //GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
     	// This runs each tich
-    	
+
     	GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
         Minecraft.getMinecraft().getTextureManager().bindTexture(book_png);
         int var5 = (this.width - this.bookImageWidth) / 2;
@@ -276,7 +275,7 @@ public class GuiClipboard extends GuiScreen
         {
         	pageoffset = var5+87;
         }
-        fontRenderer.drawString(currpage, pageoffset, 162, 0x404040);
+        fontRendererObj.drawString(currpage, pageoffset, 162, 0x404040);
         if (currentPage > 1)
         {
         	this.buttonPreviousPage.enabled = true;
@@ -305,21 +304,21 @@ public class GuiClipboard extends GuiScreen
         this.textField7.drawTextBox();
         this.textField8.drawTextBox();
         this.textFieldTitle.drawTextBox();
-        
+
         if (this.textField0.isFocused())
         {
         	//System.out.println("Field 0 is focused");
         }
        // GL11.glEnable(GL11.GL_LIGHTING);
     }
-    
+
     @Override
 	public void updateScreen()
     {
     	//System.out.println("test");
         super.updateScreen();
     }
-    
+
     private void nextPage()
     {
     	// I should probly double check and save the current page of stuff before advancing as well..
@@ -375,7 +374,7 @@ public class GuiClipboard extends GuiScreen
     	}
     	//return false;
     }
-    
+
     private void prevPage()
     {
     	saveNBT();
@@ -399,7 +398,7 @@ public class GuiClipboard extends GuiScreen
     	}
     	//return false;
     }
-    
+
     @Override
 	protected void actionPerformed(GuiButton click)
     {
@@ -450,7 +449,7 @@ public class GuiClipboard extends GuiScreen
 	    		}
 	    	}
     	}
-    	
+
     	if(click.id == 10)
     	{
     		// this is the next page button
@@ -462,7 +461,7 @@ public class GuiClipboard extends GuiScreen
     		prevPage();
     	}
     }
-    
+
     public void saveNBT()
     {
     	// I will write this method to be called from onGuiClosed and from next pages/prev page functions
@@ -491,10 +490,10 @@ public class GuiClipboard extends GuiScreen
     			cliptags.setTag(pagenum, pagetag);
     			clipStack.setTagCompound(cliptags);
     		}
-    		
+
     	}
     }
-    
+
     @Override
     public void onGuiClosed()
     {
@@ -513,7 +512,7 @@ public class GuiClipboard extends GuiScreen
             }
             else
             {
-				BiblioNetworking.INSTANCE.sendToServer(new BiblioMCBEdit(new BlockPos(tilex, tiley, tilez), currentPage, this.clipStack));
+				BiblioNetworking.INSTANCE.sendToServer(new BiblioMCBEdit(tilex, tiley, tilez, currentPage, this.clipStack));
             	// buffer.writeInt(tilex);
             	// buffer.writeInt(tiley);
             	// buffer.writeInt(tilez);
@@ -526,17 +525,10 @@ public class GuiClipboard extends GuiScreen
             ex.printStackTrace();
         }
     }
-    
+
     protected void mouseClicked(int par1, int par2, int par3)
     {
-        try 
-        {
-			super.mouseClicked(par1, par2, par3);
-		} 
-        catch (IOException e) 
-        {
-			e.printStackTrace();
-		}
+        super.mouseClicked(par1, par2, par3);
         //System.out.println(par1+"    "+par2+"    "+par3);
         this.textField0.mouseClicked(par1, par2, par3);
         this.textField1.mouseClicked(par1, par2, par3);
@@ -549,7 +541,7 @@ public class GuiClipboard extends GuiScreen
         this.textField8.mouseClicked(par1, par2, par3);
         this.textFieldTitle.mouseClicked(par1, par2, par3);
     }
-    
+
     protected void keyTyped(char par1, int par2)
     {
     	//System.out.println(par1+"     "+par2);
@@ -681,16 +673,9 @@ public class GuiClipboard extends GuiScreen
         }
         else
         {
-            try 
-            {
-				super.keyTyped(par1, par2);
-			} 
-            catch (IOException e) 
-            {
-				e.printStackTrace();
-			}
+            super.keyTyped(par1, par2);
         }
-        
+
     }
 
 }

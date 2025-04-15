@@ -1,9 +1,8 @@
 package jds.bibliocraft.helpers;
 
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.IStringSerializable;
 
-public enum EnumColor implements IStringSerializable
+public enum EnumColor
 {
 	WHITE(0, "white"),
 	LIGHT_GRAY(1, "silver"),
@@ -21,38 +20,37 @@ public enum EnumColor implements IStringSerializable
 	MAGENTA(13, "magenta"),
 	PINK(14, "pink"),
 	BROWN(15, "brown");
-	
-	
-	
+
+
+
 
 	private int ID;
 	private String name;
 	private String texturePath;
 	private static final EnumColor[] META_LOOKUP = new EnumColor[values().length];
-	
+
 	private EnumColor(int id, String name)
 	{
 		this.ID = id;
 		this.name = name;
 		this.texturePath = "minecraft:blocks/wool_colored_" + name;
 	}
-	
-	@Override
-	public String getName() 
+
+	public String getName()
 	{
 		return this.name;
 	}
-	
+
 	public int getID()
 	{
 		return this.ID;
 	}
-	
+
 	public String getWoolTextureString()
 	{
 		return this.texturePath;
 	}
-	
+
 	public static EnumColor getColorFromCarpetOrWool(ItemStack stack)
 	{
 		EnumColor color = EnumColor.WHITE;
@@ -80,13 +78,13 @@ public enum EnumColor implements IStringSerializable
 		}
 		return color;
 	}
-	
+
 	public static EnumColor getColorEnumFromID(int id)
 	{
 		EnumColor color = META_LOOKUP[id];
 		return color;
 	}
-	
+
 	static
 	{
 		for (EnumColor color : values())

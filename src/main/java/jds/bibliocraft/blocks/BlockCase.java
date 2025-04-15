@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
 
+import cpw.mods.fml.common.network.NetworkRegistry;
 import jds.bibliocraft.BiblioCraft;
 import jds.bibliocraft.CommonProxy;
 import jds.bibliocraft.helpers.EnumColor;
@@ -18,58 +19,51 @@ import jds.bibliocraft.tileentities.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityCase;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockCarpet;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.model.TRSRTransformation;
-import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
 
 public class BlockCase extends BiblioWoodBlock
 {
 	public static final String name = "Case";
 	public static final BlockCase instance = new BlockCase();
 	public static final float range = 32.0F;
-	
+
 	public BlockCase()
 	{
 		super(name, true);
 	}
-	
+
 	@Override
-	public boolean onBlockActivatedCustomCommands(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ) 
+	public boolean onBlockActivatedCustomCommands(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ)
 	{
 		if (!world.isRemote)
 		{
-			TileEntityCase tile = (TileEntityCase)world.getTileEntity(pos);
-			ItemStack playerHand = player.getHeldItem(EnumHand.MAIN_HAND);
+			TileEntityCase tile = (TileEntityCase)world.getTileEntity(x, y, z);
+			ItemStack playerHand = player.getHeldItem();
 			if (tile != null)
 			{
 				if (player.isSneaking())
 				{
 					tile.setOpenLid(!tile.getOpenLid());
-					TargetPoint target = new TargetPoint(world.provider.getDimension(), pos.getX(), pos.getY(), pos.getZ(), range);
+					NetworkRegistry.TargetPoint target = new NetworkRegistry.TargetPoint(world.provider.dimensionId, x, y, z, range);
 					if (tile.getOpenLid())
 					{
-						//world.playSound(null, pos, CommonProxy.SOUND_CASE_OPEN, SoundCategory.BLOCKS, 1.0F, 1.0F); 
-						BiblioNetworking.INSTANCE.sendToAllAround(new BiblioSoundPlayer(CommonProxy.SOUND_CASE_OPEN_TEXT, pos, 1.0F, 1.0F), target);
+						//world.playSound(null, pos, CommonProxy.SOUND_CASE_OPEN, SoundCategory.BLOCKS, 1.0F, 1.0F);
+						BiblioNetworking.INSTANCE.sendToAllAround(new BiblioSoundPlayer(CommonProxy.SOUND_CASE_OPEN_TEXT, x, y, z, 1.0F, 1.0F), target);
 					}
 					else
 					{
 						//world.playSound(null, pos, CommonProxy.SOUND_CASE_CLOSE, SoundCategory.BLOCKS, 1.0F, 1.0F);
-						BiblioNetworking.INSTANCE.sendToAllAround(new BiblioSoundPlayer(CommonProxy.SOUND_CASE_CLOSE_TEXT, pos, 1.0F, 1.0F), target);
+						BiblioNetworking.INSTANCE.sendToAllAround(new BiblioSoundPlayer(CommonProxy.SOUND_CASE_CLOSE_TEXT, x, y, z, 1.0F, 1.0F), target);
 					}
 				}
 				else if (tile.getOpenLid())
@@ -79,7 +73,7 @@ public class BlockCase extends BiblioWoodBlock
 						//drop the item
 						tile.removeStackFromInventoryFromWorld(0, player, this);
 					}
-					else if (playerHand != ItemStack.EMPTY)
+					else if (playerHand != null)
 					{
 						//add
 						if (Block.getBlockFromItem(playerHand.getItem()) instanceof BlockCarpet)
@@ -94,7 +88,7 @@ public class BlockCase extends BiblioWoodBlock
 					}
 					else
 					{
-						player.openGui(BiblioCraft.instance, 5, world, pos.getX(), pos.getY(), pos.getZ());
+						player.openGui(BiblioCraft.instance, 5, world, x, y, z);
 					}
 				}
 			}
@@ -103,40 +97,40 @@ public class BlockCase extends BiblioWoodBlock
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(World worldIn, int meta) 
+	public TileEntity createNewTileEntity(World worldIn, int meta)
 	{
 		return new TileEntityCase();
 	}
 
-	@Override
-	public List<String> getModelParts(BiblioTileEntity tile) 
-	{
-		List<String> modelParts = new ArrayList<String>();
-		modelParts.add("case_inside");
-		modelParts.add("case_bottom");
-		if (tile instanceof TileEntityCase)
-		{
-			TileEntityCase casetile = (TileEntityCase)tile;
-			if (casetile.getOpenLid())
-			{
-				modelParts.add("case_lid_glass_open");
-				modelParts.add("case_lid_latch_open");
-				modelParts.add("case_lid_wood_open");
-			}
-			else
-			{
-				modelParts.add("case_lid_glass");
-				modelParts.add("case_lid_latch");
-				modelParts.add("case_lid_wood");
-			}
-		}
-		return modelParts;
-	}
+//	@Override
+//	public List<String> getModelParts(BiblioTileEntity tile)
+//	{
+//		List<String> modelParts = new ArrayList<String>();
+//		modelParts.add("case_inside");
+//		modelParts.add("case_bottom");
+//		if (tile instanceof TileEntityCase)
+//		{
+//			TileEntityCase casetile = (TileEntityCase)tile;
+//			if (casetile.getOpenLid())
+//			{
+//				modelParts.add("case_lid_glass_open");
+//				modelParts.add("case_lid_latch_open");
+//				modelParts.add("case_lid_wood_open");
+//			}
+//			else
+//			{
+//				modelParts.add("case_lid_glass");
+//				modelParts.add("case_lid_latch");
+//				modelParts.add("case_lid_wood");
+//			}
+//		}
+//		return modelParts;
+//	}
 
 	@Override
-	public void additionalPlacementCommands(BiblioTileEntity biblioTile, EntityLivingBase player) 
+	public void additionalPlacementCommands(BiblioTileEntity biblioTile, EntityLivingBase player)
 	{
-		 int pitch = MathHelper.floor(player.rotationPitch * 3.0F / 180.0F + 0.5D) & 3;
+		 int pitch = MathHelper.floor_double(player.rotationPitch * 3.0F / 180.0F + 0.5D) & 3;
 	     ++pitch;
 	     pitch %= 2;
 	     if (pitch == 1)
@@ -149,24 +143,24 @@ public class BlockCase extends BiblioWoodBlock
 	     }
 	}
 
+//	@Override
+//	public TRSRTransformation getAdditionalTransforms(TRSRTransformation transform, BiblioTileEntity tile)
+//	{
+//		if (tile.getVertPosition() == EnumVertPosition.FLOOR)
+//		{
+//			transform = transform.compose(new TRSRTransformation(new Vector3f(1.0f, 0.0f, 1.0f),
+//															     new Quat4f(0.0f, -1.0f, 0.0f, 1.0f),
+//															     new Vector3f(1.0f, 1.0f, 1.0f),
+//															     new Quat4f(0.0f, 0.0f, 1.0f, 1.0f)));
+//		}
+//		return transform;
+//	}
+
 	@Override
-	public TRSRTransformation getAdditionalTransforms(TRSRTransformation transform, BiblioTileEntity tile) 
-	{
-		if (tile.getVertPosition() == EnumVertPosition.FLOOR)
-		{
-			transform = transform.compose(new TRSRTransformation(new Vector3f(1.0f, 0.0f, 1.0f), 
-															     new Quat4f(0.0f, -1.0f, 0.0f, 1.0f), 
-															     new Vector3f(1.0f, 1.0f, 1.0f), 
-															     new Quat4f(0.0f, 0.0f, 1.0f, 1.0f)));
-		}
-		return transform;
-	}
-	
-	@Override
-	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess blockAccess, BlockPos pos)
+	public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z)
 	{
 		AxisAlignedBB output = this.getBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
-		TileEntity tile = blockAccess.getTileEntity(pos);
+		TileEntity tile = world.getTileEntity(x, y, z);
 		if (tile != null && tile instanceof BiblioTileEntity)
 		{
 			BiblioTileEntity caseTile = (BiblioTileEntity)tile;
@@ -206,7 +200,7 @@ public class BlockCase extends BiblioWoodBlock
 					{
 						output = this.getBlockBounds(0.0F, 0.0F, 0.06F, 0.5F, 1.0F, 0.94F);
 					}
-					
+
 					break;
 				}
 				case EAST:
@@ -226,12 +220,12 @@ public class BlockCase extends BiblioWoodBlock
 		}
 		return output;
 	}
-	
+
 	@Override
     public TextureState addAdditionTextureStateInformation(BiblioTileEntity tile, TextureState state)
     {
     	ItemStack stack = tile.getStackInSlot(1);
-    	if (stack != ItemStack.EMPTY)
+    	if (stack != null)
     	{
         	state.setColorOne(EnumColor.getColorFromCarpetOrWool(stack));
     	}
@@ -241,36 +235,36 @@ public class BlockCase extends BiblioWoodBlock
     	}
     	return state;
     }
-	
+
 	@Override
-    public boolean canProvidePower(IBlockState state)
+    public boolean canProvidePower()
     {
         return true;
     }
-	
+
 	@Override
-    public int getWeakPower(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side)
+      public int isProvidingWeakPower(IBlockAccess world, int x, int y, int z, int side)
     {
 		int output = 0;
-		TileEntity te = world.getTileEntity(pos);
+		TileEntity te = world.getTileEntity(x, y, z);
 		if (te != null && te instanceof TileEntityCase)
 		{
 			TileEntityCase tile = (TileEntityCase)te;
 			ItemStack stack = tile.getStackInSlot(0);
-			Item testItem = Item.getItemFromBlock(Blocks.REDSTONE_BLOCK);
-			
-			if (stack != ItemStack.EMPTY && stack.getUnlocalizedName().contains(testItem.getUnlocalizedName()))
+			Item testItem = Item.getItemFromBlock(Blocks.redstone_block);
+
+			if (stack != null && stack.getUnlocalizedName().contains(testItem.getUnlocalizedName()))
 			{
 				output = 15;
 			}
 		}
 		return output;
     }
-	
+
 	@Override
-	public int getStrongPower(IBlockState state, IBlockAccess worldIn, BlockPos pos, EnumFacing side)
+	public int isProvidingStrongPower(IBlockAccess worldIn, int x, int y, int z, int side)
     {
-		
-		return getWeakPower(state, worldIn, pos, side);
+
+		return isProvidingWeakPower(worldIn, x, y, z, side);
     }
 }

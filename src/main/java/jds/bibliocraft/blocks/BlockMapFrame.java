@@ -18,39 +18,34 @@ import jds.bibliocraft.network.packet.server.BiblioUpdateInv;
 import jds.bibliocraft.tileentities.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityMapFrame;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.client.model.obj.OBJModel;
-import net.minecraftforge.common.model.TRSRTransformation;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
+import cpw.mods.fml.common.network.ByteBufUtils;
+import net.minecraftforge.common.util.ForgeDirection;
 
 public class BlockMapFrame extends BiblioWoodBlock
 {
 	public static final String name = "MapFrame";
 	public static final BlockMapFrame instance = new BlockMapFrame();
-	
+
 	public BlockMapFrame()
 	{
 		super(name, false);
 	}
-	
+
 	@Override
-	public boolean onBlockActivatedCustomCommands(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ) 
+	public boolean onBlockActivatedCustomCommands(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ)
 	{
-		TileEntityMapFrame frameTile = (TileEntityMapFrame)world.getTileEntity(pos);	
-		ItemStack playerStack = player.getHeldItem(EnumHand.MAIN_HAND);
+		TileEntityMapFrame frameTile = (TileEntityMapFrame)world.getTileEntity(x, y, z);
+		ItemStack playerStack = player.getHeldItem();
 		if (!world.isRemote)
 		{
 			if (frameTile != null)
@@ -64,21 +59,21 @@ public class BlockMapFrame extends BiblioWoodBlock
 				}
 				else
 				{
-					if (playerStack != ItemStack.EMPTY)
+					if (playerStack != null)
 					{
-						if (playerStack.getItem() ==Items.FILLED_MAP)
+						if (playerStack.getItem() ==Items.filled_map)
 						{
-							int stackSize = playerStack.getCount();
+							int stackSize = playerStack.stackSize;
 							if (frameTile.addMap(playerStack))
 							{
 								if (stackSize == 1)
 								{
-									player.inventory.setInventorySlotContents(player.inventory.currentItem, ItemStack.EMPTY);
+									player.inventory.setInventorySlotContents(player.inventory.currentItem, null);
 								}
 								else
 								{
 									stackSize--;
-									playerStack.setCount(stackSize);
+									playerStack.stackSize = (stackSize);
 									player.inventory.setInventorySlotContents(player.inventory.currentItem, playerStack);
 								}
 								return true;
@@ -101,7 +96,7 @@ public class BlockMapFrame extends BiblioWoodBlock
 			}
 			else
 			{
-				int faceCheck = frameTile.checkFace(frameTile.getAngle(), side, frameTile.getVertPosition());
+				int faceCheck = frameTile.checkFace(frameTile.getAngle(), ForgeDirection.getOrientation(side), frameTile.getVertPosition());
 				if (faceCheck != -1)
 				{
 					int pinPass = -1;
@@ -129,8 +124,8 @@ public class BlockMapFrame extends BiblioWoodBlock
 						if (coords != null)
 						{
 							String pinName = frameTile.getPinName(pinPass);
-							player.sendMessage(new TextComponentString(pinName+"  @  X = "+coords[0]+"   Z = "+coords[1]));
-							if (playerStack != ItemStack.EMPTY)
+							player.addChatMessage(new ChatComponentText(pinName+"  @  X = "+coords[0]+"   Z = "+coords[1]));
+							if (playerStack != null)
 							{
 								if (playerStack.getItem() instanceof ItemWaypointCompass)
 								{
@@ -159,42 +154,42 @@ public class BlockMapFrame extends BiblioWoodBlock
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(World worldIn, int meta) 
+	public TileEntity createNewTileEntity(World worldIn, int meta)
 	{
 		return new TileEntityMapFrame();
 	}
 
-	@Override
-	public List<String> getModelParts(BiblioTileEntity tile) 
-	{
-		List<String> modelParts = Lists.newArrayList(OBJModel.Group.ALL);
-		if (tile instanceof TileEntityMapFrame)
-		{
-			TileEntityMapFrame frame = (TileEntityMapFrame)tile;
-			modelParts = new ArrayList<String>();
-			modelParts.add("main");
-			if (!frame.getTopFrame()) { modelParts.add("borderTop"); }
-			if (!frame.getBottomFrame()) { modelParts.add("borderBottom"); }
-			if (!frame.getLeftFrame()) { modelParts.add("borderLeft"); }
-			if (!frame.getRightFrame()) { modelParts.add("borderRight"); }
-			if (!frame.getTopFrame() || !frame.getLeftFrame()) { modelParts.add("cornerTL"); }
-			if (!frame.getTopFrame() || !frame.getRightFrame()) { modelParts.add("cornerTR"); }
-			if (!frame.getBottomFrame() || !frame.getLeftFrame()) { modelParts.add("cornerBL"); }
-			if (!frame.getBottomFrame() || !frame.getRightFrame()) { modelParts.add("cornerBR"); }
-		}
-		return modelParts;
-	}
+//	@Override
+//	public List<String> getModelParts(BiblioTileEntity tile)
+//	{
+////		List<String> modelParts = Lists.newArrayList(OBJModel.Group.ALL);
+////		if (tile instanceof TileEntityMapFrame)
+////		{
+////			TileEntityMapFrame frame = (TileEntityMapFrame)tile;
+////			modelParts = new ArrayList<String>();
+////			modelParts.add("main");
+////			if (!frame.getTopFrame()) { modelParts.add("borderTop"); }
+////			if (!frame.getBottomFrame()) { modelParts.add("borderBottom"); }
+////			if (!frame.getLeftFrame()) { modelParts.add("borderLeft"); }
+////			if (!frame.getRightFrame()) { modelParts.add("borderRight"); }
+////			if (!frame.getTopFrame() || !frame.getLeftFrame()) { modelParts.add("cornerTL"); }
+////			if (!frame.getTopFrame() || !frame.getRightFrame()) { modelParts.add("cornerTR"); }
+////			if (!frame.getBottomFrame() || !frame.getLeftFrame()) { modelParts.add("cornerBL"); }
+////			if (!frame.getBottomFrame() || !frame.getRightFrame()) { modelParts.add("cornerBR"); }
+////		}
+//		return List.of();
+//	}
 
 	@Override
-	public void additionalPlacementCommands(BiblioTileEntity biblioTile, EntityLivingBase player) 
+	public void additionalPlacementCommands(BiblioTileEntity biblioTile, EntityLivingBase player)
 	{
-		int pitch = MathHelper.floor(player.rotationPitch * 3.0F / 180.0F + 0.5D) & 3;
+		int pitch = MathHelper.floor_double(player.rotationPitch * 3.0F / 180.0F + 0.5D) & 3;
 	     ++pitch;
 	     pitch %= 4;
 	     if (pitch == 0)
 	     {
 	    	 biblioTile.setVertPosition(EnumVertPosition.CEILING);
-	    	 biblioTile.setAngle(EnumFacing.SOUTH);
+	    	 biblioTile.setAngle(ForgeDirection.SOUTH);
 	     }
 	     else if (pitch == 1)
 	     {
@@ -203,41 +198,41 @@ public class BlockMapFrame extends BiblioWoodBlock
 	     else
 	     {
 	    	 biblioTile.setVertPosition(EnumVertPosition.FLOOR);
-	    	 biblioTile.setAngle(EnumFacing.SOUTH);
+	    	 biblioTile.setAngle(ForgeDirection.SOUTH);
 	     }
 	     if (biblioTile instanceof TileEntityMapFrame)
 	     {
 	    	 TileEntityMapFrame frame = (TileEntityMapFrame)biblioTile;
-			 checkNeighborMapFrames(biblioTile.getWorld(), biblioTile.getPos().getX(), biblioTile.getPos().getY(), biblioTile.getPos().getZ(), frame);
-			 biblioTile.getWorld().notifyBlockUpdate(biblioTile.getPos(), biblioTile.getWorld().getBlockState(biblioTile.getPos()), biblioTile.getWorld().getBlockState(biblioTile.getPos()), 3); //getWorld().markBlockForUpdate(biblioTile.getPos());
+			 checkNeighborMapFrames(biblioTile.getWorldObj(), biblioTile.xCoord, biblioTile.yCoord, biblioTile.zCoord, frame);
+			 biblioTile.getWorldObj().markBlockForUpdate(biblioTile.xCoord, biblioTile.yCoord, biblioTile.zCoord); //getWorld().markBlockForUpdate(biblioTile.getPos());
 	     }
 	}
 
+//	@Override
+//	public TRSRTransformation getAdditionalTransforms(TRSRTransformation transform, BiblioTileEntity tile)
+//	{
+//		if (tile.getVertPosition() == EnumVertPosition.CEILING)
+//		{
+//			transform = transform.compose(new TRSRTransformation(new Vector3f(0.0f, 1.0f, 0.0f),
+//															     new Quat4f(0.0f, 0.0f, -1.0f, 1.0f),
+//															     new Vector3f(1.0f, 1.0f, 1.0f),
+//															     new Quat4f(0.0f, 0.0f, 0.0f, 1.0f)));
+//		}
+//		else if (tile.getVertPosition() == EnumVertPosition.FLOOR)
+//		{
+//			transform = transform.compose(new TRSRTransformation(new Vector3f(1.0f, 0.0f, 0.0f),
+//															     new Quat4f(0.0f, 0.0f, 1.0f, 1.0f),
+//															     new Vector3f(1.0f, 1.0f, 1.0f),
+//															     new Quat4f(0.0f, 0.0f, 0.0f, 1.0f)));
+//		}
+//		return transform;
+//	}
+
 	@Override
-	public TRSRTransformation getAdditionalTransforms(TRSRTransformation transform, BiblioTileEntity tile) 
-	{
-		if (tile.getVertPosition() == EnumVertPosition.CEILING)
-		{
-			transform = transform.compose(new TRSRTransformation(new Vector3f(0.0f, 1.0f, 0.0f), 
-															     new Quat4f(0.0f, 0.0f, -1.0f, 1.0f), 
-															     new Vector3f(1.0f, 1.0f, 1.0f), 
-															     new Quat4f(0.0f, 0.0f, 0.0f, 1.0f)));
-		}
-		else if (tile.getVertPosition() == EnumVertPosition.FLOOR)
-		{
-			transform = transform.compose(new TRSRTransformation(new Vector3f(1.0f, 0.0f, 0.0f), 
-															     new Quat4f(0.0f, 0.0f, 1.0f, 1.0f), 
-															     new Vector3f(1.0f, 1.0f, 1.0f), 
-															     new Quat4f(0.0f, 0.0f, 0.0f, 1.0f)));
-		}
-		return transform;
-	}
-	
-	@Override
-	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess world, BlockPos pos)
+    public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z)
 	{
 		AxisAlignedBB output = this.getBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
-		TileEntity tileEntity = world.getTileEntity(pos);
+		TileEntity tileEntity = world.getTileEntity(x, y, z);
 		if (tileEntity != null && tileEntity instanceof TileEntityMapFrame)
 		{
 			TileEntityMapFrame frameTile = (TileEntityMapFrame)tileEntity;
@@ -259,7 +254,7 @@ public class BlockMapFrame extends BiblioWoodBlock
 				{
 					switch (vertAngleGet)
 					{
-						case FLOOR:{output = this.getBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.05F, 1.0F);break;} 
+						case FLOOR:{output = this.getBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.05F, 1.0F);break;}
 						case WALL:{output = this.getBlockBounds(0.0F, 0.0F, 0.95F, 1.0F, 1.0F, 1.0F);break;}
 						case CEILING:{output = this.getBlockBounds(0.0F, 0.95F, 0.0F, 1.0F, 1.0F, 1.0F);break;}
 					}
@@ -290,23 +285,23 @@ public class BlockMapFrame extends BiblioWoodBlock
 		}
 		return output;
 	}
-	
+
 	@Override
-    public void neighborChanged(IBlockState state, World world, BlockPos pos, Block blockIn, BlockPos fromPos)
+    public void onNeighborBlockChange(World world, int x, int y, int z, Block neighbor)
     {
-		 TileEntity tile = world.getTileEntity(pos);
+		 TileEntity tile = world.getTileEntity(x, y, z);
 		 if (tile != null && tile instanceof TileEntityMapFrame)
 		 {
 			 TileEntityMapFrame frameTile = (TileEntityMapFrame)tile;
-			 checkNeighborMapFrames(tile.getWorld(), pos.getX(), pos.getY(), pos.getZ(), frameTile);
-			 frameTile.getWorld().notifyBlockUpdate(frameTile.getPos(), frameTile.getWorld().getBlockState(frameTile.getPos()), frameTile.getWorld().getBlockState(frameTile.getPos()), 3);
+			 checkNeighborMapFrames(tile.getWorldObj(), x, y, z, frameTile);
+			 frameTile.getWorldObj().markBlockForUpdate(x, y, z);
 		 }
     }
-	 
+
 	 public void checkNeighborMapFrames(World world, int i, int j, int k, TileEntityMapFrame mapFrame)
     {
     	EnumVertPosition vertAngle = mapFrame.getVertPosition();
-    	EnumFacing angle = mapFrame.getAngle();
+    	ForgeDirection angle = mapFrame.getAngle();
     	if (vertAngle == EnumVertPosition.WALL)
     	{
     		int xLeftAdjust = 0;
@@ -321,19 +316,19 @@ public class BlockMapFrame extends BiblioWoodBlock
     			case EAST: { xLeftAdjust--; xRightAdjust++; break; }
     			default: break;
     		}
-    		TileEntity blockUp = world.getTileEntity(new BlockPos(i, j+1, k));
-    		TileEntity blockDown = world.getTileEntity(new BlockPos(i, j-1, k));
-    		TileEntity blockLeft = world.getTileEntity(new BlockPos(i + xLeftAdjust, j, k + zLeftAdjust));
-    		TileEntity blockRight = world.getTileEntity(new BlockPos(i + xRightAdjust, j, k + zRightAdjust));
+    		TileEntity blockUp = world.getTileEntity(i, j+1, k);
+    		TileEntity blockDown = world.getTileEntity(i, j-1, k);
+    		TileEntity blockLeft = world.getTileEntity(i + xLeftAdjust, j, k + zLeftAdjust);
+    		TileEntity blockRight = world.getTileEntity(i + xRightAdjust, j, k + zRightAdjust);
 
     		if (isMapFrameBlock(blockUp)) { mapFrame.setTopFrame(true); } else { mapFrame.setTopFrame(false); }
     		if (isMapFrameBlock(blockDown)) { mapFrame.setBottomFrame(true); } else { mapFrame.setBottomFrame(false); }
     		if (isMapFrameBlock(blockLeft)) { mapFrame.setLeftFrame(true); } else { mapFrame.setLeftFrame(false); }
     		if (isMapFrameBlock(blockRight)) { mapFrame.setRightFrame(true); } else { mapFrame.setRightFrame(false); }
-    		
+
     	}
     	else
-    	{	
+    	{
 			int xTopAdjust = 0, xBottomAdjust = 0, xLeftAdjust = 0, xRightAdjust = 0;
 			int zTopAdjust = 0, zBottomAdjust = 0, zLeftAdjust = 0, zRightAdjust = 0;
 			if (vertAngle == EnumVertPosition.FLOOR)
@@ -351,18 +346,18 @@ public class BlockMapFrame extends BiblioWoodBlock
 				zRightAdjust++;
 				//ceiling
 			}
-			TileEntity blockFront = world.getTileEntity(new BlockPos(i + xTopAdjust, j, k + zTopAdjust));
-			TileEntity blockBack = world.getTileEntity(new BlockPos(i + xBottomAdjust, j, k + zBottomAdjust));
-			TileEntity blockLeft = world.getTileEntity(new BlockPos(i + xLeftAdjust, j, k + zLeftAdjust));
-			TileEntity blockRight = world.getTileEntity(new BlockPos(i + xRightAdjust, j, k + zRightAdjust));
-			
+			TileEntity blockFront = world.getTileEntity(i + xTopAdjust, j, k + zTopAdjust);
+			TileEntity blockBack = world.getTileEntity(i + xBottomAdjust, j, k + zBottomAdjust);
+			TileEntity blockLeft = world.getTileEntity(i + xLeftAdjust, j, k + zLeftAdjust);
+			TileEntity blockRight = world.getTileEntity(i + xRightAdjust, j, k + zRightAdjust);
+
 			if (isMapFrameBlock(blockFront)) { mapFrame.setTopFrame(true); } else { mapFrame.setTopFrame(false); }
     		if (isMapFrameBlock(blockBack)) { mapFrame.setBottomFrame(true); } else { mapFrame.setBottomFrame(false); }
     		if (isMapFrameBlock(blockLeft)) { mapFrame.setLeftFrame(true); } else { mapFrame.setLeftFrame(false); }
     		if (isMapFrameBlock(blockRight)) { mapFrame.setRightFrame(true); } else { mapFrame.setRightFrame(false); }
 	    }
     }
-	 
+
 	public boolean isMapFrameBlock(TileEntity blockID)
 	{
 		if (blockID != null && blockID instanceof TileEntityMapFrame)

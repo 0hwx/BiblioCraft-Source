@@ -9,103 +9,99 @@ import jds.bibliocraft.BiblioCraft;
 import jds.bibliocraft.tileentities.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityShelf;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.client.model.obj.OBJModel;
-import net.minecraftforge.common.model.TRSRTransformation;
 
 
-public class BlockShelf extends BiblioWoodBlock 
+
+public class BlockShelf extends BiblioWoodBlock
 {
 	public static final String name = "Shelf";
 	public static final BlockShelf instance = new BlockShelf();
-	
-	public BlockShelf() 
+
+	public BlockShelf()
 	{
 		super(name, true);
 	}
 
-	
+
 	@Override
-	public boolean onBlockActivatedCustomCommands(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ) 
+	public boolean onBlockActivatedCustomCommands(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ)
 	{
 		if (!world.isRemote)
 		{
-			ItemStack playerhand = player.getHeldItem(EnumHand.MAIN_HAND);
-			BiblioTileEntity biblioTile = (BiblioTileEntity)world.getTileEntity(pos);
+			ItemStack playerhand = player.getHeldItem();
+			BiblioTileEntity biblioTile = (BiblioTileEntity)world.getTileEntity(x, y, z);
 			if (biblioTile instanceof TileEntityShelf)
 			{
 				TileEntityShelf tile = (TileEntityShelf)biblioTile;
-				
+
 				 if (player.isSneaking())
 				 {
-					 player.openGui(BiblioCraft.instance, 3, world, pos.getX(), pos.getY(), pos.getZ());
+					 player.openGui(BiblioCraft.instance, 3, world, x, y, z);
 					 return true;
 				 }
-			
+
 				 int slot = getSlotNumberFromClickon2x2block(tile.getAngle(), hitX, hitY, hitZ);
 				 boolean testValue = false; // turns true if I add or remove something from the shelf
 				 if (slot >= 0 && !player.isSneaking())
 				 {
-					 if (playerhand != ItemStack.EMPTY)
+					 if (playerhand != null)
 					 {
 						 testValue = tile.addStackToInventoryFromWorld(playerhand, slot, player);
 					 }
-					 
+
 					 if (!testValue)
 					 {
 						 testValue = tile.removeStackFromInventoryFromWorld(slot, player, this);
 					 }
 				 }
-				 
+
 				 if (!testValue)
 				 {
-					 player.openGui(BiblioCraft.instance, 3, world, pos.getX(), pos.getY(), pos.getZ());
+					 player.openGui(BiblioCraft.instance, 3, world, x, y, z);
 				 }
 				 return true;
-				 
+
 			}
 		}
 		return true;
 	}
-	
+
 
 	@Override
     public void additionalPlacementCommands(BiblioTileEntity biblioTile, EntityLivingBase player)
     {
 
     }
-	
-	@Override
-	public TileEntity createNewTileEntity(World worldIn, int meta) 
-	{
-		return new TileEntityShelf(); 
-	}
 
 	@Override
-	public List<String> getModelParts(BiblioTileEntity tile) 
+	public TileEntity createNewTileEntity(World worldIn, int meta)
 	{
-		List<String> modelParts = Lists.newArrayList(OBJModel.Group.ALL);
-		if (tile instanceof TileEntityShelf)
-		{
-			TileEntityShelf shelf = (TileEntityShelf)tile;
-	    	boolean hasTop = shelf.getTop();
-	    	if (!hasTop)
-	    	{
-	    		modelParts = new ArrayList<String>();
-	    		modelParts.add("shelf_bottom");
-	    	}
-		}
-		return modelParts;
+		return new TileEntityShelf();
 	}
-	
+
+//	@Override
+//	public List<String> getModelParts(BiblioTileEntity tile)
+//	{
+////		List<String> modelParts = Lists.newArrayList(OBJModel.Group.ALL);
+////		if (tile instanceof TileEntityShelf)
+////		{
+////			TileEntityShelf shelf = (TileEntityShelf)tile;
+////	    	boolean hasTop = shelf.getTop();
+////	    	if (!hasTop)
+////	    	{
+////	    		modelParts = new ArrayList<String>();
+////	    		modelParts.add("shelf_bottom");
+////	    	}
+////		}
+//		return List.of();
+//	}
+
 	private boolean checkIfIsBackOfBlock(int angle, int face)
 	{
 		boolean angle1 = angle == 0 && face == 5;
@@ -118,20 +114,19 @@ public class BlockShelf extends BiblioWoodBlock
 		}
 		return false;
 	}
-	 
-	@Override	
-	public void neighborChanged(IBlockState state, World world, BlockPos pos, Block blockIn, BlockPos fromPos)
+
+	@Override
+	public void onNeighborBlockChange(World world, int x, int y, int z, Block neighbor)
 	{
-		TileEntity tile = world.getTileEntity(pos);
+		TileEntity tile = world.getTileEntity(x, y, z);
 		if (tile instanceof TileEntityShelf)
 		{
 			TileEntityShelf shelf = (TileEntityShelf)tile;
-			BlockPos upperBlockPos = new BlockPos(pos.getX(), pos.getY() + 1, pos.getZ());
-		    Block testBlock = world.getBlockState(upperBlockPos).getBlock();
+		    Block testBlock = world.getBlock(x, y + 1, z);
 		    boolean isBlock;
 		    if (shelf != null)
 		    {
-		        if (!world.isAirBlock(upperBlockPos))
+		        if (!world.isAirBlock(x, y + 1, z))
 		        {
 		        	isBlock = true;
 		        }
@@ -141,12 +136,15 @@ public class BlockShelf extends BiblioWoodBlock
 		        }
 		    	shelf.setTop(isBlock);
 		    }
-		} 
+		}
 	}
-	
-	@Override
-	public TRSRTransformation getAdditionalTransforms(TRSRTransformation transform, BiblioTileEntity tile) 
-	{
-		return transform;
-	}
+    public void registerBlockIcons(IIconRegister icon) {
+        this.blockIcon = icon.registerIcon("planks_spruce");
+    }
+
+//	@Override
+//	public TRSRTransformation getAdditionalTransforms(TRSRTransformation transform, BiblioTileEntity tile)
+//	{
+//		return transform;
+//	}
 }

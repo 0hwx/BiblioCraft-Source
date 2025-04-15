@@ -8,66 +8,65 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
 
-public class TileEntityCase extends BiblioTileEntity 
+public class TileEntityCase extends BiblioTileEntity
 {
 	public boolean openLid = false;;
     public boolean showText = false;
     public boolean hasRS;
-	
+    public int WoolColour = 0;
+
 	public TileEntityCase()
 	{
 		super(2, true);
 	}
-	
+
 	public boolean hasRedstoneBlock()
 	{
 		ItemStack rsblock = getStackInSlot(0);
-		if (rsblock != ItemStack.EMPTY)
+		if (rsblock != null)
 		{
-			if (Block.isEqualTo(Block.getBlockFromItem(rsblock.getItem()),Blocks.REDSTONE_BLOCK))
+			if (Block.isEqualTo(Block.getBlockFromItem(rsblock.getItem()),Blocks.redstone_block))
 			{
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	public boolean setInnerCover(ItemStack carpet, EntityPlayer player)
 	{
-		if (carpet != ItemStack.EMPTY && carpet.getItem() == Item.getItemFromBlock(Blocks.CARPET) && getStackInSlot(1) == ItemStack.EMPTY)
+		if (carpet != null && carpet.getItem() == Item.getItemFromBlock(Blocks.carpet) && getStackInSlot(1) == null)
 		{
+            this.WoolColour = carpet.getItemDamage();
 			ItemStack carpetCopy = carpet.copy();
-			carpetCopy.setCount(1);
+			carpetCopy.stackSize = (1);
 			setInventorySlotContents(1, carpetCopy);
-			carpet.setCount(carpet.getCount() - 1);
-			if (carpet.getCount() == 0)
+			carpet.stackSize = (carpet.stackSize - 1);
+			if (carpet.stackSize == 0)
 			{
-				player.inventory.setInventorySlotContents(player.inventory.currentItem, ItemStack.EMPTY); 
+				player.inventory.setInventorySlotContents(player.inventory.currentItem, null);
 			}
 			else
 			{
-				player.inventory.setInventorySlotContents(player.inventory.currentItem, carpet); 
+				player.inventory.setInventorySlotContents(player.inventory.currentItem, carpet);
 			}
-			getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+			getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 			return true;
 		}
 		return false;
 	}
 	public void removeInnerCover()
 	{
-		setInventorySlotContents(1, ItemStack.EMPTY);
-		getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+		setInventorySlotContents(1, null);
+        getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
 	public boolean hasRedStone()
 	{
 		return hasRS;
 	}
-	
+
 	public void setShowText(boolean show)
 	{
 		showText = show;
@@ -76,20 +75,20 @@ public class TileEntityCase extends BiblioTileEntity
 	{
 		return showText;
 	}
-	
+
 	public boolean setCaseSlot(ItemStack stack)
 	{
 		boolean hasStack;
-		if (stack == ItemStack.EMPTY)
+		if (stack == null)
 		{
 			if (isSlotFull())
 			{
-				setInventorySlotContents(0, ItemStack.EMPTY);
+				setInventorySlotContents(0, null);
 			}
 			hasStack = false;
 			return hasStack;
 		}
-		
+
 		if (!isSlotFull())
 		{
 			setInventorySlotContents(0, stack);
@@ -101,10 +100,10 @@ public class TileEntityCase extends BiblioTileEntity
 		}
 		return hasStack;
 	}
-	
+
 	public boolean isSlotFull()
 	{
-		if (inventory.get(0) != ItemStack.EMPTY)
+		if (inventory[0] != null)
 		{
 			return true;
 		}
@@ -114,31 +113,61 @@ public class TileEntityCase extends BiblioTileEntity
 		}
 	}
 
-	@Override
+    @Override
+    public ItemStack getStackInSlotOnClosing(int index) {
+        return null;
+    }
+
+    @Override
+    public String getInventoryName() {
+        return "";
+    }
+
+    @Override
+    public boolean hasCustomInventoryName() {
+        return false;
+    }
+
+    @Override
 	public int getInventoryStackLimit()
 	{
 		return 64;
 	}
 
+    @Override
+    public void openInventory() {
+
+    }
+
+    @Override
+    public void closeInventory() {
+
+    }
+
     public void setOpenLid(boolean open)
     {
     	this.openLid = open;
-    	getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+        getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
     }
-  
+
     public boolean getOpenLid()
     {
     	return this.openLid;
     }
 
-	@Override
-	public String getName() 
-	{
-		return BlockCase.name;
-	}
+    public int getWoolColour()
+    {
+    	return this.WoolColour;
+    }
+
+//	@Override
+//	public String getName()
+//	{
+//		return BlockCase.name;
+//	}
 
 	@Override
-	public void setInventorySlotContentsAdditionalCommands(int slot, ItemStack stack) 
+	public void setInventorySlotContentsAdditionalCommands(int slot, ItemStack stack)
 	{
 		boolean redtest = hasRS;
 		hasRS = hasRedstoneBlock();
@@ -149,31 +178,36 @@ public class TileEntityCase extends BiblioTileEntity
 	}
 
 	@Override
-	public void loadCustomNBTData(NBTTagCompound nbt) 
+	public void loadCustomNBTData(NBTTagCompound nbt)
 	{
 		this.openLid = nbt.getBoolean("LidOpen");
 		this.hasRS = nbt.getBoolean("hasRedstone");
 	}
 
 	@Override
-	public NBTTagCompound writeCustomNBTData(NBTTagCompound nbt) 
+	public NBTTagCompound writeCustomNBTData(NBTTagCompound nbt)
 	{
     	nbt.setBoolean("LidOpen", openLid);
     	nbt.setBoolean("hasRedstone", hasRS);
 		return nbt;
 	}
 
-	@Override
-	public ITextComponent getDisplayName() 
-	{
-		ITextComponent chat = new TextComponentString(getName());
-		return chat;
-	}
-	
-	@Override
-	public boolean isEmpty() 
-	{
-		return false;
-	}
-	
+    @Override
+    public int[] getAccessibleSlotsFromSide(int p_94128_1_) {
+        return new int[0];
+    }
+
+//	@Override
+//	public ITextComponent getDisplayName()
+//	{
+//		ITextComponent chat = new ChatComponentText(getName());
+//		return chat;
+//	}
+//
+//	@Override
+//	public boolean isEmpty()
+//	{
+//		return false;
+//	}
+
 }

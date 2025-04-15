@@ -12,15 +12,15 @@ import net.minecraft.item.ItemStack;
 
 public class ContainerPotionShelf extends Container
 {
-	
+
 	protected TileEntityPotionShelf tileEntity;
 	protected SlotPotionShelf potionSlot;
-	
+
 	public ContainerPotionShelf(InventoryPlayer inventoryPlayer, TileEntityPotionShelf tile)
 	{
 		tileEntity = tile;
-		
-		addSlotToContainer(this.potionSlot = new SlotPotionShelf(this, tileEntity, 0, 53, 15)); 
+
+		addSlotToContainer(this.potionSlot = new SlotPotionShelf(this, tileEntity, 0, 53, 15));
 		addSlotToContainer(this.potionSlot = new SlotPotionShelf(this, tileEntity, 1, 71, 15));
 		addSlotToContainer(this.potionSlot = new SlotPotionShelf(this, tileEntity, 2, 89, 15));
 		addSlotToContainer(this.potionSlot = new SlotPotionShelf(this, tileEntity, 3, 107, 15));
@@ -32,16 +32,16 @@ public class ContainerPotionShelf extends Container
 		addSlotToContainer(this.potionSlot = new SlotPotionShelf(this, tileEntity, 9, 71, 53));
 		addSlotToContainer(this.potionSlot = new SlotPotionShelf(this, tileEntity, 10, 89, 53));
 		addSlotToContainer(this.potionSlot = new SlotPotionShelf(this, tileEntity, 11, 107, 53));
-		
+
 		bindPlayerInventory(inventoryPlayer);
 	}
-	
+
 	@Override
 	public boolean canInteractWith(EntityPlayer player)
 	{
-		return tileEntity.isUsableByPlayer(player);
+		return tileEntity.isUseableByPlayer(player);
 	}
-	
+
 	protected void bindPlayerInventory(InventoryPlayer inventoryPlayer)
 	{
 		for (int i = 0; i < 3; i++)
@@ -51,16 +51,16 @@ public class ContainerPotionShelf extends Container
 				addSlotToContainer(new Slot(inventoryPlayer, j+i*9+9, 8+j*18, 84+i*18));
 			}
 		}
-		for (int i = 0; i < 9; i++) 
+		for (int i = 0; i < 9; i++)
 		{
 			addSlotToContainer(new Slot(inventoryPlayer, i, 8+i*18,142));
 		}
 	}
-	
+
 	@Override
 	public ItemStack transferStackInSlot(EntityPlayer player, int slot)
 	{
-		ItemStack stack = ItemStack.EMPTY;
+		ItemStack stack = null;
 		Slot slotObject = (Slot) inventorySlots.get(slot);
 //null checks and checks if the item can be stacked (maxStackSize > 1)
 		if (slotObject != null && slotObject.getHasStack())
@@ -77,30 +77,30 @@ public class ContainerPotionShelf extends Container
 			{
 				if (!this.mergeItemStack(stackInSlot, 12, 48, true))  // changing 9 to 6
 				{
-					return ItemStack.EMPTY;
+					return null;
 				}
 			}
 			//places it into the tileEntity is possible since its in the player inventory
 
 			else if (Config.testPotionValidity(potName, potDisplayName, potionTest) && !this.mergeItemStack(stackInSlot, 0, 12, false  ))
 			{
-				return ItemStack.EMPTY;
+				return null;
 			}
 
 			// potionTest instanceof ItemPotion && !this.mergeItemStack(stackInSlot, 0, 12, false) ||
-			if (stackInSlot.getCount() == 0)
+			if (stackInSlot.stackSize == 0)
 			{
-				slotObject.putStack(ItemStack.EMPTY);
-			} else 
+				slotObject.putStack(null);
+			} else
 			{
 				slotObject.onSlotChanged();
 			}
-			
-			if (stackInSlot.getCount() == stack.getCount())
+
+			if (stackInSlot.stackSize == stack.stackSize)
 			{
-				return ItemStack.EMPTY;
+				return null;
 			}
-			slotObject.onTake(player, stackInSlot);
+			slotObject.onPickupFromSlot(player, stackInSlot);
 		}
 		return stack;
 	}

@@ -2,6 +2,9 @@ package jds.bibliocraft.gui;
 
 import java.io.IOException;
 
+import com.mojang.realmsclient.gui.ChatFormatting;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.input.Keyboard;
@@ -23,10 +26,6 @@ import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.ChatAllowedCharacters;
 import net.minecraft.util.ResourceLocation;
 //import net.minecraft.network.play.client.C17PacketCustomPayload;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class GuiScreenBookDesk extends GuiScreen
 {
@@ -63,7 +62,7 @@ public class GuiScreenBookDesk extends GuiScreen
     private GuiButton buttonFinalize;
     private GuiButton buttonCancel;
     private static final String __OBFID = "CL_00000744";
-    
+
     private int i;
     private int j;
     private int k;
@@ -74,18 +73,18 @@ public class GuiScreenBookDesk extends GuiScreen
         this.editingPlayer = par1EntityPlayer;
         this.bookObj = par2ItemStack;
         this.bookIsUnsigned = par3;
-        
+
         this.i = tileX;
         this.j = tileY;
         this.k = tileZ;
-        TileEntityDesk tile = (TileEntityDesk)editingPlayer.world.getTileEntity(new BlockPos(i, j, k));
+        TileEntityDesk tile = (TileEntityDesk)editingPlayer.worldObj.getTileEntity(i, j, k);
         this.deskTile = tile;
         if (deskTile != null)
         {
         	//System.out.println("Getting current page");
         	this.currPage = deskTile.getCurrentPage();
         }
-        
+
         if (par2ItemStack.hasTagCompound())
         {
             NBTTagCompound nbttagcompound = par2ItemStack.getTagCompound();
@@ -205,7 +204,7 @@ public class GuiScreenBookDesk extends GuiScreen
                 if (publish)
                 {
                     //s = "MC|BSign";
-                    this.bookObj.setTagInfo("author", new NBTTagString(this.editingPlayer.getName()));
+                    this.bookObj.setTagInfo("author", new NBTTagString(this.editingPlayer.getCommandSenderName()));
                     this.bookObj.setTagInfo("title", new NBTTagString(this.bookTitle.trim()));
                     //this.bookObj.func_150996_a(Items.written_book);
                     //this.bookObj.setItem(Items.WRITTEN_BOOK); // TODO removed this line, verrify this latter
@@ -215,7 +214,7 @@ public class GuiScreenBookDesk extends GuiScreen
 
                 try
                 {
-                    BiblioNetworking.INSTANCE.sendToServer(new BiblioMCBEdit(new BlockPos(i, j, k), currPage, this.bookObj));
+                    BiblioNetworking.INSTANCE.sendToServer(new BiblioMCBEdit(i, j, k, currPage, this.bookObj));
                 	// ByteBufUtils.writeItemStack(buffer, this.bookObj);
                 	// buffer.writeInt(i);
                 	// buffer.writeInt(j);
@@ -282,12 +281,12 @@ public class GuiScreenBookDesk extends GuiScreen
             }
 
             this.updateButtons();
-            
+
             if (this.deskTile != null)
             {
                 try
                 {
-                	BiblioNetworking.INSTANCE.sendToServer(new BiblioMCBPage(new BlockPos(i, j, k), currPage));
+                	BiblioNetworking.INSTANCE.sendToServer(new BiblioMCBPage(i, j, k, currPage));
                     // buffer.writeInt(i);
                 	// buffer.writeInt(j);
                 	// buffer.writeInt(k);
@@ -317,14 +316,7 @@ public class GuiScreenBookDesk extends GuiScreen
      */
     protected void keyTyped(char par1, int par2)
     {
-        try
-				{
-						super.keyTyped(par1, par2);
-				}
-				catch (IOException e)
-				{
-						e.printStackTrace();
-				}
+        super.keyTyped(par1, par2);
 
         if (this.bookIsUnsigned)
         {
@@ -414,7 +406,7 @@ public class GuiScreenBookDesk extends GuiScreen
     {
         if (this.bookPages != null && this.currPage >= 0 && this.currPage < this.bookPages.tagCount())
         {
-            this.bookPages.set(this.currPage, new NBTTagString(p_146457_1_));
+            this.bookPages.func_150304_a(this.currPage, new NBTTagString(p_146457_1_));
             this.bookIsModified = true;
         }
     }
@@ -423,7 +415,7 @@ public class GuiScreenBookDesk extends GuiScreen
     {
         String s1 = this.func_146456_p();
         String s2 = s1 + p_146459_1_;
-        int i = this.fontRenderer.getStringWidth(s2 + "" + TextFormatting.BLACK + "_"); // TODO this might be front, went from getStringSplitWidth to getStringWidth
+        int i = this.fontRendererObj.getStringWidth(s2 + "" + ChatFormatting.BLACK + "_"); // TODO this might be front, went from getStringSplitWidth to getStringWidth
 
 
         if (i <= 118 && s2.length() < 256)
@@ -454,24 +446,24 @@ public class GuiScreenBookDesk extends GuiScreen
             {
                 if (this.updateCount / 6 % 2 == 0)
                 {
-                    s = s + "" + TextFormatting.BLACK + "_";
+                    s = s + "" + ChatFormatting.BLACK + "_";
                 }
                 else
                 {
-                    s = s + "" + TextFormatting.GRAY + "_";
+                    s = s + "" + ChatFormatting.GRAY + "_";
                 }
             }
 
             s1 = I18n.format("book.editTitle", new Object[0]);
-            l = this.fontRenderer.getStringWidth(s1);
-            this.fontRenderer.drawString(s1, k + 36 + (116 - l) / 2, b0 + 16 + 16, 0);
-            int i1 = this.fontRenderer.getStringWidth(s);
-            this.fontRenderer.drawString(s, k + 36 + (116 - i1) / 2, b0 + 48, 0);
-            String s2 = I18n.format("book.byAuthor", new Object[] {this.editingPlayer.getName()});
-            int j1 = this.fontRenderer.getStringWidth(s2);
-            this.fontRenderer.drawString(TextFormatting.DARK_GRAY + s2, k + 36 + (116 - j1) / 2, b0 + 48 + 10, 0);
+            l = this.fontRendererObj.getStringWidth(s1);
+            this.fontRendererObj.drawString(s1, k + 36 + (116 - l) / 2, b0 + 16 + 16, 0);
+            int i1 = this.fontRendererObj.getStringWidth(s);
+            this.fontRendererObj.drawString(s, k + 36 + (116 - i1) / 2, b0 + 48, 0);
+            String s2 = I18n.format("book.byAuthor", new Object[] {this.editingPlayer.getCommandSenderName()});
+            int j1 = this.fontRendererObj.getStringWidth(s2);
+            this.fontRendererObj.drawString(ChatFormatting.DARK_GRAY + s2, k + 36 + (116 - j1) / 2, b0 + 48 + 10, 0);
             String s3 = I18n.format("book.finalizeWarning", new Object[0]);
-            this.fontRenderer.drawSplitString(s3, k + 36, b0 + 80, 116, 0);
+            this.fontRendererObj.drawSplitString(s3, k + 36, b0 + 80, 116, 0);
         }
         else
         {
@@ -485,23 +477,23 @@ public class GuiScreenBookDesk extends GuiScreen
 
             if (this.bookIsUnsigned)
             {
-                if (this.fontRenderer.getBidiFlag())
+                if (this.fontRendererObj.getBidiFlag())
                 {
                     s1 = s1 + "_";
                 }
                 else if (this.updateCount / 6 % 2 == 0)
                 {
-                    s1 = s1 + "" + TextFormatting.BLACK + "_";
+                    s1 = s1 + "" + ChatFormatting.BLACK + "_";
                 }
                 else
                 {
-                    s1 = s1 + "" + TextFormatting.GRAY + "_";
+                    s1 = s1 + "" + ChatFormatting.GRAY + "_";
                 }
             }
 
-            l = this.fontRenderer.getStringWidth(s);
-            this.fontRenderer.drawString(s, k - l + this.bookImageWidth - 44, b0 + 16, 0);
-            this.fontRenderer.drawSplitString(s1, k + 36, b0 + 16 + 16, 116, 0);
+            l = this.fontRendererObj.getStringWidth(s);
+            this.fontRendererObj.drawString(s, k - l + this.bookImageWidth - 44, b0 + 16, 0);
+            this.fontRendererObj.drawSplitString(s1, k + 36, b0 + 16 + 16, 116, 0);
         }
 
         super.drawScreen(par1, par2, par3);
@@ -526,7 +518,7 @@ public class GuiScreenBookDesk extends GuiScreen
             {
                 if (this.visible)
                 {
-                    boolean flag = p_146112_2_ >= this.x && p_146112_3_ >= this.y && p_146112_2_ < this.x + this.width && p_146112_3_ < this.y + this.height;
+                    boolean flag = p_146112_2_ >= this.xPosition && p_146112_3_ >= this.yPosition && p_146112_2_ < this.xPosition + this.width && p_146112_3_ < this.yPosition + this.height;
                     GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
                     p_146112_1_.getTextureManager().bindTexture(GuiScreenBookDesk.bookGuiTextures);
                     int k = 0;
@@ -542,7 +534,7 @@ public class GuiScreenBookDesk extends GuiScreen
                         l += 13;
                     }
 
-                    this.drawTexturedModalRect(this.x, this.y, k, l, 23, 13);
+                    this.drawTexturedModalRect(this.xPosition, this.yPosition, k, l, 23, 13);
                 }
             }
         }

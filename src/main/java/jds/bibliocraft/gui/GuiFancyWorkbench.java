@@ -15,14 +15,12 @@ import jds.bibliocraft.tileentities.TileEntityBookcase;
 import jds.bibliocraft.tileentities.TileEntityFancyWorkbench;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.text.translation.I18n;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.world.World;
 
 public class GuiFancyWorkbench extends GuiContainer
@@ -30,8 +28,8 @@ public class GuiFancyWorkbench extends GuiContainer
 	private TileEntityFancyWorkbench benchTile;
 	private GuiButtonClipboard buttonWriteRecipe;
 	private GuiButtonClipboard buttonLoadItemStack;
-	private NonNullList<ItemStack> bookStacks = NonNullList.<ItemStack>withSize(9, ItemStack.EMPTY);
-	private ItemStack book = new ItemStack(Items.BOOK, 1, 0);
+	private ItemStack[] bookStacks = new ItemStack[9];
+	private ItemStack book = new ItemStack(Items.book, 1, 0);
 	private int heightOffset = 0;
 	private int widthOffset = 0;
 	private int localWidth = (width - 176) / 2;
@@ -42,7 +40,7 @@ public class GuiFancyWorkbench extends GuiContainer
 	private boolean checkLoadButton = false;
 	private boolean hasLeftBookcase = false;
 	private boolean hasRightBookcase = false;
-	
+
 	public GuiFancyWorkbench(InventoryPlayer inventoryPlayer, World world, TileEntityFancyWorkbench tile, int playerid, TileEntityBookcase leftBookcase, TileEntityBookcase rightBookcase)
 	{
 		super(new ContainerFancyWorkbench(inventoryPlayer, world, tile, playerid, leftBookcase, rightBookcase));
@@ -59,7 +57,7 @@ public class GuiFancyWorkbench extends GuiContainer
 			hasRightBookcase = true;
 		}
 	}
-	
+
     @Override
     public void initGui()
     {
@@ -73,14 +71,14 @@ public class GuiFancyWorkbench extends GuiContainer
     	this.buttonLoadItemStack.enabled = false;
     	this.buttonLoadItemStack.visible = false;
     }
-    
+
     @Override
     protected void actionPerformed(GuiButton click)
     {
     	if (click.id == 0)
     	{
     		benchTile.setBookGrid(this.playerID);
-			BiblioNetworking.INSTANCE.sendToServer(new BiblioRBook(this.benchTile.getPos()));
+			BiblioNetworking.INSTANCE.sendToServer(new BiblioRBook(this.benchTile.xCoord, this.benchTile.yCoord, this.benchTile.zCoord));
 			// ByteBuf buffer = Unpooled.buffer();
 			// buffer.writeInt(this.benchTile.getPos().getX());
 			// buffer.writeInt(this.benchTile.getPos().getY());
@@ -92,7 +90,7 @@ public class GuiFancyWorkbench extends GuiContainer
     	{
     		//System.out.println("sending ... : "+this.playerID);
     		benchTile.loadInvToGridForRecipe(this.playerID);
-			BiblioNetworking.INSTANCE.sendToServer(new BiblioRBookLoad(this.benchTile.getPos()));
+			BiblioNetworking.INSTANCE.sendToServer(new BiblioRBookLoad(this.benchTile.xCoord, this.benchTile.yCoord, this.benchTile.zCoord));
 			// ByteBuf buffer = Unpooled.buffer();
 			// buffer.writeInt(this.benchTile.getPos().getX());
 			// buffer.writeInt(this.benchTile.getPos().getY());
@@ -110,29 +108,29 @@ public class GuiFancyWorkbench extends GuiContainer
 		this.localHeight = (height - 192) / 2;
 		this.mc.getTextureManager().bindTexture(CommonProxy.FANCYWORKBENCHGUI);
 		this.drawTexturedModalRect(localWidth, localHeight, 0, 0, 176, 192);
-		
+
 		if (this.hasLeftBookcase)
 		{
 			this.mc.getTextureManager().bindTexture(CommonProxy.FANCYWORKBENCHBOOKCASEGUI);
 			this.drawTexturedModalRect(localWidth-57, localHeight, 0, 0, 55, 180);
 		}
-		
+
 		if (this.hasRightBookcase)
 		{
 			this.mc.getTextureManager().bindTexture(CommonProxy.FANCYWORKBENCHBOOKCASEGUI);
 			this.drawTexturedModalRect(localWidth+178, localHeight, 0, 0, 55, 180);
 		}
-		
+
 		this.checkSaveButton = testForShowButton();
 		this.checkLoadButton = testForLoadButton();
-		
+
 		if (this.checkSaveButton)
 		{
 			this.mc.getTextureManager().bindTexture(CommonProxy.FANCYWORKBENCHGUI);
 			this.drawTexturedModalRect(localWidth+10, localHeight+53, 17, 200, 15, 11); // save arrow off
 			if (x > this.localWidth+10 && x < this.localWidth+25 && y > this.localHeight+53 && y < this.localHeight+64)
 			{
-				
+
 				this.drawTexturedModalRect(localWidth+10, localHeight+53, 17, 211, 15, 11); // save arrow
 			}
 		}
@@ -146,15 +144,15 @@ public class GuiFancyWorkbench extends GuiContainer
 				this.drawTexturedModalRect(localWidth+10, localHeight+22, 0, 211, 15, 11);  // load arow on
 			}
 		}
-		
+
 		bookStacks = benchTile.getBookGrid();
-		
-		GlStateManager.pushMatrix();
+
+		GL11.glPushMatrix();
 		RenderHelper.enableGUIStandardItemLighting();
-		
+
 		for (int n = 0; n<9; n++)
 		{
-			if (bookStacks.get(n) != ItemStack.EMPTY)
+			if (bookStacks[n] != null)
 			{
 				switch (n)
 				{
@@ -170,26 +168,26 @@ public class GuiFancyWorkbench extends GuiContainer
 				}
 
 				GL11.glColor4f(1.0f, 1.0f, 1.0f, 0.6f);
-				GlStateManager.colorMask(true, true, false, true);
-				this.itemRender.renderItemAndEffectIntoGUI(bookStacks.get(n), localWidth + 30 + widthOffset, localHeight + 17 + heightOffset); 
-				GlStateManager.colorMask(true, true, true, true);
+				GL11.glColorMask(true, true, false, true);
+				this.itemRender.renderItemAndEffectIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), bookStacks[n], localWidth + 30 + widthOffset, localHeight + 17 + heightOffset);
+                GL11.glColorMask(true, true, true, true);
 				//
 			}
 		}
-		
-		GlStateManager.color(1.0f, 1.0f, 1.0f, 0.3f);
-		GlStateManager.colorMask(true, true, false, true);
-		this.itemRender.renderItemAndEffectIntoGUI(this.book, localWidth+8, localHeight+35);
-		GlStateManager.colorMask(true, true, true, true);
-		GlStateManager.popMatrix();
-		
+
+		GL11.glColor4f(1.0f, 1.0f, 1.0f, 0.3f);
+        GL11.glColorMask(true, true, false, true);
+		this.itemRender.renderItemAndEffectIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), this.book, localWidth+8, localHeight+35);
+        GL11.glColorMask(true, true, true, true);
+		GL11.glPopMatrix();
+
 	}
-	
+
 	@Override
 	protected void drawGuiContainerForegroundLayer(int x, int y)  // x and y are the location of the mouse.
 	{
-	
-		
+
+
 		super.drawGuiContainerForegroundLayer(x, y);
 		this.localWidth = (width - 176) / 2;
 		this.localHeight = (height - 192) / 2;
@@ -204,7 +202,7 @@ public class GuiFancyWorkbench extends GuiContainer
 			this.buttonWriteRecipe.enabled = false;
 			this.buttonWriteRecipe.visible = false;
 		}
-		
+
 		if (testForLoadButton())
 		{
 			this.buttonLoadItemStack.enabled = true;
@@ -215,24 +213,24 @@ public class GuiFancyWorkbench extends GuiContainer
 		{
 			this.buttonLoadItemStack.enabled = false;
 			this.buttonLoadItemStack.visible = false;
-			
+
 		}
 
-		this.fontRenderer.drawString(I18n.translateToLocal("gui.fancyworkbench"), 8+60, 6, 4210752);
-		this.fontRenderer.drawString(I18n.translateToLocal("container.inventory"), 8+60, ySize - 94 + 2, 4210752);
-		
+		this.fontRendererObj.drawString(I18n.format("gui.fancyworkbench"), 8+60, 6, 4210752);
+		this.fontRendererObj.drawString(I18n.format("container.inventory"), 8+60, ySize - 94 + 2, 4210752);
+
 		if (this.hasLeftBookcase)
 		{
-			this.fontRenderer.drawString(I18n.translateToLocal(I18n.translateToLocal("gui.left")), -40+60, 6, 4210752);  
-			this.fontRenderer.drawString(I18n.translateToLocal(I18n.translateToLocal("jds.tileentitybookcase")), -52+60, 15, 4210752); 
+			this.fontRendererObj.drawString(I18n.format(I18n.format("gui.left")), -40+60, 6, 4210752);
+			this.fontRendererObj.drawString(I18n.format(I18n.format("jds.tileentitybookcase")), -52+60, 15, 4210752);
 		}
-		
+
 		if (this.hasRightBookcase)
 		{
-			this.fontRenderer.drawString(I18n.translateToLocal(I18n.translateToLocal("gui.right")), 195+60, 6, 4210752); 
-			this.fontRenderer.drawString(I18n.translateToLocal(I18n.translateToLocal("jds.tileentitybookcase")), 183+60, 15, 4210752); 
+			this.fontRendererObj.drawString(I18n.format(I18n.format("gui.right")), 195+60, 6, 4210752);
+			this.fontRendererObj.drawString(I18n.format(I18n.format("jds.tileentitybookcase")), 183+60, 15, 4210752);
 		}
-		
+
 		if (this.checkSaveButton)
 		{
 			if (x > this.localWidth+10 && x < this.localWidth+25 && y > this.localHeight+53 && y < this.localHeight+64)
@@ -240,36 +238,36 @@ public class GuiFancyWorkbench extends GuiContainer
 				if (this.isRecipeBook)
 				{
 					List lst = new ArrayList();
-					lst.add(I18n.translateToLocal("book.overwriterecipe"));
-					lst.add(I18n.translateToLocal("book.overwriterecipe2"));
-					this.drawHoveringText(lst, x-localWidth-50, y-localHeight, fontRenderer);
+					lst.add(I18n.format("book.overwriterecipe"));
+					lst.add(I18n.format("book.overwriterecipe2"));
+					this.drawHoveringText(lst, x-localWidth-50, y-localHeight, fontRendererObj);
 				}
 				else
 				{
 					List lst = new ArrayList();
-					lst.add(I18n.translateToLocal("book.saverecipe"));
-					lst.add(I18n.translateToLocal("book.saverecipe2"));
-					this.drawHoveringText(lst, x-localWidth-50, y-localHeight, fontRenderer);
+					lst.add(I18n.format("book.saverecipe"));
+					lst.add(I18n.format("book.saverecipe2"));
+					this.drawHoveringText(lst, x-localWidth-50, y-localHeight, fontRendererObj);
 				}
 			}
 		}
-		
+
 		if (this.checkLoadButton)
 		{
 			if (x > this.localWidth+10 && x < this.localWidth+25 && y > this.localHeight+22 && y < this.localHeight+33)
 			{
 				List lst = new ArrayList();
-				lst.add(I18n.translateToLocal("book.loadrecipe"));
-				lst.add(I18n.translateToLocal("book.loadrecipe2"));
-				this.drawHoveringText(lst, x-localWidth-44, y-localHeight, fontRenderer);
+				lst.add(I18n.format("book.loadrecipe"));
+				lst.add(I18n.format("book.loadrecipe2"));
+				this.drawHoveringText(lst, x-localWidth-44, y-localHeight, fontRendererObj);
 			}
 		}
-		
+
 	}
-	
+
 	private boolean testForLoadButton()
 	{
-		if (this.benchTile.getStackInSlot(0) != ItemStack.EMPTY)
+		if (this.benchTile.getStackInSlot(0) != null)
 		{
 			if (this.benchTile.getStackInSlot(0).getItem() instanceof ItemRecipeBook)
 			{
@@ -278,17 +276,17 @@ public class GuiFancyWorkbench extends GuiContainer
 		}
 		return false;
 	}
-	
+
 	private boolean testForShowButton()
 	{
-		if (this.benchTile.getStackInSlot(0) != ItemStack.EMPTY)
+		if (this.benchTile.getStackInSlot(0) != null)
 		{
-			if (this.benchTile.getStackInSlot(0).getItem() == Items.BOOK)
+			if (this.benchTile.getStackInSlot(0).getItem() == Items.book)
 			{
-				NonNullList<ItemStack> grid = this.benchTile.getPlayerGrid();
+				ItemStack[] grid = this.benchTile.getPlayerGrid();
 				for (int n = 0; n<9; n++)
 				{
-					if (grid.get(n) != ItemStack.EMPTY)		
+					if (grid[n] != null)
 					{
 						return true;
 					}
@@ -306,11 +304,11 @@ public class GuiFancyWorkbench extends GuiContainer
 		}
 		return false;
 	}
-	
+
 	@Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         super.drawScreen(mouseX, mouseY, partialTicks);
-        this.renderHoveredToolTip(mouseX, mouseY);
+//        this.renderHoveredToolTip(mouseX, mouseY);
     }
 }

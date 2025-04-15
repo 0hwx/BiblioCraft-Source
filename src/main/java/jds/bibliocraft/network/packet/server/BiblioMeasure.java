@@ -5,17 +5,18 @@ import jds.bibliocraft.blocks.BlockMarkerPole;
 import jds.bibliocraft.helpers.EnumVertPosition;
 import jds.bibliocraft.network.packet.Utils;
 import jds.bibliocraft.tileentities.TileEntityMarkerPole;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import cpw.mods.fml.common.network.simpleimpl.IMessage;
+import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.common.util.ForgeDirection;
 
 public class BiblioMeasure implements IMessage {
-    BlockPos pos;
+    int posX;
+    int posY;
+    int posZ;
     boolean newTest;
     int direction;
 
@@ -23,22 +24,28 @@ public class BiblioMeasure implements IMessage {
 
     }
 
-    public BiblioMeasure(BlockPos pos, boolean newTest, int direction) {
-        this.pos = pos;
+    public BiblioMeasure(int x, int y, int z, boolean newTest, int direction) {
+        this.posX = x;
+        this.posY = y;
+        this.posZ = z;
         this.newTest = newTest;
         this.direction = direction;
     }
 
     @Override
     public void fromBytes(ByteBuf buf) {
-        this.pos = BlockPos.fromLong(buf.readLong());
+        this.posX = buf.readInt();
+        this.posY = buf.readInt();
+        this.posZ = buf.readInt();
         this.newTest = buf.readBoolean();
         this.direction = buf.readInt();
     }
 
     @Override
     public void toBytes(ByteBuf buf) {
-        buf.writeLong(this.pos.toLong());
+        buf.writeInt(this.posX);
+        buf.writeInt(this.posY);
+        buf.writeInt(this.posZ);
         buf.writeBoolean(this.newTest);
         buf.writeInt(this.direction);
     }
@@ -47,10 +54,9 @@ public class BiblioMeasure implements IMessage {
 
         @Override
         public IMessage onMessage(BiblioMeasure message, MessageContext ctx) {
-            ctx.getServerHandler().player.getServerWorld().addScheduledTask(() -> {
-                EntityPlayerMP player = ctx.getServerHandler().player;
-                EnumFacing facing = EnumFacing.getFront(message.direction);
-                World world = player.world;
+                EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+                ForgeDirection facing = ForgeDirection.getOrientation(message.direction);
+                World world = player.worldObj;
                 int iadj = 0;
                 int jadj = 0;
                 int kadj = 0;
@@ -77,37 +83,37 @@ public class BiblioMeasure implements IMessage {
                         iadj = 1;
                         break;
                 }
-
-                BlockPos pos = new BlockPos(message.pos.getX() + iadj, message.pos.getY() + jadj,
-                        message.pos.getZ() + kadj);
-                if (Utils.hasPointLoaded(player, pos)) {
+                int posX = message.posX + iadj;
+                int posY = message.posY + jadj;
+                int posZ = message.posZ + kadj;
+                if (Utils.hasPointLoaded(player, posX, posY, posZ)) {
                     if (message.newTest) {
-                        if (world.isAirBlock(pos)) {
-                            IBlockState st = BlockMarkerPole.instance.getDefaultState();
-                            world.setBlockState(pos, st);
-                            TileEntityMarkerPole poleTile = (TileEntityMarkerPole) world.getTileEntity(pos);
+                        if (world.isAirBlock(posX, posY, posZ)) {
+                            Block st = BlockMarkerPole.instance;
+                            world.setBlock(posX, posY, posZ, st);
+                            TileEntityMarkerPole poleTile = (TileEntityMarkerPole) world.getTileEntity(posX, posY, posZ);
                             if (poleTile != null) {
-                                poleTile.setAngle(EnumFacing.NORTH);
-                                if (facing == EnumFacing.UP) {
+                                poleTile.setAngle(ForgeDirection.NORTH);
+                                if (facing == ForgeDirection.UP) {
                                     poleTile.setVertPosition(EnumVertPosition.FLOOR);
-                                } else if (facing == EnumFacing.DOWN) {
+                                } else if (facing == ForgeDirection.DOWN) {
                                     poleTile.setVertPosition(EnumVertPosition.CEILING);
                                 } else {
                                     switch (facing) {
                                         case NORTH: {
-                                            facing = EnumFacing.WEST;
+                                            facing = ForgeDirection.WEST;
                                             break;
                                         }
                                         case WEST: {
-                                            facing = EnumFacing.SOUTH;
+                                            facing = ForgeDirection.SOUTH;
                                             break;
                                         }
                                         case SOUTH: {
-                                            facing = EnumFacing.EAST;
+                                            facing = ForgeDirection.EAST;
                                             break;
                                         }
                                         case EAST: {
-                                            facing = EnumFacing.NORTH;
+                                            facing = ForgeDirection.NORTH;
                                             break;
                                         }
                                         default:
@@ -116,17 +122,16 @@ public class BiblioMeasure implements IMessage {
                                     poleTile.setAngle(facing);
                                     poleTile.setVertPosition(EnumVertPosition.WALL);
                                 }
-                                world.markBlockRangeForRenderUpdate(pos, pos);
+                                world.markBlockRangeForRenderUpdate(posX, posY, posZ, posX, posY, posZ);
                             }
                         }
                     } else {
                         // destroy block
-                        if (world.getBlockState(pos).getBlock() == BlockMarkerPole.instance) {
-                            world.destroyBlock(pos, false);
+                        if (world.getBlock(posX, posY, posZ) == BlockMarkerPole.instance) {
+                            world.func_147480_a(posX, posY, posZ, false);
                         }
                     }
                 }
-            });
             return null;
         }
 

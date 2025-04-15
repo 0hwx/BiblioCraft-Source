@@ -15,10 +15,10 @@ public class GuiFurniturePaneler extends GuiContainer
 	{
 		super(new ContainerFurniturePaneler(inventoryPlayer, paneler));
 	}
-	
+
 	@Override
 	protected void drawGuiContainerForegroundLayer(int var1, int var2){}
-	
+
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float var1, int var2, int var3)
 	{
@@ -28,11 +28,11 @@ public class GuiFurniturePaneler extends GuiContainer
 		int y = (height - ySize) / 2;
 		this.drawTexturedModalRect(x, y, 0, 0, xSize, ySize);
 	}
-	
+
 	@Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         super.drawScreen(mouseX, mouseY, partialTicks);
-        this.renderHoveredToolTip(mouseX, mouseY);
+//        this.renderHoveredToolTip(mouseX, mouseY);
     }
 }

@@ -9,18 +9,18 @@ import net.minecraft.item.ItemStack;
 public class SlotPainting extends Slot
 {
 	final ContainerPainting painting;
-	
+
 	public SlotPainting(ContainerPainting paintingContainer, IInventory iInventory, int i, int j, int k)
 	{
 		super(iInventory, i, j, k);
 		this.painting = paintingContainer;
 	}
-	
+
 	@Override
 	public boolean isItemValid(ItemStack stack)
 	{
 		//System.out.println("test");
-		if (stack != ItemStack.EMPTY)
+		if (stack != null)
 		{
 			if (stack.getItem() instanceof ItemPaintingCanvas)
 			{
@@ -29,7 +29,7 @@ public class SlotPainting extends Slot
 		}
 		return false;
 	}
-	
+
 	@Override
 	public int getSlotStackLimit()
 	{

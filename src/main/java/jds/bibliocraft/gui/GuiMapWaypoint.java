@@ -12,8 +12,7 @@ import jds.bibliocraft.tileentities.TileEntityMapFrame;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.translation.I18n;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.world.World;
 
 public class GuiMapWaypoint extends GuiScreen
@@ -35,22 +34,22 @@ public class GuiMapWaypoint extends GuiScreen
     private GuiButton buttonAccept;
     private GuiButton buttonCancel;
     private GuiButton buttonRemove;
-	
+
 	TileEntityMapFrame mapFrame;
-	
+
 	public GuiMapWaypoint(World world, EntityPlayer player, float xPin, float yPin, TileEntityMapFrame tile, int pinPoint)
 	{
 		this.xLoc = xPin;
 		this.yLoc = yPin;
 		this.mapFrame = tile;
-		xcoord = tile.getPos().getX();
-		ycoord = tile.getPos().getY();
-		zcoord = tile.getPos().getZ();
+		xcoord = tile.xCoord;
+		ycoord = tile.yCoord;
+		zcoord = tile.zCoord;
 		if (pinPoint == -1)
 		{
 			editing = false;
 			waypointNumber = mapFrame.getPinXCoords().size()+1;
-			wayPointName = I18n.translateToLocal("gui.mapWaypoint.waypoint")+" "+waypointNumber;
+			wayPointName = I18n.format("gui.mapWaypoint.waypoint")+" "+waypointNumber;
 		}
 		else
 		{
@@ -69,7 +68,7 @@ public class GuiMapWaypoint extends GuiScreen
 			}
 		}
 	}
-	
+
     @Override
 	public void initGui()
 	{
@@ -79,24 +78,24 @@ public class GuiMapWaypoint extends GuiScreen
     	int widthRender = (this.width - this.guiImageWidth) / 2;
     	int heightRender = (this.height - this.guiImageHeight) / 2;
     	buttonList.add(new GuiButtonClipboard(0, widthRender+120, heightRender+58, 16, 16, "", true));
-    	buttonList.add(this.buttonAccept = new GuiButton(1, widthRender+166, heightRender+56, 52, 20, I18n.translateToLocal("gui.mapWaypoint.accept")));
+    	buttonList.add(this.buttonAccept = new GuiButton(1, widthRender+166, heightRender+56, 52, 20, I18n.format("gui.mapWaypoint.accept")));
     	if (editing)
     	{
-    		buttonList.add(this.buttonRemove = new GuiButton(3, widthRender+38, heightRender+56, 52, 20, I18n.translateToLocal("gui.mapWaypoint.remove"))); //I18n.translateToLocal("gui.mapWaypointRemove")
+    		buttonList.add(this.buttonRemove = new GuiButton(3, widthRender+38, heightRender+56, 52, 20, I18n.format("gui.mapWaypoint.remove"))); //I18n.format("gui.mapWaypointRemove")
     	}
     	else
     	{
-    		buttonList.add(this.buttonCancel = new GuiButton(2, widthRender+38, heightRender+56, 52, 20, I18n.translateToLocal("gui.mapWaypoint.cancel"))); //I18n.translateToLocal("gui.mapWaypointCancel")
+    		buttonList.add(this.buttonCancel = new GuiButton(2, widthRender+38, heightRender+56, 52, 20, I18n.format("gui.mapWaypoint.cancel"))); //I18n.format("gui.mapWaypointCancel")
     	}
-    	this.textField = new GuiBiblioTextField(this.fontRenderer, widthRender+17, heightRender+34, 222, 12);
+    	this.textField = new GuiBiblioTextField(this.fontRendererObj, widthRender+17, heightRender+34, 222, 12);
     	this.textField.setEnableBackgroundDrawing(false);
     	this.textField.setTextColor(0x404040);
     	this.textField.setMaxStringLength(42);
     	this.textField.setText(wayPointName);
-    	
-    	
+
+
 	}
-    
+
     @Override
 	public void drawScreen(int x, int y, float f)
     {
@@ -212,7 +211,7 @@ public class GuiMapWaypoint extends GuiScreen
     	 	default: break;
     	 }
     }
-    
+
     public void increaseColor()
     {
     	if (colorState >= 15)
@@ -235,13 +234,13 @@ public class GuiMapWaypoint extends GuiScreen
     		colorState--;
     	}
     }
-    
+
     @Override
 	public void updateScreen()
     {
         super.updateScreen();
     }
-    
+
     @Override
 	protected void actionPerformed(GuiButton click)
     {
@@ -271,13 +270,13 @@ public class GuiMapWaypoint extends GuiScreen
     		this.mc.displayGuiScreen((GuiScreen)null);
     	}
     }
-    
+
     public void sendPacket(boolean removePin)
     {
         // ByteBuf buffer = Unpooled.buffer();
         try
         {
-			BiblioNetworking.INSTANCE.sendToServer(new BiblioMapPin(new BlockPos(xcoord, ycoord, zcoord), xLoc, yLoc, textField.getText(), colorState, waypointNumber, removePin, editing));
+			BiblioNetworking.INSTANCE.sendToServer(new BiblioMapPin(xcoord, ycoord, zcoord, xLoc, yLoc, textField.getText(), colorState, waypointNumber, removePin, editing));
         	// buffer.writeInt(xcoord);
         	// buffer.writeInt(ycoord);
         	// buffer.writeInt(zcoord);
@@ -288,32 +287,25 @@ public class GuiMapWaypoint extends GuiScreen
         	// buffer.writeInt(waypointNumber);
         	// buffer.writeBoolean(removePin);
         	// buffer.writeBoolean(editing);
-        	
-        	// BiblioCraft.ch_BiblioMapPin.sendToServer(new FMLProxyPacket(new PacketBuffer(buffer), "BiblioMapPin"));  
+
+        	// BiblioCraft.ch_BiblioMapPin.sendToServer(new FMLProxyPacket(new PacketBuffer(buffer), "BiblioMapPin"));
         }
         catch (Exception ex)
         {
             ex.printStackTrace();
         }
     }
-    
+
     @Override
     public void onGuiClosed()
     {
-    	
+
     }
-    
+
     @Override
     protected void mouseClicked(int x, int y, int click)
     {
-        try 
-        {
-			super.mouseClicked(x, y, click);
-		}
-        catch (IOException e) 
-        {
-			e.printStackTrace();
-		}
+        super.mouseClicked(x, y, click);
         this.textField.mouseClicked(x, y, click);
  		int w = (width - 256) / 2;
  		int h = (height - 128) / 2;
@@ -329,29 +321,22 @@ public class GuiMapWaypoint extends GuiScreen
  			}
  		}
     }
-    
+
     @Override
     protected void keyTyped(char par1, int par2)
     {
     	if (this.textField.textboxKeyTyped(par1, par2))
     	{
-    		
+
     	}
     	else
     	{
-    		try 
-    		{
-				super.keyTyped(par1, par2);
-			} 
-    		catch (IOException e) 
-    		{
-				e.printStackTrace();
-			}
-    	}
+            super.keyTyped(par1, par2);
+        }
     }
-    
+
     private void updateButtons()
     {
-    	
+
     }
 }

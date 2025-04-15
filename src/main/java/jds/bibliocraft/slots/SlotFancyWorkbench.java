@@ -12,18 +12,18 @@ public class SlotFancyWorkbench extends Slot
 
 	final ContainerFancyWorkbench bench;
 	private boolean recipeslot = false;
-	
+
 	public SlotFancyWorkbench(ContainerFancyWorkbench container, IInventory iInventory, int i, int j, int k, boolean isrecipeslot)
 	{
 		super(iInventory, i, j, k);
 		this.bench = container;
 		this.recipeslot = isrecipeslot;
 	}
-	
+
 	@Override
 	public boolean isItemValid(ItemStack stack)
 	{
-		if (stack != ItemStack.EMPTY)
+		if (stack != null)
 		{
 			if (stack.getItem() instanceof ItemBook || stack.getItem() instanceof ItemRecipeBook)
 			{
@@ -32,7 +32,7 @@ public class SlotFancyWorkbench extends Slot
 		}
 		return false;
 	}
-	
+
 	@Override
 	public int getSlotStackLimit()
 	{

@@ -9,23 +9,23 @@ import net.minecraft.item.ItemStack;
 public class SlotClipboard extends Slot
 {
 	final ContainerClipboard container;
-	
+
 	public SlotClipboard(ContainerClipboard clipboardContainer, IInventory iInventory, int i, int j, int k)
 	{
 		super(iInventory, i , j, k);
 		this.container = clipboardContainer;
 	}
-	
+
 	@Override
 	public boolean isItemValid(ItemStack stack)
 	{
-		if (stack != ItemStack.EMPTY && stack.getItem() instanceof ItemClipboard)
+		if (stack != null && stack.getItem() instanceof ItemClipboard)
 		{
 			return true;
 		}
 		return false;
 	}
-	
+
 	@Override
 	public int getSlotStackLimit()
     {

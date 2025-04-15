@@ -3,7 +3,8 @@ package jds.bibliocraft.items;
 import java.util.List;
 
 import jds.bibliocraft.BlockLoader;
-import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -14,18 +15,18 @@ public class ItemPaintingCanvas extends Item
 {
 	public static final String name = "PaintingCanvas";
 	public static final ItemPaintingCanvas instance = new ItemPaintingCanvas();
-	
+
 	public ItemPaintingCanvas()
 	{
 		super();
 		setMaxStackSize(64);
 		setCreativeTab(BlockLoader.biblioTab);
 		setUnlocalizedName(name);
-		setRegistryName(name);
+		setUnlocalizedName(name);
 	}
 
 	@Override
-    public void addInformation(ItemStack stack, World playerIn, List<String> tooltip, ITooltipFlag advanced) 
+    public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced)
 	{
 		NBTTagCompound tags = stack.getTagCompound();
 		if (tags != null)
@@ -42,8 +43,8 @@ public class ItemPaintingCanvas extends Item
 		}
     	super.addInformation(stack, playerIn, tooltip, advanced);
 	}
-	
-	
+
+
 	@Override
 	public void onUpdate(ItemStack stack, World world, Entity entity, int x, boolean b)
 	{
@@ -69,5 +70,9 @@ public class ItemPaintingCanvas extends Item
 			}
 		}
 	}
-    
+    @Override
+    public void registerIcons(IIconRegister register) {
+        this.itemIcon = register.registerIcon("bibliocraft:canvas");
+    }
+
 }

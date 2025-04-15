@@ -9,17 +9,17 @@ import net.minecraft.item.ItemStack;
 public class SlotPaintPress extends Slot
 {
 	final ContainerPaintPress paintPress;
-	
+
 	public SlotPaintPress(ContainerPaintPress paintPressContainer, IInventory iInventory, int i, int j, int k)
 	{
 		super(iInventory, i, j, k);
 		this.paintPress = paintPressContainer;
 	}
-	
+
 	@Override
 	public boolean isItemValid(ItemStack stack)
 	{
-		if (stack != ItemStack.EMPTY)
+		if (stack != null)
 		{
 			if (stack.getItem() instanceof ItemPaintingCanvas)
 			{
@@ -28,7 +28,7 @@ public class SlotPaintPress extends Slot
 		}
 		return false;
 	}
-	
+
 	@Override
 	public int getSlotStackLimit()
 	{

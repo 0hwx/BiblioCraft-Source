@@ -2,28 +2,25 @@ package jds.bibliocraft.tileentities;
 
 import jds.bibliocraft.CommonProxy;
 import jds.bibliocraft.blocks.BlockBell;
+import net.minecraft.client.renderer.texture.ITickable;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ITickable;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
 
-public class TileEntityBell extends BiblioTileEntity implements ITickable 
+public class TileEntityBell extends BiblioTileEntity implements ITickable
 {
 	private int redstone = 0;
 	private int counter = 0;
-	
+
 	public TileEntityBell()
 	{
 		super(0, false);
 	}
 
-	@Override
-	public String getName()
-	{
-		return BlockBell.name;
-	}
+//	@Override
+//	public String getName()
+//	{
+//		return BlockBell.name;
+//	}
 
 	@Override
 	public void setInventorySlotContentsAdditionalCommands(int slot, ItemStack stack) { }
@@ -37,28 +34,53 @@ public class TileEntityBell extends BiblioTileEntity implements ITickable
 		return nbt;
 	}
 
-	@Override
+    @Override
+    public ItemStack getStackInSlotOnClosing(int index) {
+        return null;
+    }
+
+    @Override
+    public String getInventoryName() {
+        return "";
+    }
+
+    @Override
+    public boolean hasCustomInventoryName() {
+        return false;
+    }
+
+    @Override
 	public int getInventoryStackLimit()
 	{
 		return 0;
 	}
-	
-	@Override
-	public ITextComponent getDisplayName() 
-	{
-		ITextComponent chat = new TextComponentString(getName());
-		return chat;
-	}
+
+    @Override
+    public void openInventory() {
+
+    }
+
+    @Override
+    public void closeInventory() {
+
+    }
+
+//    @Override
+//	public ITextComponent getDisplayName()
+//	{
+//		ITextComponent chat = new ChatComponentText(getName());
+//		return chat;
+//	}
 
 	@Override
-	public void update() 
+    public void tick()
 	{
 		if (counter >= 2)
 		{
-			int power = getWorld().isBlockIndirectlyGettingPowered(getPos());
+			int power = getWorldObj().getStrongestIndirectPower(xCoord, yCoord, zCoord);
 			if (power > redstone)
 			{
-				getWorld().playSound(null, pos.getX(), pos.getY(), pos.getZ(), CommonProxy.SOUND_DING, SoundCategory.BLOCKS, 1.0F, 1.0F);
+				getWorldObj().playSoundEffect(xCoord, yCoord, zCoord, CommonProxy.SOUND_DING, 1.0F, 1.0F);
 			}
 			redstone = power;
 			counter = 0;
@@ -68,4 +90,9 @@ public class TileEntityBell extends BiblioTileEntity implements ITickable
 			counter++;
 		}
 	}
+
+    @Override
+    public int[] getAccessibleSlotsFromSide(int p_94128_1_) {
+        return new int[0];
+    }
 }

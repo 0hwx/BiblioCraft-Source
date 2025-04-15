@@ -6,33 +6,29 @@ import java.util.List;
 import jds.bibliocraft.BiblioCraft;
 import jds.bibliocraft.tileentities.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityFramedChest;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.Block;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
-import net.minecraftforge.common.model.TRSRTransformation;
 
 public class BlockFramedChest extends BiblioWoodBlock
 {
 	public static final String name = "FramedChest";
 	public static final BlockFramedChest instance = new BlockFramedChest();
-	
+
 	public BlockFramedChest()
 	{
 		super(name, false);
 	}
-	
+
 	@Override
-	public boolean onBlockActivatedCustomCommands(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ) 
+	public boolean onBlockActivatedCustomCommands(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ)
 	{
 		if (!world.isRemote)
 		{
-			TileEntity tile = world.getTileEntity(pos);
+			TileEntity tile = world.getTileEntity(x, y, z);
 			if (tile != null && tile instanceof TileEntityFramedChest)
 			{
 				TileEntityFramedChest chest = (TileEntityFramedChest)tile;
@@ -46,20 +42,20 @@ public class BlockFramedChest extends BiblioWoodBlock
 						chest2.addUsingPlayer(true);
 					}
 				}
-				
+
 				chest.addUsingPlayer(true);
-				player.openGui(BiblioCraft.instance, 0, world, pos.getX(), pos.getY(), pos.getZ());
+				player.openGui(BiblioCraft.instance, 0, world, x, y, z);
 			}
 		}
 		return true;
 	}
-	
+
 	public TileEntityFramedChest getAdjacentChest(TileEntityFramedChest chest, World world)
 	{
 		TileEntity tile = null;
-		int x = chest.getPos().getX();
-		int y = chest.getPos().getY();
-		int z = chest.getPos().getZ();
+		int x = chest.xCoord;
+		int y = chest.yCoord;
+		int z = chest.zCoord;
 		switch (chest.getAngle())
 		{
 			case SOUTH:
@@ -112,7 +108,7 @@ public class BlockFramedChest extends BiblioWoodBlock
 			}
 			default: break;
 		}
-		tile = world.getTileEntity(new BlockPos(x, y, z));
+		tile = world.getTileEntity(x, y, z);
 		if (tile != null && tile instanceof TileEntityFramedChest)
 		{
 			TileEntityFramedChest chest2 = (TileEntityFramedChest)tile;
@@ -121,58 +117,58 @@ public class BlockFramedChest extends BiblioWoodBlock
 				return chest2;
 			}
 		}
-		
+
 		return null;
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(World worldIn, int meta) 
+	public TileEntity createNewTileEntity(World worldIn, int meta)
 	{
 		return new TileEntityFramedChest();
 	}
 
-	@Override
-	public List<String> getModelParts(BiblioTileEntity tile) 
-	{
-		List<String> modelParts = new ArrayList<String>();
-		modelParts.add("small_chest");
-		if (tile instanceof TileEntityFramedChest)
-		{
-			TileEntityFramedChest chest = (TileEntityFramedChest)tile;
-			if (chest.getIsDouble())
-			{
-				modelParts = new ArrayList<String>();
-				if (chest.getIsLeft())
-				{
-					modelParts.add("large_chest_left");
-				}
-				else
-				{
-					modelParts.add("large_chest_right");
-				}
-			}
-		}
-		return modelParts;
-	}
+//	@Override
+//	public List<String> getModelParts(BiblioTileEntity tile)
+//	{
+//		List<String> modelParts = new ArrayList<String>();
+//		modelParts.add("small_chest");
+//		if (tile instanceof TileEntityFramedChest)
+//		{
+//			TileEntityFramedChest chest = (TileEntityFramedChest)tile;
+//			if (chest.getIsDouble())
+//			{
+//				modelParts = new ArrayList<String>();
+//				if (chest.getIsLeft())
+//				{
+//					modelParts.add("large_chest_left");
+//				}
+//				else
+//				{
+//					modelParts.add("large_chest_right");
+//				}
+//			}
+//		}
+//		return modelParts;
+//	}
 
 	@Override
-	public void additionalPlacementCommands(BiblioTileEntity biblioTile, EntityLivingBase player) 
+	public void additionalPlacementCommands(BiblioTileEntity biblioTile, EntityLivingBase player)
 	{
-		
-		
+
+
 	}
 
+//	@Override
+//	public TRSRTransformation getAdditionalTransforms(TRSRTransformation transform, BiblioTileEntity tile)
+//	{
+//		return transform;
+//	}
+
 	@Override
-	public TRSRTransformation getAdditionalTransforms(TRSRTransformation transform, BiblioTileEntity tile) 
-	{
-		return transform;
-	}
-	
-	@Override
-	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess blockAccess, BlockPos pos)
+	public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z)
 	{
 		AxisAlignedBB output = this.getBlockBounds(0.054F, 0.0F, 0.054F, 0.946F, 0.866F, 0.946F);
-    	TileEntity tile = blockAccess.getTileEntity(pos);
+    	TileEntity tile = world.getTileEntity(x, y, z);
     	if (tile != null && tile instanceof TileEntityFramedChest)
     	{
     		TileEntityFramedChest chest = (TileEntityFramedChest)tile;
@@ -234,12 +230,12 @@ public class BlockFramedChest extends BiblioWoodBlock
     	}
     	return output;
 	}
-	
+
 	@Override
-	public void breakBlock(World world,BlockPos pos, IBlockState state)
+	public void breakBlock(World world, int x, int y, int z, Block blockBroken, int meta)
 	{
-		dropItems(world, pos);
-		TileEntity tile = world.getTileEntity(pos);
+		dropItems(world, x, y, z);
+		TileEntity tile = world.getTileEntity(x, y, z);
 		if (tile != null && tile instanceof TileEntityFramedChest)
 		{
 			TileEntityFramedChest chest = (TileEntityFramedChest)tile;
@@ -252,6 +248,6 @@ public class BlockFramedChest extends BiblioWoodBlock
 				}
 			}
 		}
-		super.breakBlock(world, pos, state);
+		super.breakBlock(world, x, y, z, blockBroken, meta);
 	}
 }

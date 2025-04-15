@@ -1,13 +1,13 @@
 package jds.bibliocraft.tileentities;
 
 import jds.bibliocraft.blocks.BlockArmorStand;
-import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.IChatComponent;
+
 
 public class TileEntityArmorStand extends BiblioTileEntity
 {
@@ -15,32 +15,32 @@ public class TileEntityArmorStand extends BiblioTileEntity
 	public boolean cuirass = false;
 	public boolean greaves = false;
 	public boolean boots = false;
-	
+
 	public int showArmorText = 0;
-	
+
 	private boolean isBottomStand = true;
-	
-	
+
+
 	public TileEntityArmorStand()
 	{
 		super(4, true);
 	}
-	
+
 	public void setIsBottomStand(boolean isBottom)
 	{
 		this.isBottomStand = isBottom;
-		getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+		getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
-	
+
 	public boolean getIsBottomStand()
 	{
 		return this.isBottomStand;
 	}
-	
+
 	public void checkArmorSlots()
 	{
 		ItemStack stackTest0 = getStackInSlot(0);
-		if (stackTest0 != ItemStack.EMPTY)
+		if (stackTest0 != null)
 		{
 			helm = true;
 		}
@@ -48,9 +48,9 @@ public class TileEntityArmorStand extends BiblioTileEntity
 		{
 			helm = false;
 		}
-		
+
 		ItemStack stackTest1 = getStackInSlot(1);
-		if (stackTest1 != ItemStack.EMPTY)
+		if (stackTest1 != null)
 		{
 			cuirass = true;
 		}
@@ -58,9 +58,9 @@ public class TileEntityArmorStand extends BiblioTileEntity
 		{
 			cuirass = false;
 		}
-		
+
 		ItemStack stackTest2 = getStackInSlot(2);
-		if (stackTest2 != ItemStack.EMPTY)
+		if (stackTest2 != null)
 		{
 			greaves = true;
 		}
@@ -68,9 +68,9 @@ public class TileEntityArmorStand extends BiblioTileEntity
 		{
 			greaves = false;
 		}
-		
+
 		ItemStack stackTest3 = getStackInSlot(3);
-		if (stackTest3 != ItemStack.EMPTY)
+		if (stackTest3 != null)
 		{
 			boots = true;
 		}
@@ -79,13 +79,38 @@ public class TileEntityArmorStand extends BiblioTileEntity
 			boots = false;
 		}
 	}
-	
-	@Override
+
+    @Override
+    public ItemStack getStackInSlotOnClosing(int index) {
+        return null;
+    }
+
+    @Override
+    public String getInventoryName() {
+        return "";
+    }
+
+    @Override
+    public boolean hasCustomInventoryName() {
+        return false;
+    }
+
+    @Override
 	public int getInventoryStackLimit()
 	{
 		return 1;
 	}
-	  
+
+    @Override
+    public void openInventory() {
+
+    }
+
+    @Override
+    public void closeInventory() {
+
+    }
+
     public boolean getHelm()
     {
     	return helm;
@@ -102,34 +127,34 @@ public class TileEntityArmorStand extends BiblioTileEntity
     {
     	return boots;
     }
-    
-    public boolean addArmor(ItemStack stack, EntityEquipmentSlot armorType)
+
+    public boolean addArmor(ItemStack stack, int armorType)
     {
     	checkArmorSlots();
     	switch (armorType)
     	{
-	    	case HEAD:{
+	    	case 0:{
 	    		if (!helm)
 	    		{
 	    			setInventorySlotContents(0, stack);
 	    			return true;
 	    		}
 	    		break;}
-	    	case CHEST:{
+	    	case 1:{
 	       		if (!cuirass)
 	    		{
 	    			setInventorySlotContents(1, stack);
 	    			return true;
 	    		}
 	    		break;}
-	    	case LEGS:{
+	    	case 2:{
 	       		if (!greaves)
 	    		{
 	    			setInventorySlotContents(2, stack);
 	    			return true;
 	    		}
 	    		break;}
-	    	case FEET:{
+	    	case 3:{
 	       		if (!boots)
 	    		{
 	    			setInventorySlotContents(3, stack);
@@ -140,9 +165,9 @@ public class TileEntityArmorStand extends BiblioTileEntity
     	}
     	return false;
     }
-    
+
 	@Override
-	public boolean isItemValidForSlot(int slot, ItemStack itemstack) 
+	public boolean isItemValidForSlot(int slot, ItemStack itemstack)
 	{
 		if (!this.getIsBottomStand())
 		{
@@ -152,23 +177,23 @@ public class TileEntityArmorStand extends BiblioTileEntity
 		if (stackItem instanceof ItemArmor )
 		{
 			ItemArmor armorItem = (ItemArmor)stackItem;
-			if (armorItem != ItemStack.EMPTY.getItem()) 
+			if (armorItem != null)
 			{
-				EntityEquipmentSlot armorType = armorItem.armorType;
+				int armorType = armorItem.armorType;
 
-				if (slot == 0 && armorType == EntityEquipmentSlot.FEET)
-				{
-					return true;
-				}	
-				else if (slot == 1 && armorType == EntityEquipmentSlot.LEGS)
+				if (slot == 0 && armorType == 3)
 				{
 					return true;
 				}
-				else if (slot == 2 && armorType == EntityEquipmentSlot.CHEST)
+				else if (slot == 1 && armorType == 2)
 				{
 					return true;
 				}
-				else if (slot == 3 && armorType == EntityEquipmentSlot.HEAD)
+				else if (slot == 2 && armorType == 1)
+				{
+					return true;
+				}
+				else if (slot == 3 && armorType == 0)
 				{
 					return true;
 				}
@@ -181,20 +206,20 @@ public class TileEntityArmorStand extends BiblioTileEntity
 		return false;
 	}
 
-	@Override
-	public String getName() 
-	{
-		return BlockArmorStand.name;
-	}
+//	@Override
+//	public String getName()
+//	{
+//		return BlockArmorStand.name;
+//	}
 
 	@Override
-	public void setInventorySlotContentsAdditionalCommands(int slot, ItemStack stack) 
+	public void setInventorySlotContentsAdditionalCommands(int slot, ItemStack stack)
 	{
 		checkArmorSlots();
 	}
 
 	@Override
-	public void loadCustomNBTData(NBTTagCompound nbt) 
+	public void loadCustomNBTData(NBTTagCompound nbt)
 	{
 		this.helm = nbt.getBoolean("helm");
 		this.cuirass = nbt.getBoolean("cuirass");
@@ -214,10 +239,15 @@ public class TileEntityArmorStand extends BiblioTileEntity
 		return nbt;
 	}
 
-	@Override
-	public ITextComponent getDisplayName() 
-	{
-		ITextComponent chat = new TextComponentString(getName());
-		return chat;
-	}
+    @Override
+    public int[] getAccessibleSlotsFromSide(int p_94128_1_) {
+        return new int[0];
+    }
+
+//	@Override
+//	public IChatComponent getDisplayName()
+//	{
+//        IChatComponent chat = new ChatComponentText(getName());
+//		return chat;
+//	}
 }

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mojang.realmsclient.gui.ChatFormatting;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
@@ -18,8 +19,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.translation.I18n;
+import net.minecraft.client.resources.I18n;
 
 public class GuiStockCatalog extends GuiScreen
 {
@@ -28,46 +28,46 @@ public class GuiStockCatalog extends GuiScreen
 	ItemStack[] compassStacks;
     private int bookImageWidth = 220;
     private int bookImageHeight = 256;
-    
+
     private int openSubMenu = -1;
     private ArrayList<SortedListItem> alphaList;
     private ArrayList<SortedListItem> quantaList;
     private ArrayList<SortedListItem> alphaReverseList;
     private ArrayList<SortedListItem> quantaReverseList;
-    
+
     private ArrayList<SortedListItem> theList;
-    
+
     private int listNum = 2; // 0 = alpha list, 1 = alpha list reversed, 2 = quantalist, 3 = quantalist reversed
-    
+
     private GuiButtonGreenPageArrows bPrevPageMain;
     private GuiButtonGreenPageArrows bNextPageMain;
     private GuiButtonGreenPageArrows bPrevPageSub;
     private GuiButtonGreenPageArrows bNextPageSub;
-    
+
     private GuiButtonAscendDescend bQuanSelector;
     private GuiButtonAscendDescend bAlphaSelector;
-    
+
     private GuiButtonAddSubtract bAddToCompass1;
     private GuiButtonAddSubtract bAddToCompass2;
     private GuiButtonAddSubtract bAddToCompass3;
     private GuiButtonAddSubtract bAddToCompass4;
     private GuiButtonAddSubtract bAddToCompass5;
-    
+
     private GuiButton32x14 bCloseButton;
-    
+
     private GuiBiblioTextField titleText;
-    
+
     private int pageNum = 0;
     private int totalPages = 1;
     private int invPageNum = 0;
     private int totalInvPages = 1;
     private int numEntries = 0;
-    
+
     private int selectedCompass = 0;
     private boolean hasCompass = false;
-    
+
     private String theTitle;
-	
+
 	public GuiStockCatalog(EntityPlayer player, ArrayList<SortedListItem> AlphaList, ArrayList<SortedListItem> QuantaList, ItemStack[] stacks, int[] compasses, String title)
 	{
 		this.allowUserInput = true;
@@ -78,7 +78,7 @@ public class GuiStockCatalog extends GuiScreen
 		this.quantaList = QuantaList;
 		this.alphaReverseList = getReverseList(alphaList);
 		this.quantaReverseList = getReverseList(quantaList);
-		
+
 		this.totalPages = alphaList.size() / 22;
 		if (alphaList.size() % 22 != 0)
 		{
@@ -88,8 +88,8 @@ public class GuiStockCatalog extends GuiScreen
 		{
 			this.totalPages = 1;
 		}
-		theTitle = title.replace(TextFormatting.WHITE+"", "");
-		
+		theTitle = title.replace(ChatFormatting.WHITE+"", "");
+
 		if (this.alphaList.size() > 0 && this.alphaList.size() <= 22)
 		{
 			this.numEntries = this.alphaList.size();
@@ -98,9 +98,9 @@ public class GuiStockCatalog extends GuiScreen
 		{
 			this.numEntries = 22;
 		}
-		
+
 	}
-	
+
 	 private ArrayList<SortedListItem> getReverseList(ArrayList<SortedListItem> list)
 	 {
 		 ArrayList<SortedListItem> newList = new  ArrayList<SortedListItem>();
@@ -110,7 +110,7 @@ public class GuiStockCatalog extends GuiScreen
 		 }
 		 return newList;
 	 }
-	
+
     @Override
     public void initGui()
     {
@@ -125,7 +125,7 @@ public class GuiStockCatalog extends GuiScreen
     	buttonList.add(this.bPrevPageSub = new GuiButtonGreenPageArrows(2, width+42, height+217, false));
 
 
-    	
+
     	buttonList.add(this.bQuanSelector = new GuiButtonAscendDescend(5, width+47, height+28, false));
     	buttonList.add(this.bAlphaSelector = new GuiButtonAscendDescend(6, width+177, height+28, false));
     	this.bQuanSelector.setIsSelected(true);
@@ -135,10 +135,10 @@ public class GuiStockCatalog extends GuiScreen
     	buttonList.add(this.bAddToCompass3 = new GuiButtonAddSubtract(12, width+174, height+134, 0, 0.75f));
     	buttonList.add(this.bAddToCompass4 = new GuiButtonAddSubtract(13, width+174, height+164, 0, 0.75f));
     	buttonList.add(this.bAddToCompass5 = new GuiButtonAddSubtract(14, width+174, height+194, 0, 0.75f));
-    	
-    	buttonList.add(this.bCloseButton = new GuiButton32x14(4, width+174, height+233)); 
-    	
-    	this.titleText = new GuiBiblioTextField(fontRenderer, width+41, height+14, 138, 10);
+
+    	buttonList.add(this.bCloseButton = new GuiButton32x14(4, width+174, height+233));
+
+    	this.titleText = new GuiBiblioTextField(fontRendererObj, width+41, height+14, 138, 10);
     	this.titleText.setEnableBackgroundDrawing(false);
     	this.titleText.setMaxStringLength(24);
     	this.titleText.setTextColor(0x000000);
@@ -156,7 +156,7 @@ public class GuiStockCatalog extends GuiScreen
 				this.bNextPageMain.enabled = false;
 				this.bNextPageMain.visible = false;
 			}
-			
+
 			if (this.pageNum != 0)
 			{
     			this.bPrevPageMain.enabled = true;
@@ -171,7 +171,7 @@ public class GuiStockCatalog extends GuiScreen
 	    	this.bNextPageSub.enabled = false;
 	    	this.bPrevPageSub.enabled = false;
 	    	this.bNextPageSub.visible = false;
-	    	
+
 	    	this.bAddToCompass1.enabled = false;
 	    	this.bAddToCompass1.visible = false;
 	    	this.bAddToCompass2.enabled = false;
@@ -193,15 +193,15 @@ public class GuiStockCatalog extends GuiScreen
 	    	this.bQuanSelector.visible = false;
 	    	this.bAlphaSelector.enabled = false;
 	    	this.bAlphaSelector.visible = false;
-	    	
+
 			this.bNextPageSub.enabled = (this.invPageNum < this.totalInvPages-1);
 			this.bNextPageSub.visible = (this.invPageNum < this.totalInvPages-1);
-			
+
 			this.bPrevPageSub.enabled = (this.invPageNum > 0);
 			this.bPrevPageSub.visible = (this.invPageNum > 0);
     	}
     }
-    
+
 	@Override
 	public void drawScreen(int x, int y, float f)
 	{
@@ -210,7 +210,7 @@ public class GuiStockCatalog extends GuiScreen
     	int height = (this.height - this.bookImageHeight) / 2;
 		this. mc.getTextureManager().bindTexture(CommonProxy.STOCKROOMCATALOGGUI);
 		this.drawTexturedModalRect(width, height, 0, 0, this.bookImageWidth, this.bookImageHeight);
-		
+
 		if(this.openSubMenu != -1)
 		{
 			this. mc.getTextureManager().bindTexture(CommonProxy.STOCKROOMCATALOGSUBGUI);
@@ -219,7 +219,7 @@ public class GuiStockCatalog extends GuiScreen
 			{
 				//
 				this.drawTexturedModalRect((width+173), (height+52), 249, 0, 7, 150);
-				
+
 				if (this.selectedCompass < 7)
 				{
 					int compassLine = 7 - this.selectedCompass;
@@ -231,7 +231,7 @@ public class GuiStockCatalog extends GuiScreen
 				this.drawTexturedModalRect((width+21+(this.selectedCompass*20)), (height+31), 222, 57, 20, 23);
 			}
 		}
-		
+
 		this. mc.getTextureManager().bindTexture(CommonProxy.STOCKROOMCATALOGGUI);
 		float scaler = 0.2f;
 		float antiscaler = 1.0f/scaler;
@@ -248,10 +248,10 @@ public class GuiStockCatalog extends GuiScreen
 			}
 		}
 		GL11.glScalef(antiscaler, antiscaler, antiscaler);
-		
-		
 
-		
+
+
+
 		scaler = 0.8f;
 		antiscaler = 1.0f/scaler;
 		GL11.glScalef(scaler, scaler, scaler);
@@ -263,30 +263,30 @@ public class GuiStockCatalog extends GuiScreen
 			case 3:{this.theList = this.quantaReverseList; break;}
 			default:{this.theList = this.quantaList; break;}
 		}
-		
+
 		if (this.openSubMenu == -1)
 		{
-			
+
 			// render list
 			if (this.bQuanSelector.getIsSelected())
 			{
-				this.fontRenderer.drawString("\u00a72"+I18n.translateToLocal("gui.catalog.count"), (int)((width+18)*antiscaler), (int)((height+27)*antiscaler), 4210752);
-				this.fontRenderer.drawString("\u00a77"+I18n.translateToLocal("gui.catalog.names"), (int)((width+60)*antiscaler), (int)((height+27)*antiscaler), 4210752);
+				this.fontRendererObj.drawString("\u00a72"+I18n.format("gui.catalog.count"), (int)((width+18)*antiscaler), (int)((height+27)*antiscaler), 4210752);
+				this.fontRendererObj.drawString("\u00a77"+I18n.format("gui.catalog.names"), (int)((width+60)*antiscaler), (int)((height+27)*antiscaler), 4210752);
 			}
 			else
 			{
-				this.fontRenderer.drawString("\u00a77"+I18n.translateToLocal("gui.catalog.count"), (int)((width+18)*antiscaler), (int)((height+27)*antiscaler), 4210752);
-				this.fontRenderer.drawString("\u00a72"+I18n.translateToLocal("gui.catalog.names"), (int)((width+60)*antiscaler), (int)((height+27)*antiscaler), 4210752);
+				this.fontRendererObj.drawString("\u00a77"+I18n.format("gui.catalog.count"), (int)((width+18)*antiscaler), (int)((height+27)*antiscaler), 4210752);
+				this.fontRendererObj.drawString("\u00a72"+I18n.format("gui.catalog.names"), (int)((width+60)*antiscaler), (int)((height+27)*antiscaler), 4210752);
 			}
 
-			this.fontRenderer.drawString(I18n.translateToLocal("gui.paintpress.page")+" "+(this.pageNum+1)+" "+I18n.translateToLocal("gui.paintpress.of")+" "+this.totalPages, (int)((width+85)*antiscaler), (int)((height+237)*antiscaler), 4210752);
-			
+			this.fontRendererObj.drawString(I18n.format("gui.paintpress.page")+" "+(this.pageNum+1)+" "+I18n.format("gui.paintpress.of")+" "+this.totalPages, (int)((width+85)*antiscaler), (int)((height+237)*antiscaler), 4210752);
+
 			for (int i = 0; i < quantaList.size(); i++)
 			{
 				if (i >= (this.pageNum*22) && i < 22+(this.pageNum*22))
 				{
-					this.fontRenderer.drawString(theList.get(i).itemQuantity+"", (int)((width+18)*antiscaler), (int)((height+37+((i-pageNum*22)*9))*antiscaler), 4210752);
-					this.fontRenderer.drawString(I18n.translateToLocal(theList.get(i).itemName+".name"), (int)((width+60)*antiscaler), (int)((height+37+((i-pageNum*22)*9))*antiscaler), 4210752);
+					this.fontRendererObj.drawString(theList.get(i).itemQuantity+"", (int)((width+18)*antiscaler), (int)((height+37+((i-pageNum*22)*9))*antiscaler), 4210752);
+					this.fontRendererObj.drawString(I18n.format(theList.get(i).itemName+".name"), (int)((width+60)*antiscaler), (int)((height+37+((i-pageNum*22)*9))*antiscaler), 4210752);
 				}
 			}
 		}
@@ -294,9 +294,9 @@ public class GuiStockCatalog extends GuiScreen
 		{
 			// render sub menu list
 			ArrayList<InventoryListItem> invList = this.theList.get(this.openSubMenu).inventoryList;
-			this.fontRenderer.drawString(I18n.translateToLocal("gui.paintpress.page")+" "+(this.invPageNum+1)+" "+I18n.translateToLocal("gui.paintpress.of")+" "+this.totalInvPages, (int)((width+77)*antiscaler), (int)((height+220)*antiscaler), 4210752);
-			this.fontRenderer.drawString("\u00a72"+I18n.translateToLocal(this.theList.get(this.openSubMenu).itemName+".name"), (int)((width+33)*antiscaler), (int)((height+56)*antiscaler), 4210752);
-			
+			this.fontRendererObj.drawString(I18n.format("gui.paintpress.page")+" "+(this.invPageNum+1)+" "+I18n.format("gui.paintpress.of")+" "+this.totalInvPages, (int)((width+77)*antiscaler), (int)((height+220)*antiscaler), 4210752);
+			this.fontRendererObj.drawString("\u00a72"+I18n.format(this.theList.get(this.openSubMenu).itemName+".name"), (int)((width+33)*antiscaler), (int)((height+56)*antiscaler), 4210752);
+
 	    	this.bAddToCompass1.enabled = false;
 	    	this.bAddToCompass1.visible = false;
 	    	this.bAddToCompass2.enabled = false;
@@ -311,11 +311,11 @@ public class GuiStockCatalog extends GuiScreen
 			{
 				if (i >= (this.invPageNum*5) && i < 5+(this.invPageNum*5))
 				{
-					this.fontRenderer.drawString(invList.get(i).itemQuantity+"", (int)((width+33)*antiscaler), (int)((height+71+((i-invPageNum*5)*30))*antiscaler), 4210752);
-					this.fontRenderer.drawString(I18n.translateToLocal(invList.get(i).inventoryName), (int)((width+70)*antiscaler), (int)((height+71+((i-invPageNum*5)*30))*antiscaler), 4210752);
-					this.fontRenderer.drawString("X: "+invList.get(i).tileX, (int)((width+33)*antiscaler), (int)((height+84+((i-invPageNum*5)*30))*antiscaler), 4210752);
-					this.fontRenderer.drawString("Y: "+invList.get(i).tileY, (int)((width+81)*antiscaler), (int)((height+84+((i-invPageNum*5)*30))*antiscaler), 4210752);
-					this.fontRenderer.drawString("Z: "+invList.get(i).tileZ, (int)((width+129)*antiscaler), (int)((height+84+((i-invPageNum*5)*30))*antiscaler), 4210752);
+					this.fontRendererObj.drawString(invList.get(i).itemQuantity+"", (int)((width+33)*antiscaler), (int)((height+71+((i-invPageNum*5)*30))*antiscaler), 4210752);
+					this.fontRendererObj.drawString(I18n.format(invList.get(i).inventoryName), (int)((width+70)*antiscaler), (int)((height+71+((i-invPageNum*5)*30))*antiscaler), 4210752);
+					this.fontRendererObj.drawString("X: "+invList.get(i).tileX, (int)((width+33)*antiscaler), (int)((height+84+((i-invPageNum*5)*30))*antiscaler), 4210752);
+					this.fontRendererObj.drawString("Y: "+invList.get(i).tileY, (int)((width+81)*antiscaler), (int)((height+84+((i-invPageNum*5)*30))*antiscaler), 4210752);
+					this.fontRendererObj.drawString("Z: "+invList.get(i).tileZ, (int)((width+129)*antiscaler), (int)((height+84+((i-invPageNum*5)*30))*antiscaler), 4210752);
 					if ((i-invPageNum*5) == 0 && hasCompass)
 					{
 						this.bAddToCompass1.enabled = true;
@@ -344,7 +344,7 @@ public class GuiStockCatalog extends GuiScreen
 				}
 			}
 		}
-		
+
 		GL11.glScalef(antiscaler, antiscaler, antiscaler);
 		this.titleText.drawTextBox();
 		//this.drawTexturedModalRect((int)((width+194)*antiscaler), (int)((height+26)*antiscaler), 225, 215, 31, 41);
@@ -356,20 +356,20 @@ public class GuiStockCatalog extends GuiScreen
 				if (this.compassSlots[i] != -1)
 				{
 					ItemStack stack = this.compassStacks[i];
-					if (stack != ItemStack.EMPTY)
+					if (stack != null)
 					{
-						this.itemRender.renderItemAndEffectIntoGUI(stack, width+23+(20*i), height+33);
+						this.itemRender.renderItemAndEffectIntoGUI(this.fontRendererObj,this.mc.getTextureManager(),stack, width+23+(20*i), height+33);
 						hasCompass = true;
 					}
 				}
 			}
-			
+
 
 		}
 
-		
+
 		super.drawScreen(x, y, f);
-		
+
 		if (this.hasCompass && this.openSubMenu != -1)
 		{
 			for (int j = 0; j < this.compassSlots.length; j++)
@@ -377,7 +377,7 @@ public class GuiStockCatalog extends GuiScreen
 				if (x > (width+21+(j*20)) && x < ((width+41)+(j*20)) && y > (height+32) &&  y < (height+50))
 				{
 					ItemStack stack = compassStacks[j];
-					if (stack != ItemStack.EMPTY)
+					if (stack != null)
 					{
 						NBTTagCompound tags = stack.getTagCompound();
 						if (tags != null)
@@ -389,27 +389,27 @@ public class GuiStockCatalog extends GuiScreen
 							List lst = new ArrayList();
 							lst.add(waypoint);
 							lst.add(tooltip);
-							this.drawHoveringText(lst, x, y, fontRenderer);
+							this.drawHoveringText(lst, x, y, fontRendererObj);
 						}
 					}
-					
+
 				}
 			}
 
 		}
-		
+
 		GL11.glScalef(scaler, scaler, scaler);
 		if (this.openSubMenu == -1)
 		{
-			this.fontRenderer.drawString(I18n.translateToLocal("gui.typesetting.exit"), (int)((width+183)*antiscaler), (int)((height+237)*antiscaler), 4210752);
+			this.fontRendererObj.drawString(I18n.format("gui.typesetting.exit"), (int)((width+183)*antiscaler), (int)((height+237)*antiscaler), 4210752);
 		}
 		else
 		{
-			this.fontRenderer.drawString(I18n.translateToLocal("gui.catalog.close"), (int)((width+180)*antiscaler), (int)((height+237)*antiscaler), 4210752); 
+			this.fontRendererObj.drawString(I18n.format("gui.catalog.close"), (int)((width+180)*antiscaler), (int)((height+237)*antiscaler), 4210752);
 		}
 		GL11.glScalef(antiscaler, antiscaler, antiscaler);
 	}
-	
+
     @Override
 	protected void actionPerformed(GuiButton click)
     {
@@ -440,19 +440,19 @@ public class GuiStockCatalog extends GuiScreen
 	    		{
 	    			this.pageNum++;
 	    		}
-	    		
+
 	    		if (!(this.pageNum < this.totalPages-1))
 	    		{
 	    			this.bNextPageMain.enabled = false;
 	    			this.bNextPageMain.visible = false;
 	    		}
-	    		
+
 	    		if (this.pageNum > 0)
 	    		{
 	    			this.bPrevPageMain.enabled = true;
 	    			this.bPrevPageMain.visible = true;
 	    		}
-	    		
+
 	    		this.numEntries = 22;
 	    		if (this.pageNum == this.totalPages-1)
 	    		{
@@ -484,7 +484,7 @@ public class GuiStockCatalog extends GuiScreen
 	    		{
 	    			this.invPageNum++;
 	    		}
-	    		
+
 	    		if (!(this.invPageNum < this.totalInvPages-1))
 	    		{
 	    			this.bNextPageSub.enabled = false;
@@ -495,7 +495,7 @@ public class GuiStockCatalog extends GuiScreen
 	    			this.bPrevPageSub.enabled = true;
 	    			this.bPrevPageSub.visible = true;
 	    		}
-	    		
+
 	    		break;
 	    	}
 	    	case 4:
@@ -507,13 +507,13 @@ public class GuiStockCatalog extends GuiScreen
 	    			this.bAlphaSelector.visible = true;
 	    			this.bQuanSelector.enabled = true;
 	    			this.bQuanSelector.visible = true;
-	    			
+
 	    			if (this.pageNum < this.totalPages-1)
 	    			{
 	    				this.bNextPageMain.enabled = true;
 	    				this.bNextPageMain.visible = true;
 	    			}
-	    			
+
 	    			if (this.pageNum != 0)
 	    			{
 		    			this.bPrevPageMain.enabled = true;
@@ -524,7 +524,7 @@ public class GuiStockCatalog extends GuiScreen
 	    			this.bPrevPageSub.enabled = false;
 	    			this.bNextPageSub.visible = false;
 	    			this.bPrevPageSub.visible = false;
-	    			
+
 	    			this.bAddToCompass1.enabled = false;
 	    			this.bAddToCompass1.visible = false;
 	    			this.bAddToCompass2.enabled = false;
@@ -538,7 +538,7 @@ public class GuiStockCatalog extends GuiScreen
 	        	}
 	        	else
 	        	{
-	        		this.mc.player.closeScreen();
+	        		this.mc.thePlayer.closeScreen();
 	        	}
 	    		this.bCloseButton.pressed = true;
 	    		break;
@@ -585,7 +585,7 @@ public class GuiStockCatalog extends GuiScreen
 	    		}
 	    		break;
 	    	}
-	    	
+
 	    	case 10:
 	    	{
 	    		if (hasCompass)
@@ -633,13 +633,13 @@ public class GuiStockCatalog extends GuiScreen
 	    	}
     	}
     }
-    
+
     private void sendCompassUpdatePacket(int inventoryIndex)
     {
     	if (this.openSubMenu != -1)
     	{
     		ItemStack currentCompass = this.compassStacks[this.selectedCompass];
-    		if (currentCompass != ItemStack.EMPTY)
+    		if (currentCompass != null)
     		{
     			NBTTagCompound compTags = currentCompass.getTagCompound();
     			if (compTags == null)
@@ -648,7 +648,7 @@ public class GuiStockCatalog extends GuiScreen
     			}
 	    		InventoryListItem item = this.theList.get(this.openSubMenu).inventoryList.get(inventoryIndex);
 	    		int slot = this.compassSlots[this.selectedCompass];
-	    		String invName = I18n.translateToLocal(item.itemName + ".name") + " in " + I18n.translateToLocal(item.inventoryName);
+	    		String invName = I18n.format(item.itemName + ".name") + " in " + I18n.format(item.inventoryName);
 	    		int x = item.tileX;
 	    		int z = item.tileZ;
 	    		compTags.setString("WaypointName", invName);
@@ -667,19 +667,12 @@ public class GuiStockCatalog extends GuiScreen
 
     	}
     }
-    
+
 	@Override
     protected void mouseClicked(int left, int top, int click)
     {
-		try
-		{
-			super.mouseClicked(left, top, click);
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-    	int width = (this.width - this.bookImageWidth) / 2;
+        super.mouseClicked(left, top, click);
+        int width = (this.width - this.bookImageWidth) / 2;
     	int height = (this.height - this.bookImageHeight) / 2;
     	this.titleText.mouseClicked(left, top, click);
     	for (int i = 0; i < numEntries; i++)
@@ -693,13 +686,13 @@ public class GuiStockCatalog extends GuiScreen
 	    			this.bAlphaSelector.visible = true;
 	    			this.bQuanSelector.enabled = true;
 	    			this.bQuanSelector.visible = true;
-	    			
+
 	    			if (this.pageNum < this.totalPages-1)
 	    			{
 	    				this.bNextPageMain.enabled = true;
 	    				this.bNextPageMain.visible = true;
 	    			}
-	    			
+
 	    			if (this.pageNum != 0)
 	    			{
 		    			this.bPrevPageMain.enabled = true;
@@ -710,7 +703,7 @@ public class GuiStockCatalog extends GuiScreen
 	    			this.bPrevPageSub.enabled = false;
 	    			this.bNextPageSub.visible = false;
 	    			this.bPrevPageSub.visible = false;
-	    			
+
     		    	this.bAddToCompass1.enabled = false;
     		    	this.bAddToCompass1.visible = false;
     		    	this.bAddToCompass2.enabled = false;
@@ -721,24 +714,24 @@ public class GuiStockCatalog extends GuiScreen
     		    	this.bAddToCompass4.visible = false;
     		    	this.bAddToCompass5.enabled = false;
     		    	this.bAddToCompass5.visible = false;
-	    			
-	    			
+
+
 	    		}
 	    		else
 	    		{
 	    			this.invPageNum = 0;
-	    			this.openSubMenu = i+(this.pageNum*22); 
+	    			this.openSubMenu = i+(this.pageNum*22);
 	    			this.bAlphaSelector.enabled = false;
 	    			this.bAlphaSelector.visible = false;
 	    			this.bQuanSelector.enabled = false;
 	    			this.bQuanSelector.visible = false;
-	    			
+
 	    			this.bNextPageMain.enabled = false;
 	    			this.bNextPageMain.visible = false;
-	    			
+
 	    			this.bPrevPageMain.enabled = false;
 	    			this.bPrevPageMain.visible = false;
-	    			
+
 	    			this.bPrevPageSub.enabled = false;
 	    			this.bPrevPageSub.visible = false;
 	    			if (this.theList != null)
@@ -750,7 +743,7 @@ public class GuiStockCatalog extends GuiScreen
 	    					this.totalInvPages++;
 	    				}
 	    			}
-	    			
+
     				this.bNextPageSub.enabled = (this.totalInvPages > 1);
     				this.bNextPageSub.visible = (this.totalInvPages > 1);
 
@@ -758,7 +751,7 @@ public class GuiStockCatalog extends GuiScreen
 	    		break;
 	    	}
     	}
-    	
+
 		for (int j = 0; j < this.compassSlots.length; j++)
 		{
 			if (left > (width+21+(j*20)) && left < ((width+41)+(j*20)) && top > (height+32) &&  top < (height+50))
@@ -770,7 +763,7 @@ public class GuiStockCatalog extends GuiScreen
 			}
 		}
     }
-	
+
 	@Override
 	protected void keyTyped(char par1, int key)
 	{
@@ -783,13 +776,13 @@ public class GuiStockCatalog extends GuiScreen
     			this.bAlphaSelector.visible = true;
     			this.bQuanSelector.enabled = true;
     			this.bQuanSelector.visible = true;
-    			
+
     			if (this.pageNum < this.totalPages-1)
     			{
     				this.bNextPageMain.enabled = true;
     				this.bNextPageMain.visible = true;
     			}
-    			
+
     			if (this.pageNum != 0)
     			{
 	    			this.bPrevPageMain.enabled = true;
@@ -800,7 +793,7 @@ public class GuiStockCatalog extends GuiScreen
     			this.bPrevPageSub.enabled = false;
     			this.bNextPageSub.visible = false;
     			this.bPrevPageSub.visible = false;
-    			
+
     			this.bAddToCompass1.enabled = false;
     			this.bAddToCompass1.visible = false;
     			this.bAddToCompass2.enabled = false;
@@ -815,24 +808,17 @@ public class GuiStockCatalog extends GuiScreen
         	}
         	else
         	{
-        		this.mc.player.closeScreen();
+        		this.mc.thePlayer.closeScreen();
         	}
         }
-        
+
         if (this.titleText.isFocused())
         {
         	this.titleText.textboxKeyTyped(par1, key);
         }
-        try
-		{
-			super.keyTyped(par1, key);
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-	}
-	
+        super.keyTyped(par1, key);
+    }
+
     @Override
     public void onGuiClosed()
     {
@@ -843,7 +829,7 @@ public class GuiStockCatalog extends GuiScreen
     	// ByteBufUtils.writeUTF8String(buffer, text);
     	// BiblioCraft.ch_BiblioStoCatTitle.sendToServer(new FMLProxyPacket(new PacketBuffer(buffer), "BiblioStockTitle"));
     }
-    
+
     @Override
     public boolean doesGuiPauseGame()
     {

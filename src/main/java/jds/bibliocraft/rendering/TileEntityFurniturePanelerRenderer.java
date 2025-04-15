@@ -2,12 +2,11 @@ package jds.bibliocraft.rendering;
 
 import jds.bibliocraft.tileentities.TileEntityFurniturePaneler;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderItem;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import org.lwjgl.opengl.GL11;
 
 public class TileEntityFurniturePanelerRenderer extends TileEntitySpecialRenderer
 {
@@ -18,19 +17,19 @@ public class TileEntityFurniturePanelerRenderer extends TileEntitySpecialRendere
 	private RenderItem itemRenderer;
 
 	@Override
-	public void render(TileEntity tileEntity, double x, double y, double z, float partialTicks, int destroyStage, float what) 
+    public void renderTileEntityAt(TileEntity tileEntity, double x, double y, double z, float partialTicks)
 	{
 	    if (this.itemRenderer == null)
 	    {
-	    	this.itemRenderer = Minecraft.getMinecraft().getRenderItem();
+	    	this.itemRenderer = RenderItem.getInstance();
 	    }
-	    
+
 		this.tile = (TileEntityFurniturePaneler)tileEntity;
 		if (tile != null)
 		{
 			this.inputStack = this.tile.getStackInSlot(1);
 			this.outputStack = this.tile.getStackInSlot(2);
-			
+
 			switch (tile.getAngle())
 			{
 				case SOUTH:{degreeAngle = 270; break;}
@@ -39,7 +38,7 @@ public class TileEntityFurniturePanelerRenderer extends TileEntitySpecialRendere
 				case EAST:{degreeAngle = 0; break;}
 				default:break;
 			}
-			
+
 			switch (tile.getAngle())
 			{
 				case SOUTH:{
@@ -65,25 +64,25 @@ public class TileEntityFurniturePanelerRenderer extends TileEntitySpecialRendere
 
 	private void renderSlotItem(ItemStack stack, double xAdjust, double yAdjust, double zAdjust)
 	{
-		if (stack != ItemStack.EMPTY)
+		if (stack != null)
 		{
 			boolean fancyGraphics = Minecraft.isFancyGraphicsEnabled();
-			GlStateManager.pushMatrix();
-			GlStateManager.translate(xAdjust, yAdjust - 0.03, zAdjust);
-			GlStateManager.rotate(degreeAngle + 180.0f, 0.0F, 1.0F, 0.0F);
+			GL11.glPushMatrix();
+			GL11.glTranslated(xAdjust, yAdjust - 0.03, zAdjust);
+			GL11.glRotatef(degreeAngle + 180.0f, 0.0F, 1.0F, 0.0F);
 			float scale = 0.45f;
-			GlStateManager.scale(scale, scale, scale);
-			this.itemRenderer.renderItem(stack, ItemCameraTransforms.TransformType.FIXED);	
+			GL11.glScalef(scale, scale, scale);
+//    		this.itemRenderer.renderItem(stack, ItemCameraTransforms.TransformType.FIXED);
 			/*
 			if (!fancyGraphics && !Config.isBlock(stack))
 			{
 				GL11.glRotatef(180, 0.0f, 1.0f, 0.0f);
 				itemRenderer.doRender(slotEntity, 0, 0, 0, 0, 0);
 			}
-			
+
 			itemRenderer.renderInFrame = false;
 			*/
-			GlStateManager.popMatrix();
+			GL11.glPopMatrix();
 		}
 	}
 }

@@ -1,18 +1,18 @@
 package jds.bibliocraft.entity;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.Particle;
-import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.particle.EntityFX;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
-public class EntityCatalogFX extends Particle
+public class EntityCatalogFX extends EntityFX
 {
 
 	private ResourceLocation texture = new ResourceLocation("bibliocraft", "textures/particle/particlecatalog.png");
-	
-	public EntityCatalogFX(World world, double x, double y, double z, double motx, double moty, double motz) 
+
+	public EntityCatalogFX(World world, double x, double y, double z, double motx, double moty, double motz)
 	{
 		super(world, x, y, z);
 		this.particleMaxAge = 30;
@@ -22,41 +22,31 @@ public class EntityCatalogFX extends Particle
         //this.motionX *= 0.01000000149011612D;
         //this.motionY *= 0.01000000149011612D;
         //this.motionZ *= 0.01000000149011612D;
-        
+
 	}
-	
+
     @Override
-	public void renderParticle(BufferBuilder worldRenderer, Entity entity, float partialTick, float yaw, float pitch, float yawz, float moty, float motz)
+	public void renderParticle(Tessellator tess, float partialTick, float yaw, float pitch, float yawz, float moty, float motz)
     {
 
         Minecraft.getMinecraft().getTextureManager().bindTexture(texture);
         double x = this.posX - this.interpPosX;
         double y = this.posY - this.interpPosY;
         double z = this.posZ - this.interpPosZ;
- 
+
         int combinedBrightness = this.getBrightnessForRender(partialTick);
         int skyLightTimes16 = combinedBrightness >> 16 & 65535;
         int blockLightTimes16 = combinedBrightness & 65535;
         double scaler = 0.00 + (10.0 / (this.particleAge + 80)) - 0.03;
         this.particleAlpha = (float)((this.particleMaxAge-this.particleAge+0.0)/(this.particleMaxAge+0.0));
-        worldRenderer.pos(x - (yaw * scaler) - (moty * scaler), y - (0.5 * scaler) - (pitch * scaler), z - (0.5 * scaler) - (yawz * scaler) - (motz * scaler))
-        			 .tex(1, 1)
-        			 .color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha)
-        			 .lightmap(skyLightTimes16, blockLightTimes16).endVertex();
-        worldRenderer.pos(x - (yaw*scaler) + (moty*scaler), y + (0.5*scaler) + (pitch*scaler), z - (0.5*scaler) - (yawz*scaler) + (motz*scaler))
-        			 .tex(0, 1)
-        			 .color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha)
-        			 .lightmap(skyLightTimes16, blockLightTimes16).endVertex();
-        worldRenderer.pos(x + (yaw*scaler) + (moty*scaler), y + (0.5*scaler) + (pitch*scaler), z + (0.5*scaler) + (yawz*scaler) + (motz*scaler))
-        			 .tex(0, 0)
-        			 .color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha)
-        			 .lightmap(skyLightTimes16, blockLightTimes16).endVertex();
-        worldRenderer.pos(x + (yaw*scaler) - (moty*scaler), y - (0.5*scaler) - (pitch*scaler), z + (0.5*scaler) + (yawz*scaler) - (motz*scaler))
-    				 .tex(1, 0)
-    				 .color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha)
-    				 .lightmap(skyLightTimes16, blockLightTimes16).endVertex();
+        tess.setColorOpaque_F(this.particleRed, this.particleGreen, this.particleBlue);
+        tess.addVertexWithUV(x - (yaw * scaler) - (moty * scaler), y - (0.5 * scaler) - (pitch * scaler), z - (0.5 * scaler) - (yawz * scaler) - (motz * scaler),1,1);
+        tess.addVertexWithUV(x - (yaw*scaler) + (moty*scaler), y + (0.5*scaler) + (pitch*scaler), z - (0.5*scaler) - (yawz*scaler) + (motz*scaler),0,1);
+        tess.addVertexWithUV(x + (yaw*scaler) + (moty*scaler), y + (0.5*scaler) + (pitch*scaler), z + (0.5*scaler) + (yawz*scaler) + (motz*scaler),0,0);
+        tess.addVertexWithUV(x + (yaw*scaler) - (moty*scaler), y - (0.5*scaler) - (pitch*scaler), z + (0.5*scaler) + (yawz*scaler) - (motz*scaler),1,0);
+
     }
-    
+
     @Override
     public void onUpdate()
     {
@@ -66,9 +56,9 @@ public class EntityCatalogFX extends Particle
 
         if (this.particleAge++ >= this.particleMaxAge)
         {
-            this.setExpired();
+            this.setDead();
         }
-        this.move(this.motionX, this.motionY, this.motionZ);
+        this.moveEntity(this.motionX, this.motionY, this.motionZ);
 
         if (this.posY == this.prevPosY)
         {
@@ -86,7 +76,7 @@ public class EntityCatalogFX extends Particle
             this.motionZ *= 0.699999988079071D;
         }
     }
-    
+
     @Override
     public int getFXLayer()
     {

@@ -2,86 +2,82 @@ package jds.bibliocraft.items;
 
 import java.util.List;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import jds.bibliocraft.BlockLoader;
 import jds.bibliocraft.blocks.BlockClipboard;
 import jds.bibliocraft.gui.GuiClipboard;
 import jds.bibliocraft.tileentities.TileEntityClipboard;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.common.util.ForgeDirection;
+
 
 public class ItemClipboard extends Item
 {
 	public static final String name = "BiblioClipboard";
 	public static final ItemClipboard instance = new ItemClipboard();
 	public ItemStack clipboardstack;
-	
+
 	public ItemClipboard()
 	{
 		super();
 		setCreativeTab(BlockLoader.biblioTab);
 		setUnlocalizedName(name);
 		setMaxStackSize(1);
-		setRegistryName(name);
 	}
 
 	@Override
-	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing face, float hitX, float hitY, float hitZ)
+	public boolean onItemUse(ItemStack itemStack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
 	{
 		if (player.isSneaking())
 		{
-			ItemStack stack = player.getHeldItemMainhand();
-			if (stack != ItemStack.EMPTY)
+			ItemStack stack = player.getHeldItem();
+            ForgeDirection face = ForgeDirection.getOrientation(side);
+			if (stack != null)
 			{
 				switch (face)
 				{
-					case NORTH:{setClipboardBlock(new BlockPos(pos.getX(), pos.getY(), pos.getZ()-1), EnumFacing.WEST, world, player, stack); break;}
-					case SOUTH:{setClipboardBlock(new BlockPos(pos.getX(), pos.getY(), pos.getZ()+1), EnumFacing.EAST, world, player, stack); break;}
-					case WEST:{setClipboardBlock(new BlockPos(pos.getX()-1, pos.getY(), pos.getZ()), EnumFacing.SOUTH, world, player, stack); break;}
-					case EAST:{setClipboardBlock(new BlockPos(pos.getX()+1, pos.getY(), pos.getZ()), EnumFacing.NORTH, world, player, stack); break;}
+					case NORTH:{setClipboardBlock(x, y, z-1, ForgeDirection.WEST, world, player, stack); break;}
+					case SOUTH:{setClipboardBlock(x, y, z+1, ForgeDirection.EAST, world, player, stack); break;}
+					case WEST:{setClipboardBlock(x-1, y, z, ForgeDirection.SOUTH, world, player, stack); break;}
+					case EAST:{setClipboardBlock(x+1, y, z, ForgeDirection.NORTH, world, player, stack); break;}
 					default: break;
 				}
-				return EnumActionResult.SUCCESS;
+				return true;
 			}
 		}
-		return EnumActionResult.PASS;
+		return false;
 	}
-	
-	public void setClipboardBlock(BlockPos pos, EnumFacing angle, World world, EntityPlayer player, ItemStack stack)
+
+	public void setClipboardBlock(int x, int y, int z, ForgeDirection angle, World world, EntityPlayer player, ItemStack stack)
 	{
-		Block testBlock = world.getBlockState(pos).getBlock();
-		if (testBlock.isAir(world.getBlockState(pos), world, pos))
+		Block testBlock = world.getBlock(x, y, z);
+		if (testBlock.isAir(world, x, y, z))
 		{
-			IBlockState state = BlockClipboard.instance.getDefaultState();
-			world.setBlockState(pos, state);
-			TileEntityClipboard clipboard = (TileEntityClipboard)world.getTileEntity(pos);
+            Block state = BlockClipboard.instance;
+            world.setBlock(x, y, z, state);
+			TileEntityClipboard clipboard = (TileEntityClipboard)world.getTileEntity(x, y, z);
 			if (clipboard != null)
 			{
 				clipboard.setAngle(angle);
 				clipboard.setInventorySlotContents(0, stack);
-				player.inventory.setInventorySlotContents(player.inventory.currentItem, ItemStack.EMPTY); 
+				player.inventory.setInventorySlotContents(player.inventory.currentItem, null);
 				clipboard.getNBTData();
 			}
 		}
 	}
-    
+
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
+	public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
 	{
-		NBTTagCompound test = player.getHeldItem(hand).getTagCompound();
+		NBTTagCompound test = player.getHeldItem().getTagCompound();
 		if (test == null)
 		{
 			NBTTagCompound clipboard = new NBTTagCompound();
@@ -103,25 +99,25 @@ public class ItemClipboard extends Item
 			clipboard.setTag("page1",  page);
 			clipboard.setInteger("currentPage", 1);
 			clipboard.setInteger("totalPages", 1);
-			player.getHeldItem(hand).setTagCompound(clipboard);
+			player.getHeldItem().setTagCompound(clipboard);
 		}
-		clipboardstack = player.getHeldItem(hand);
-		if (!player.isSneaking() && world.isRemote  && hand == EnumHand.MAIN_HAND)
+		clipboardstack = player.getHeldItem();
+		if (!player.isSneaking() && world.isRemote)
 		{
-			openWritingGUI(player.getHeldItem(hand),  true);
+			openWritingGUI(player.getHeldItem(),  true);
 		}
-		return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, player.getHeldItem(hand));
+		return stack;
 	}
-	
+
 	@SideOnly(Side.CLIENT)
     public void openWritingGUI(ItemStack stack, boolean inInv)
     {
 		Minecraft.getMinecraft().displayGuiScreen(new GuiClipboard(stack, inInv, 0, 0, 0));
     }
-	
+
 	@SideOnly(Side.CLIENT)
 	@Override
-    public void addInformation(ItemStack stack, World playerIn, List<String> tooltip, ITooltipFlag advanced) 
+    public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced)
 	{
 		String title = "";
 		NBTTagCompound clipboard = stack.getTagCompound();
@@ -139,9 +135,12 @@ public class ItemClipboard extends Item
 					tooltip.add(title);
 				}
 			}
-			
+
 		}
     	super.addInformation(stack, playerIn, tooltip, advanced);
 	}
-	
+    @Override
+    public void registerIcons(IIconRegister register) {
+        this.itemIcon = register.registerIcon("bibliocraft:clipboardsimple");
+    }
 }

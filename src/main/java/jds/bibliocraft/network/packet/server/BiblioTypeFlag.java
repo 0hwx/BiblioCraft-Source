@@ -1,14 +1,14 @@
 package jds.bibliocraft.network.packet.server;
 
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.relauncher.Side;
 import io.netty.buffer.ByteBuf;
 import jds.bibliocraft.BiblioCraft;
 import jds.bibliocraft.helpers.FileUtil;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import net.minecraftforge.fml.relauncher.Side;
+import cpw.mods.fml.common.network.ByteBufUtils;
+import cpw.mods.fml.common.network.simpleimpl.IMessage;
+import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 
 // UNTESTED
 public class BiblioTypeFlag implements IMessage {
@@ -37,15 +37,13 @@ public class BiblioTypeFlag implements IMessage {
 
         @Override
         public IMessage onMessage(BiblioTypeFlag message, MessageContext ctx) {
-            ctx.getServerHandler().player.getServerWorld().addScheduledTask(() -> {
                 boolean isServer = FMLCommonHandler.instance().getSide() == Side.SERVER;
                 FileUtil util = new FileUtil();
                 if (!util.updatePublicFlag(!isServer, message.bookname, message.newFlag)) {
                     BiblioCraft.LOGGER.warn("Updating book flag for " + message.bookname + " failed");
                 }
-            });
             return null;
         }
-        
+
     }
 }

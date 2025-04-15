@@ -9,54 +9,63 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import cpw.mods.fml.common.network.ByteBufUtils;
+import cpw.mods.fml.common.network.simpleimpl.IMessage;
+import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 
 public class BiblioPanelerClient implements IMessage {
     ItemStack panels;
-    BlockPos pos;
+    int posX;
+    int posY;
+    int posZ;
+
 
     public BiblioPanelerClient() {
 
     }
 
-    public BiblioPanelerClient(ItemStack panels, BlockPos pos) {
+    public BiblioPanelerClient(ItemStack panels, int posX, int posY, int posZ) {
+
         this.panels = panels;
-        this.pos = pos;
+        this.posX = posX;
+        this.posY = posY;
+        this.posZ = posZ;
     }
 
     @Override
     public void fromBytes(ByteBuf buf) {
         this.panels = ByteBufUtils.readItemStack(buf);
-        this.pos = BlockPos.fromLong(buf.readLong());
+        this.posX = buf.readInt();
+        this.posY = buf.readInt();
+        this.posZ = buf.readInt();
     }
 
     @Override
     public void toBytes(ByteBuf buf) {
         ByteBufUtils.writeItemStack(buf, this.panels);
-        buf.writeLong(this.pos.toLong());
+        buf.writeInt(this.posX);
+        buf.writeInt(this.posY);
+        buf.writeInt(this.posZ);
     }
 
     public static class Handler implements IMessageHandler<BiblioPanelerClient, IMessage> {
 
         @Override
         public IMessage onMessage(BiblioPanelerClient message, MessageContext ctx) {
-            Minecraft.getMinecraft().addScheduledTask(() -> {
-                EntityPlayerSP player = Minecraft.getMinecraft().player;
+            Minecraft.getMinecraft().func_152344_a(() -> {
+                EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
                 String panelTextureName = "none";
-                if (message.panels != ItemStack.EMPTY) {
+                if (message.panels != null) {
                     panelTextureName = BiblioRenderHelper.getBlockTextureString(message.panels);
                 }
-    
-                TileEntity tile = player.world.getTileEntity(message.pos);
+
+                TileEntity tile = player.worldObj.getTileEntity(message.posX, message.posY, message.posZ);
                 if (tile != null && tile instanceof TileEntityFurniturePaneler) {
                     TileEntityFurniturePaneler paneler = (TileEntityFurniturePaneler) tile;
                     paneler.setCustomCraftingTex(panelTextureName);
                 }
-                BiblioNetworking.INSTANCE.sendToServer(new BiblioPaneler(panelTextureName, message.pos)); 
+                BiblioNetworking.INSTANCE.sendToServer(new BiblioPaneler(panelTextureName, message.posX, message.posY, message.posZ));
             });
             return null;
         }

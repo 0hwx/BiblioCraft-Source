@@ -21,8 +21,7 @@ import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.text.translation.I18n;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 
@@ -30,30 +29,30 @@ public class GuiAtlas extends GuiContainer
 {
 	private static int guiWidth = 256;
 	private static int guiHeight = 241;
-	
+
 	private ItemStack atlasStack;
-	private ItemStack selectedMapStack = ItemStack.EMPTY; 
-	
+	private ItemStack selectedMapStack = null;
+
 	private GuiButtonAddSubtract bzoomPos;
 	private GuiButtonAddSubtract bzoomNeg;
 	private GuiButton btoggleAutoCenter;
 	private GuiButton btoggleAutoCreate;
-	
+
 	private GuiButtonAtlasControls bAtlasMode;
 	private GuiButtonAtlasControls bInventoryMode;
-	
+
 	private boolean autoCenter = false;
 	private boolean autoCreate = false;
 	private int zoomLevel = 0;
 	private int selectedSlot = -1;
 	private int hoveredSlot = -1;
-	
+
 	private int mapX = 0;
 	private int mapZ = 0;
 	private int mapZoom = 0;
-	
+
 	private boolean changeGui = false;
-	
+
 	// If I find a matching map, I'll set these to a positive integer. if this number is not -1 I'll render the guides
 	private int slotMapNorth = -1;
 	private int slotMapSouth = -1;
@@ -62,7 +61,7 @@ public class GuiAtlas extends GuiContainer
 
 	private World world;
 	private EntityPlayer player;
-	
+
 	private ContainerAtlas container;
 
 	public GuiAtlas(InventoryPlayer inventoryPlayer, World worldy, EntityPlayer playa)
@@ -83,7 +82,7 @@ public class GuiAtlas extends GuiContainer
 			setSelectedSlot(this.selectedSlot);
 		}
 	}
-	
+
     @Override
     public void initGui()
     {
@@ -92,16 +91,16 @@ public class GuiAtlas extends GuiContainer
 		int w = (width - this.guiWidth) / 2;
 		int h = (height - this.guiHeight) / 2;
     	buttonList.clear();
-    	buttonList.add(this.btoggleAutoCenter = new GuiButton(1, w+85, h+45, 30, 20, this.autoCenter ? I18n.translateToLocal("gui.atlas.yes") : I18n.translateToLocal("gui.atlas.no")));
-    	buttonList.add(this.btoggleAutoCreate = new GuiButton(2, w+85, h+70, 30, 20, this.autoCreate ? I18n.translateToLocal("gui.atlas.yes") : I18n.translateToLocal("gui.atlas.no")));
+    	buttonList.add(this.btoggleAutoCenter = new GuiButton(1, w+85, h+45, 30, 20, this.autoCenter ? I18n.format("gui.atlas.yes") : I18n.format("gui.atlas.no")));
+    	buttonList.add(this.btoggleAutoCreate = new GuiButton(2, w+85, h+70, 30, 20, this.autoCreate ? I18n.format("gui.atlas.yes") : I18n.format("gui.atlas.no")));
     	buttonList.add(this.bzoomNeg = new GuiButtonAddSubtract(3, w+65, h+25, 1, 1.0f));
     	buttonList.add(this.bzoomPos = new GuiButtonAddSubtract(4, w+100, h+25, 0, 1.0f));
-    	
+
     	buttonList.add(bAtlasMode = new GuiButtonAtlasControls(10, w+216, h+157, 5));
     	buttonList.add(bInventoryMode = new GuiButtonAtlasControls(11, w+216, h+177, 6));
     	bInventoryMode.mouseMode = 11;
     }
-    
+
     @Override
     protected void actionPerformed(GuiButton click)
     {
@@ -111,21 +110,21 @@ public class GuiAtlas extends GuiContainer
     		case 0:{break;}
     		case 1:
     		{
-    			this.autoCenter = !this.autoCenter; 
+    			this.autoCenter = !this.autoCenter;
     			if (!this.autoCenter)
     			{
     				this.autoCreate = false;
-    			} 
+    			}
     			this.initGui(); break;
 			}
     		case 2:
     		{
-    			this.autoCreate = !this.autoCreate; 
+    			this.autoCreate = !this.autoCreate;
     			if (this.autoCreate)
     			{
     				this.autoCenter = true;
-				} 
-    			this.initGui(); 
+				}
+    			this.initGui();
     			break;
 			}
     		case 3:
@@ -150,14 +149,14 @@ public class GuiAtlas extends GuiContainer
     		{
     			this.changeGui = true;
     			sendUpdatePacket();
-    			
+
     			break;
     		}
     	}
-    	
-    	
+
+
     }
-    
+
     @Override
     public void onGuiClosed()
     {
@@ -166,9 +165,9 @@ public class GuiAtlas extends GuiContainer
     	{
     		sendUpdatePacket();
     	}
-    	
+
     }
-    
+
     public void sendUpdatePacket()
     {
 		BiblioNetworking.INSTANCE.sendToServer(new BiblioAtlas(autoCenter, autoCreate, zoomLevel, selectedSlot, changeGui));
@@ -180,7 +179,7 @@ public class GuiAtlas extends GuiContainer
     	// buffer.writeBoolean(changeGui);
     	// BiblioCraft.ch_BiblioAtlas.sendToServer(new FMLProxyPacket(new PacketBuffer(buffer), "BiblioAtlas"));
     }
-	
+
     @Override
     protected void mouseClicked(int mousex, int mousey, int click)
     {
@@ -206,33 +205,26 @@ public class GuiAtlas extends GuiContainer
     		//System.out.println("hey hey hey "+heldSlot+"    "+mousex+"     "+(w+48+heldSlot*18));
     		 if (mousex >= w+47+heldSlot*18 && mousex <= w+49+(heldSlot+1)*18 && mousey >= h+216 && mousey <= h+218+18)
     		 {
-    			return; 
+    			return;
     		 }
     		 else
     		 {
-    			 try 
-    			 {
-					super.mouseClicked(mousex, mousey, click);
-				 } 
-    			 catch (IOException e) 
-    			 {
-					e.printStackTrace();
-				}
-    		 }
+                 super.mouseClicked(mousex, mousey, click);
+             }
     	}
-    	
-    
+
+
     }
-    
+
     private void setSelectedSlot(int selSlot)
     {
     	//System.out.println("getting a fresh item proboly");
-    	ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-    	if (stack != ItemStack.EMPTY && stack.getItem() instanceof ItemAtlas)
+    	ItemStack stack = player.getHeldItem();
+    	if (stack != null && stack.getItem() instanceof ItemAtlas)
     	{
     		this.atlasStack = stack;
     	}
-    			
+
     	NBTTagCompound tags = atlasStack.getTagCompound();
     	if (tags != null)
     	{
@@ -244,7 +236,7 @@ public class GuiAtlas extends GuiContainer
 				byte slot = tag.getByte("Slot");
 				if (slot >= 0 && slot < atlasInventory.getSizeInventory())
 				{
-					ItemStack invStack = new ItemStack(tag);
+					ItemStack invStack = ItemStack.loadItemStackFromNBT(tag);
 					atlasInventory.setInventorySlotContents(slot, invStack);
 				}
 			}
@@ -256,7 +248,7 @@ public class GuiAtlas extends GuiContainer
 			this.slotMapSouth = -1;
 			this.slotMapWest = -1;
 			ItemStack selectedStack = atlasInventory.getStackInSlot(selSlot);
-			if (selectedStack != ItemStack.EMPTY)
+			if (selectedStack != null)
 			{
 				if (tags.hasKey("maps"))
 				{
@@ -271,7 +263,7 @@ public class GuiAtlas extends GuiContainer
 							this.mapZoom = newTags.getInteger("mapScale");
 						}
 					}
-					
+
 
 					searchForNearbyMaps(0, mapTags, atlasInventory);
 					searchForNearbyMaps(1, mapTags, atlasInventory);
@@ -282,7 +274,7 @@ public class GuiAtlas extends GuiContainer
     	}
     }
     /** directions: 0 = north, 1 = east, 2 = south, 3 = west
-     * 
+     *
      * @param direction
      * @param maps
      */
@@ -334,20 +326,20 @@ public class GuiAtlas extends GuiContainer
 							}
 							break;
 						}
-						
+
 					}
 				}
 			}
 		}
 	}
-	
+
 	private void findMatchingMap(String mapName, InventoryBasic inventory, int direction)
 	{
 		///System.out.println(mapName);
 		for (int i = 0; i<inventory.getSizeInventory(); i++)
 		{
 			ItemStack map = inventory.getStackInSlot(i);
-			if (map != ItemStack.EMPTY && map.getItem() ==Items.FILLED_MAP)
+			if (map != null && map.getItem() ==Items.filled_map)
 			{
 				if (mapName.contentEquals("Map_"+map.getItemDamage()))
 				{
@@ -362,18 +354,18 @@ public class GuiAtlas extends GuiContainer
 			}
 		}
 	}
-    
-    @Override	
+
+    @Override
 	public void updateScreen()
     {
         super.updateScreen();
-        
-    	ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-    	if (stack != ItemStack.EMPTY && stack.getItem() instanceof ItemAtlas)
+
+    	ItemStack stack = player.getHeldItem();
+    	if (stack != null && stack.getItem() instanceof ItemAtlas)
     	{
     		this.atlasStack = stack;
     	}
-    	
+
     	NBTTagCompound tags = atlasStack.getTagCompound();
     	if (tags != null)
     	{
@@ -385,37 +377,37 @@ public class GuiAtlas extends GuiContainer
 				this.setSelectedSlot(this.selectedSlot);
     		}
     	}
-        
+
     }
-    
-    
+
+
     @Override
     protected void keyTyped(char par1, int key)
     {
     	if (key == 1)
     	{
-    		 this.mc.player.closeScreen();
+    		 this.mc.thePlayer.closeScreen();
     	}
     	else if (key == 57) // space bar
-    	{     
+    	{
     		if (this.hoveredSlot != -1)
     		{
-    			this.selectedSlot = this.hoveredSlot;    
+    			this.selectedSlot = this.hoveredSlot;
     			this.setSelectedSlot(this.hoveredSlot);
     		}
     	}
     	//super.keyTyped(par1, key);
     }
-    
-    
+
+
     @Override
     public void drawDefaultBackground()
     {
         //this.drawWorldBackground(0);
     }
-    
+
 	@Override
-	protected void drawGuiContainerBackgroundLayer(float f, int x, int y) 
+	protected void drawGuiContainerBackgroundLayer(float f, int x, int y)
 	{
 		//this.mc.gameSettings.isKeyDown(p_100015_0_)
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
@@ -436,7 +428,7 @@ public class GuiAtlas extends GuiContainer
 	    			this.drawTexturedModalRect(w+137+(j*18), h+14+(i*18), 20, 0, 18, 18);
 	    			this.hoveredSlot = 6+(j+(i*6));
 	    		}
-	    		
+
     			if ((6+(j+(i*6))) == this.selectedSlot)
     			{
     				// render highlighted thing
@@ -462,7 +454,7 @@ public class GuiAtlas extends GuiContainer
     					this.drawTexturedModalRect(w+137+(j*18), h+14+(i*18), 61, 20, 18, 18);
     				}
     			}
-    			
+
     			if (this.slotMapNorth-6 == (j+i*6))
     			{
     				this.drawTexturedModalRect(w+137+(j*18), h+14+(i*18), 1, 20, 18, 18);
@@ -481,33 +473,33 @@ public class GuiAtlas extends GuiContainer
     			}
 			}
 		}
-		bAtlasMode.drawButton(this.mc, 0, 0, 0f);
-		bInventoryMode.drawButton(this.mc, 0, 0, 0f);
-		
-	
-		
-		this.fontRenderer.drawString(I18n.translateToLocal("gui.atlas.atlas"), w+39, h+12, 0x000000, false); 
-		
-		this.fontRenderer.drawString(I18n.translateToLocal("gui.atlas.zoom"), w+12, h+28, 0x000000, false);
-		this.fontRenderer.drawString(I18n.translateToLocal("gui.atlas.center"), w+12, h+52, 0x000000, false);
-		this.fontRenderer.drawString(I18n.translateToLocal("gui.atlas.create"), w+12, h+78, 0x000000, false);
-		this.fontRenderer.drawString((this.zoomLevel+1)+"", w+86, h+28, 0x0000BB, false);
-		
-		this.fontRenderer.drawString(I18n.translateToLocal("gui.atlas.mapXcenter"), w+12, h+94, 0x000000, false);
-		this.fontRenderer.drawString(I18n.translateToLocal("gui.atlas.mapZcenter"), w+12, h+103, 0x000000, false);
-		this.fontRenderer.drawString(I18n.translateToLocal("gui.atlas.mapZoom"), w+12, h+112, 0x000000, false);
-		
-		this.fontRenderer.drawString(""+this.mapX, w+84, h+94, 0x0000BB, false);
-		this.fontRenderer.drawString(""+this.mapZ, w+84, h+103, 0x0000BB, false);
-		this.fontRenderer.drawString(""+(this.mapZoom+1), w+90, h+112, 0x0000BB, false);
-		
+		bAtlasMode.drawButton(this.mc, 0, 0);
+		bInventoryMode.drawButton(this.mc, 0, 0);
+
+
+
+		this.fontRendererObj.drawString(I18n.format("gui.atlas.atlas"), w+39, h+12, 0x000000, false);
+
+		this.fontRendererObj.drawString(I18n.format("gui.atlas.zoom"), w+12, h+28, 0x000000, false);
+		this.fontRendererObj.drawString(I18n.format("gui.atlas.center"), w+12, h+52, 0x000000, false);
+		this.fontRendererObj.drawString(I18n.format("gui.atlas.create"), w+12, h+78, 0x000000, false);
+		this.fontRendererObj.drawString((this.zoomLevel+1)+"", w+86, h+28, 0x0000BB, false);
+
+		this.fontRendererObj.drawString(I18n.format("gui.atlas.mapXcenter"), w+12, h+94, 0x000000, false);
+		this.fontRendererObj.drawString(I18n.format("gui.atlas.mapZcenter"), w+12, h+103, 0x000000, false);
+		this.fontRendererObj.drawString(I18n.format("gui.atlas.mapZoom"), w+12, h+112, 0x000000, false);
+
+		this.fontRendererObj.drawString(""+this.mapX, w+84, h+94, 0x0000BB, false);
+		this.fontRendererObj.drawString(""+this.mapZ, w+84, h+103, 0x0000BB, false);
+		this.fontRendererObj.drawString(""+(this.mapZoom+1), w+90, h+112, 0x0000BB, false);
+
 		//System.out.println(x+"    "+y);
 	}
-	
+
 	@Override
 	protected void drawGuiContainerForegroundLayer(int x, int y)
 	{
-		
+
 		//System.out.println(x+"    "+y);
 
 	}
@@ -516,43 +508,43 @@ public class GuiAtlas extends GuiContainer
     public void drawScreen(int x, int y, float f)
     {
 		super.drawScreen(x, y, f);
-		
+
 		if (isCtrlKeyDown())
     	{
-			if (x >= this.btoggleAutoCenter.x && x < (this.btoggleAutoCenter.x+this.btoggleAutoCenter.width) && y >= this.btoggleAutoCenter.y && y < (this.btoggleAutoCenter.y+this.btoggleAutoCenter.height))
+			if (x >= this.btoggleAutoCenter.xPosition && x < (this.btoggleAutoCenter.xPosition +this.btoggleAutoCenter.width) && y >= this.btoggleAutoCenter.yPosition && y < (this.btoggleAutoCenter.yPosition +this.btoggleAutoCenter.height))
 			{
 				List lst = new ArrayList();
-				lst.add(I18n.translateToLocal("gui.atlas.autocenter.tt1"));
-				lst.add(I18n.translateToLocal("gui.atlas.autocenter.tt2"));
-				lst.add(I18n.translateToLocal("gui.atlas.autocenter.tt3"));
-				lst.add(I18n.translateToLocal("gui.atlas.autocenter.tt4"));
-				lst.add(I18n.translateToLocal("gui.atlas.autocenter.tt5"));
-				this.drawHoveringText(lst, x, y+15, this.fontRenderer);
+				lst.add(I18n.format("gui.atlas.autocenter.tt1"));
+				lst.add(I18n.format("gui.atlas.autocenter.tt2"));
+				lst.add(I18n.format("gui.atlas.autocenter.tt3"));
+				lst.add(I18n.format("gui.atlas.autocenter.tt4"));
+				lst.add(I18n.format("gui.atlas.autocenter.tt5"));
+				this.drawHoveringText(lst, x, y+15, this.fontRendererObj);
 			}
-			
-			if (x >= this.btoggleAutoCreate.x && x < (this.btoggleAutoCreate.x+this.btoggleAutoCreate.width) && y >= this.btoggleAutoCreate.y && y < (this.btoggleAutoCreate.y+this.btoggleAutoCreate.height))
+
+			if (x >= this.btoggleAutoCreate.xPosition && x < (this.btoggleAutoCreate.xPosition +this.btoggleAutoCreate.width) && y >= this.btoggleAutoCreate.yPosition && y < (this.btoggleAutoCreate.yPosition +this.btoggleAutoCreate.height))
 			{
 				List lst = new ArrayList();
-				lst.add(I18n.translateToLocal("gui.atlas.autocreate.tt1"));
-				lst.add(I18n.translateToLocal("gui.atlas.autocreate.tt2"));
-				lst.add(I18n.translateToLocal("gui.atlas.autocreate.tt3"));
-				lst.add(I18n.translateToLocal("gui.atlas.autocreate.tt4"));
-				lst.add(I18n.translateToLocal("gui.atlas.autocreate.tt5"));
-				lst.add(I18n.translateToLocal("gui.atlas.autocreate.tt6"));
-				lst.add(I18n.translateToLocal("gui.atlas.autocreate.tt7"));
+				lst.add(I18n.format("gui.atlas.autocreate.tt1"));
+				lst.add(I18n.format("gui.atlas.autocreate.tt2"));
+				lst.add(I18n.format("gui.atlas.autocreate.tt3"));
+				lst.add(I18n.format("gui.atlas.autocreate.tt4"));
+				lst.add(I18n.format("gui.atlas.autocreate.tt5"));
+				lst.add(I18n.format("gui.atlas.autocreate.tt6"));
+				lst.add(I18n.format("gui.atlas.autocreate.tt7"));
 				lst.add(" ");
-				lst.add(I18n.translateToLocal("gui.atlas.autocreate.tt8"));
-				lst.add(I18n.translateToLocal("gui.atlas.autocreate.tt9"));
-				this.drawHoveringText(lst, x, y+15, this.fontRenderer);
+				lst.add(I18n.format("gui.atlas.autocreate.tt8"));
+				lst.add(I18n.format("gui.atlas.autocreate.tt9"));
+				this.drawHoveringText(lst, x, y+15, this.fontRendererObj);
 			}
-			
-			if (x >= this.bAtlasMode.x && x < (this.bAtlasMode.x+this.bAtlasMode.width) && y >= this.bAtlasMode.y && y < (this.bAtlasMode.y+this.bAtlasMode.height))
+
+			if (x >= this.bAtlasMode.xPosition && x < (this.bAtlasMode.xPosition +this.bAtlasMode.width) && y >= this.bAtlasMode.yPosition && y < (this.bAtlasMode.yPosition +this.bAtlasMode.height))
 			{
 				List lst = new ArrayList();
-				lst.add(I18n.translateToLocal("gui.atlas.switchtoatlas"));
-				this.drawHoveringText(lst, x, y+15, this.fontRenderer);
+				lst.add(I18n.format("gui.atlas.switchtoatlas"));
+				this.drawHoveringText(lst, x, y+15, this.fontRendererObj);
 			}
     	}
-		this.renderHoveredToolTip(x, y);
+//		this.renderHoveredToolTip(x, y);
     }
 }

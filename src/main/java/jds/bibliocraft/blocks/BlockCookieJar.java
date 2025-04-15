@@ -9,50 +9,54 @@ import javax.vecmath.Vector3f;
 import jds.bibliocraft.BiblioCraft;
 import jds.bibliocraft.tileentities.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityCookieJar;
-import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.model.TRSRTransformation;
+
 
 public class BlockCookieJar extends BiblioSimpleBlock
 {
 	public static final BlockCookieJar instance = new BlockCookieJar();
 	public static final String name = "CookieJar";
-	
+
 	public BlockCookieJar()
 	{
-		super(Material.GLASS, SoundType.METAL, name);
+		super(Material.glass, soundTypeMetal, name);
 	}
-	
+
 	@Override
-	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess blockAccess, BlockPos pos)
+	public AxisAlignedBB getSelectedBoundingBoxFromPool(World world, int x, int y, int z)
 	{
-		return this.getBlockBounds(0.18F, 0.0F, 0.18F, 0.82F, 0.75F, 0.82F);
+		return AxisAlignedBB.getBoundingBox(x+ 0.18F, y, z + 0.18F, x + 0.82F, y + 0.75F,z + 0.82F);
 	}
-	
-	@Override
-	public boolean onBlockActivatedCustomCommands(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ)
+
+    @Override
+	public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z)
 	{
-		TileEntity tile = world.getTileEntity(pos);
+		return this.getSelectedBoundingBoxFromPool(world,x,y,z);
+	}
+
+	@Override
+	public boolean onBlockActivatedCustomCommands(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ)
+	{
+		TileEntity tile = world.getTileEntity(x, y, z);
 		if (!world.isRemote && tile != null && tile instanceof TileEntityCookieJar)
 		{
-			TileEntityCookieJar cookiejar = (TileEntityCookieJar)world.getTileEntity(pos);
+			TileEntityCookieJar cookiejar = (TileEntityCookieJar)world.getTileEntity(x, y, z);
 			if (cookiejar != null)
 			{
 				cookiejar.setIsOpen(true);
 				//world.scheduleBlockUpdate(pos, this, 0, 0);
-				
+
 				//world.markBlockRangeForRenderUpdate(i, j, k, i, j, k);
 			}
-			player.openGui(BiblioCraft.instance, 0, world, pos.getX(), pos.getY(), pos.getZ());
+			player.openGui(BiblioCraft.instance, 0, world, x, y, z);
 		}
 		return true;
 	}
@@ -62,52 +66,18 @@ public class BlockCookieJar extends BiblioSimpleBlock
 	{
 		return new TileEntityCookieJar();
 	}
-	
+
+
 	@Override
-	public TRSRTransformation getAdditionalTransforms(TRSRTransformation transform, BiblioTileEntity tile)
-	{
-		transform = transform.compose(new TRSRTransformation(new Vector3f(0.0f, 0.0f, 0.0f), 
-				   new Quat4f(0.0f, 1.0f, 0.0f, 1.0f), 
-				   new Vector3f(1.0f, 1.0f, 1.0f), 
-				   new Quat4f(0.0f, 1.0f, 0.0f, 1.0f)));
-		return transform;
-	}
-	
-	@Override
-	public List<String> getModelParts(BiblioTileEntity tile)
-	{
-		List<String> modelParts = new ArrayList<String>();
-		modelParts.add("jar");
-		modelParts.add("lid");
-		int numberOfCookies = 0;
-		for (int i = 0; i < tile.getSizeInventory(); i++)
-		{
-			if (tile.getStackInSlot(i) != ItemStack.EMPTY)
-			{
-				numberOfCookies++;
-			}
-		}
-		if (numberOfCookies >= 1) { modelParts.add("cookie001"); }
-		if (numberOfCookies >= 2) { modelParts.add("cookie002"); }
-		if (numberOfCookies >= 3) { modelParts.add("cookie003"); }
-		if (numberOfCookies >= 4) { modelParts.add("cookie004"); }
-		if (numberOfCookies >= 5) { modelParts.add("cookie005"); }
-		if (numberOfCookies >= 6) { modelParts.add("cookie006"); }
-		if (numberOfCookies >= 7) { modelParts.add("cookie007"); }
-		if (numberOfCookies >= 8) { modelParts.add("cookie008"); }
-		return modelParts;
-	}
-	
-	@Override
-    public boolean canProvidePower(IBlockState state)
+    public boolean canProvidePower()
     {
         return true;
     }
-	
+
 	@Override
-	public int getWeakPower(IBlockState state, IBlockAccess blocka, BlockPos pos, EnumFacing side)
+	public int isProvidingWeakPower(IBlockAccess world, int x, int y, int z, int side)
     {
-		TileEntityCookieJar cookiejar = (TileEntityCookieJar)blocka.getTileEntity(pos);
+		TileEntityCookieJar cookiejar = (TileEntityCookieJar)world.getTileEntity(x, y, z);
 		if (cookiejar != null)
 		{
 			boolean ison = cookiejar.getIsOpen();
@@ -118,10 +88,15 @@ public class BlockCookieJar extends BiblioSimpleBlock
 		}
 		return 0;
     }
-	
+
 	@Override
-	public int getStrongPower(IBlockState state, IBlockAccess worldIn, BlockPos pos, EnumFacing side)
+	public int isProvidingStrongPower(IBlockAccess worldIn, int x, int y, int z, int side)
     {
-		return getWeakPower(state, worldIn, pos, side);
+		return isProvidingWeakPower(worldIn, x, y, z, side);
+    }
+
+    @Override
+    public IIcon getIcon(int side, int meta) {
+        return Blocks.glass.getBlockTextureFromSide(side);
     }
 }

@@ -2,12 +2,13 @@ package jds.bibliocraft.rendering;
 
 import jds.bibliocraft.tileentities.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityDesk;
+import net.minecraft.item.ItemStack;
 
-public class TileEntityDeskRenderer extends TileEntityBiblioRenderer
+public  class TileEntityDeskRenderer extends TileEntityBiblioRenderer
 {
 
 	@Override
-	public void render(BiblioTileEntity tile, double x, double y, double z, float tick) 
+	public void renderTileEntityAt(BiblioTileEntity tile, double x, double y, double z, float tick)
 	{
 		if (tile instanceof TileEntityDesk)
 		{
@@ -22,7 +23,7 @@ public class TileEntityDeskRenderer extends TileEntityBiblioRenderer
 					case EAST: { renderItemMap(desk.getStackInSlot(0), 0.26f, 0.0f, 0.444f, 0.65f); break; }
 					default: break;
 				}
-				
+
 			}
 		}
 	}

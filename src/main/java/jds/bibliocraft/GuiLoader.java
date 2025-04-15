@@ -1,5 +1,6 @@
 package jds.bibliocraft;
 
+import cpw.mods.fml.common.network.IGuiHandler;
 import jds.bibliocraft.containers.ContainerArmor;
 import jds.bibliocraft.containers.ContainerAtlas;
 import jds.bibliocraft.containers.ContainerBookcase;
@@ -110,10 +111,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.network.IGuiHandler;
+import net.minecraftforge.common.util.ForgeDirection;
+
 
 //@EventHandler
 public class GuiLoader implements IGuiHandler
@@ -121,7 +121,7 @@ public class GuiLoader implements IGuiHandler
 	@Override
 	public Object getServerGuiElement (int id, EntityPlayer player, World world, int x, int y, int z)
 	{
-		TileEntity tileEntity = world.getTileEntity(new BlockPos(x, y, z));
+		TileEntity tileEntity = world.getTileEntity(x, y, z);
 		if (id == 100)
 		{
 			ItemStack currentItem = player.inventory.getCurrentItem();
@@ -146,22 +146,22 @@ public class GuiLoader implements IGuiHandler
 		{
 			return new ContainerBookcase(player.inventory, tileEntity);
 		}
-		
+
 		if (tileEntity instanceof TileEntityArmorStand)
 		{
 			return new ContainerArmor(player.inventory, (TileEntityArmorStand) tileEntity);
 		}
-		
+
 		if (tileEntity instanceof TileEntityPotionShelf)
 		{
 			return new ContainerPotionShelf(player.inventory, (TileEntityPotionShelf) tileEntity);
 		}
-		
+
 		if (tileEntity instanceof TileEntityShelf)
 		{
 			return new ContainerGenericShelf(player.inventory, (TileEntityShelf) tileEntity);
 		}
-		
+
 		if (tileEntity instanceof TileEntityToolRack)
 		{
 			return new ContainerWeaponRack(player.inventory, (TileEntityToolRack) tileEntity);
@@ -205,25 +205,25 @@ public class GuiLoader implements IGuiHandler
 		if (tileEntity instanceof TileEntityFancyWorkbench)
 		{
 			TileEntityFancyWorkbench bench = (TileEntityFancyWorkbench)tileEntity;
-			int lx = getXcoordForWorkbenchBookcase(true, bench.getAngle(), bench.getPos().getX());
-			int lz = getZcoordForWorkbenchBookcase(true, bench.getAngle(), bench.getPos().getZ());
-			int rx = getXcoordForWorkbenchBookcase(false, bench.getAngle(), bench.getPos().getX());
-			int rz = getZcoordForWorkbenchBookcase(false, bench.getAngle(), bench.getPos().getZ());
-			int lry = bench.getPos().getY();
+			int lx = getXcoordForWorkbenchBookcase(true, bench.getAngle(), bench.xCoord);
+			int lz = getZcoordForWorkbenchBookcase(true, bench.getAngle(), bench.zCoord);
+			int rx = getXcoordForWorkbenchBookcase(false, bench.getAngle(), bench.xCoord);
+			int rz = getZcoordForWorkbenchBookcase(false, bench.getAngle(), bench.zCoord);
+			int lry = bench.yCoord;
 			TileEntityBookcase leftBookcase = null;
 			TileEntityBookcase rightBookcase = null;
-			
-			if (!(world.isAirBlock(new BlockPos(lx, lry, lz))))
+
+			if (!(world.isAirBlock(lx, lry, lz)))
 			{
-				TileEntity left = world.getTileEntity(new BlockPos(lx, lry, lz));
+				TileEntity left = world.getTileEntity(lx, lry, lz);
 				if (left != null && left instanceof TileEntityBookcase)
 				{
 					leftBookcase = (TileEntityBookcase)left;
 				}
 			}
-			if (!(world.isAirBlock(new BlockPos(rx, lry, rz))))
+			if (!(world.isAirBlock(rx, lry, rz)))
 			{
-				TileEntity right = world.getTileEntity(new BlockPos(rx, lry, rz));
+				TileEntity right = world.getTileEntity(rx, lry, rz);
 				if (right != null && right instanceof TileEntityBookcase)
 				{
 					rightBookcase = (TileEntityBookcase)right;
@@ -231,7 +231,7 @@ public class GuiLoader implements IGuiHandler
 			}
 			return new ContainerFancyWorkbench(player.inventory, world, bench, player.getEntityId(), leftBookcase, rightBookcase);
 		}
-		
+
 		if (tileEntity instanceof TileEntityPaintPress)
 		{
 			return new ContainerPaintPress(player.inventory, (TileEntityPaintPress)tileEntity);
@@ -244,16 +244,16 @@ public class GuiLoader implements IGuiHandler
 		{
 			return new ContainerFurniturePaneler(player.inventory, (TileEntityFurniturePaneler)tileEntity);
 		}
-		
+
 		if (tileEntity instanceof TileEntityFramedChest)
 		{
 			TileEntityFramedChest chest = (TileEntityFramedChest)tileEntity;
 			TileEntityFramedChest chest2 = null;
 			if (chest.getIsDouble())
 			{
-				int x2 = getXcoordForChest(chest.getIsLeft(), chest.getAngle(), chest.getPos().getX());
-				int z2 = getZcoordForChest(chest.getIsLeft(), chest.getAngle(), chest.getPos().getZ());
-				TileEntity tile2 = world.getTileEntity(new BlockPos(x2, chest.getPos().getY(), z2)	);
+				int x2 = getXcoordForChest(chest.getIsLeft(), chest.getAngle(), chest.xCoord);
+				int z2 = getZcoordForChest(chest.getIsLeft(), chest.getAngle(), chest.zCoord);
+				TileEntity tile2 = world.getTileEntity(x2, chest.yCoord, z2);
 				if (tile2 != null && tile2 instanceof TileEntityFramedChest)
 				{
 					if (((TileEntityFramedChest)tile2).getIsDouble())
@@ -262,13 +262,13 @@ public class GuiLoader implements IGuiHandler
 					}
 				}
 			}
-			return new ContainerFramedChest(player.inventory, chest, chest2); 
+			return new ContainerFramedChest(player.inventory, chest, chest2);
 		}
-		
+
 		return null;
 	}
-	
-	private int getXcoordForChest(boolean isLeft, EnumFacing angle, int oldX)
+
+	private int getXcoordForChest(boolean isLeft, ForgeDirection angle, int oldX)
 	{
 		if (isLeft)
 		{
@@ -294,8 +294,8 @@ public class GuiLoader implements IGuiHandler
 		}
 		return -1;
 	}
-	
-	private int getZcoordForChest(boolean isLeft, EnumFacing angle, int oldZ)
+
+	private int getZcoordForChest(boolean isLeft, ForgeDirection angle, int oldZ)
 	{
 		if (isLeft)
 		{
@@ -321,8 +321,8 @@ public class GuiLoader implements IGuiHandler
 		}
 		return -1;
 	}
-	
-	private int getXcoordForWorkbenchBookcase(boolean isLeft, EnumFacing angle, int oldX)
+
+	private int getXcoordForWorkbenchBookcase(boolean isLeft, ForgeDirection angle, int oldX)
 	{
 		if (isLeft)
 		{
@@ -348,8 +348,8 @@ public class GuiLoader implements IGuiHandler
 		}
 		return -1;
 	}
-	
-	private int getZcoordForWorkbenchBookcase(boolean isLeft, EnumFacing angle, int oldZ)
+
+	private int getZcoordForWorkbenchBookcase(boolean isLeft, ForgeDirection angle, int oldZ)
 	{
 		if (isLeft)
 		{
@@ -375,12 +375,12 @@ public class GuiLoader implements IGuiHandler
 		}
 		return -1;
 	}
-	
+
 	//returns an instance of the Gui you made earlier
 	@Override
 	public Object getClientGuiElement(int id, EntityPlayer player, World world, int i, int j, int k)
 	{
-		TileEntity tileEntity = world.getTileEntity(new BlockPos(i, j, k));
+		TileEntity tileEntity = world.getTileEntity(i, j, k);
 		if (id == 100)
 		{
 			ItemStack currentItem = player.inventory.getCurrentItem();
@@ -389,7 +389,7 @@ public class GuiLoader implements IGuiHandler
 				return new GuiAtlas(player.inventory, world, player);
 			}
 		}
-		
+
 		if (id == 101)
 		{
 			if (tileEntity instanceof TileEntityDesk)
@@ -401,13 +401,13 @@ public class GuiLoader implements IGuiHandler
 				ItemStack currentItem = player.inventory.getCurrentItem();
 				if (currentItem != null && currentItem.getUnlocalizedName().equals(ItemSlottedBook.instance.getUnlocalizedName()))
 				{
-					return new GuiSlottedBook(player.inventory, player.getHeldItem(EnumHand.MAIN_HAND), true, 0, 0, 0);
+					return new GuiSlottedBook(player.inventory, player.getHeldItem(), true, 0, 0, 0);
 				}
 			}
 		}
 		if (id == 102)
 		{
-			return new GuiNameTester(player.inventory, player.getHeldItem(EnumHand.MAIN_HAND));
+			return new GuiNameTester(player.inventory, player.getHeldItem());
 		}
 		if (tileEntity instanceof TileEntityBookcase)
 		{
@@ -417,7 +417,7 @@ public class GuiLoader implements IGuiHandler
 		{
 			return new GuiGenericShelf(player.inventory, (TileEntityShelf) tileEntity);
 		}
-		
+
 		if (tileEntity instanceof TileEntityArmorStand)
 		{
 			return new GuiArmorStand(player.inventory,(TileEntityArmorStand) tileEntity);
@@ -442,7 +442,7 @@ public class GuiLoader implements IGuiHandler
 		if (tileEntity instanceof TileEntityDesk)
 		{
 			return new GuiWritingDesk (player.inventory, (TileEntityDesk) tileEntity);
-		} 
+		}
 		if (tileEntity instanceof TileEntityPrintPress)
 		{
 			//return new GuiPrintPress (player.inventory, (TileEntityPrintPress) tileEntity);
@@ -470,25 +470,25 @@ public class GuiLoader implements IGuiHandler
 		if (tileEntity instanceof TileEntityFancyWorkbench)
 		{
 			TileEntityFancyWorkbench bench = (TileEntityFancyWorkbench)tileEntity;
-			int lx = getXcoordForWorkbenchBookcase(true, bench.getAngle(), bench.getPos().getX());
-			int lz = getZcoordForWorkbenchBookcase(true, bench.getAngle(), bench.getPos().getZ());
-			int rx = getXcoordForWorkbenchBookcase(false, bench.getAngle(), bench.getPos().getX());
-			int rz = getZcoordForWorkbenchBookcase(false, bench.getAngle(), bench.getPos().getZ());
-			int lry = bench.getPos().getY();
+			int lx = getXcoordForWorkbenchBookcase(true, bench.getAngle(), bench.xCoord);
+			int lz = getZcoordForWorkbenchBookcase(true, bench.getAngle(), bench.zCoord);
+			int rx = getXcoordForWorkbenchBookcase(false, bench.getAngle(), bench.xCoord);
+			int rz = getZcoordForWorkbenchBookcase(false, bench.getAngle(), bench.zCoord);
+			int lry = bench.yCoord;
 			TileEntityBookcase leftBookcase = null;
 			TileEntityBookcase rightBookcase = null;
-			
-			if (!(world.isAirBlock(new BlockPos(lx, lry, lz))))
+
+			if (!(world.isAirBlock(lx, lry, lz)))
 			{
-				TileEntity left = world.getTileEntity(new BlockPos(lx, lry, lz));
+				TileEntity left = world.getTileEntity(lx, lry, lz);
 				if (left != null && left instanceof TileEntityBookcase)
 				{
 					leftBookcase = (TileEntityBookcase)left;
 				}
 			}
-			if (!(world.isAirBlock(new BlockPos(rx, lry, rz))))
+			if (!(world.isAirBlock(rx, lry, rz)))
 			{
-				TileEntity right = world.getTileEntity(new BlockPos(rx, lry, rz));
+				TileEntity right = world.getTileEntity(rx, lry, rz);
 				if (right != null && right instanceof TileEntityBookcase)
 				{
 					rightBookcase = (TileEntityBookcase)right;
@@ -496,7 +496,7 @@ public class GuiLoader implements IGuiHandler
 			}
 			return new GuiFancyWorkbench(player.inventory, world, (TileEntityFancyWorkbench)tileEntity, player.getEntityId(), leftBookcase, rightBookcase);
 		}
-		
+
 		if (tileEntity instanceof TileEntityPaintPress)
 		{
 			return new GuiPaintPress(player.inventory, (TileEntityPaintPress)tileEntity);
@@ -515,9 +515,9 @@ public class GuiLoader implements IGuiHandler
 			TileEntityFramedChest chest2 = null;
 			if (chest.getIsDouble())
 			{
-				int x2 = getXcoordForChest(chest.getIsLeft(), chest.getAngle(), chest.getPos().getX());
-				int z2 = getZcoordForChest(chest.getIsLeft(), chest.getAngle(), chest.getPos().getZ());
-				TileEntity tile2 = world.getTileEntity(new BlockPos(x2, chest.getPos().getY(), z2));
+				int x2 = getXcoordForChest(chest.getIsLeft(), chest.getAngle(), chest.xCoord);
+				int z2 = getZcoordForChest(chest.getIsLeft(), chest.getAngle(), chest.zCoord);
+				TileEntity tile2 = world.getTileEntity(x2, chest.yCoord, z2);
 				if (tile2 != null && tile2 instanceof TileEntityFramedChest)
 				{
 					if (((TileEntityFramedChest)tile2).getIsDouble())
@@ -526,9 +526,9 @@ public class GuiLoader implements IGuiHandler
 					}
 				}
 			}
-			return new GuiFramedChest(player.inventory, chest, chest2); 
+			return new GuiFramedChest(player.inventory, chest, chest2);
 		}
-		
+
 		return null;
 	}
 }

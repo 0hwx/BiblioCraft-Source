@@ -1,5 +1,6 @@
 package jds.bibliocraft;
 
+import cpw.mods.fml.common.registry.GameRegistry;
 import jds.bibliocraft.blocks.BiblioLightBlock;
 import jds.bibliocraft.blocks.BlockArmorStand;
 import jds.bibliocraft.blocks.BlockBell;
@@ -67,8 +68,7 @@ import jds.bibliocraft.tileentities.TileEntityToolRack;
 import jds.bibliocraft.tileentities.TileEntityTypeMachine;
 import jds.bibliocraft.tileentities.TileEntityTypewriter;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
-import net.minecraftforge.fml.common.registry.GameRegistry;
+import scala.tools.nsc.doc.model.Public;
 
 public class CommonProxy
 {
@@ -85,10 +85,10 @@ public class CommonProxy
 	public static final ResourceLocation TYPEMACHINEGUI_R_PNG = new ResourceLocation("bibliocraft", "textures/gui/typesettinggui_r.png");
 	public static final ResourceLocation GUITYPEBACK_PNG = new ResourceLocation("bibliocraft", "textures/models/guitypebackg.png");
 	public static final ResourceLocation GUICOOKIEJAR = new ResourceLocation("bibliocraft", "textures/gui/cookiejarGUI.png");
-	
-	public static final ResourceLocation DISCRACKGUI = new ResourceLocation("bibliocraft", "textures/gui/discrackGUI.png"); 
+
+	public static final ResourceLocation DISCRACKGUI = new ResourceLocation("bibliocraft", "textures/gui/discrackGUI.png");
 	public static final ResourceLocation MAPPINGUI = new ResourceLocation("bibliocraft", "textures/gui/mapWaypointGUI.png");
-	public static final ResourceLocation COMPASSGUI = new ResourceLocation("bibliocraft", "textures/gui/compasswaypointgui.png");
+	public static final ResourceLocation COMPASSGUI = new ResourceLocation("bibliocraft", "textures/gui/compasswaypointGUI.png");
 	public static final ResourceLocation ATLASGUI = new ResourceLocation("bibliocraft", "textures/gui/atlasGUI.png");
 	public static final ResourceLocation ATLASGUIBUTTONS = new ResourceLocation("bibliocraft", "textures/gui/atlasGUIbuttons.png");
 	public static final ResourceLocation ATLASGUITRANSFER = new ResourceLocation("bibliocraft", "textures/gui/atlasTransferGUI.png");
@@ -106,7 +106,7 @@ public class CommonProxy
 	public static final ResourceLocation PANELER_GUI = new ResourceLocation("bibliocraft", "textures/gui/panelerGUI.png");
 	public static final ResourceLocation STOCKROOMCATALOGGUI = new ResourceLocation("bibliocraft", "textures/gui/stockcatalogGUI.png");
 	public static final ResourceLocation STOCKROOMCATALOGSUBGUI = new ResourceLocation("bibliocraft", "textures/gui/stockcatalogsubGUI.png");
-	
+
 	public static final ResourceLocation PAINTINGCANVAS = new ResourceLocation("bibliocraft", "textures/paintings/canvas.png");
 	public static final ResourceLocation PAINTING01_128LONG = new ResourceLocation("bibliocraft", "textures/paintings/128painting01l.png");
 	public static final ResourceLocation PAINTING01_64LONG = new ResourceLocation("bibliocraft", "textures/paintings/64painting01l.png");
@@ -154,7 +154,7 @@ public class CommonProxy
 	public static final ResourceLocation PAINTINGGUI = new ResourceLocation("bibliocraft", "textures/gui/paintingGUI.png");
 	public static final ResourceLocation PAINTINGPRESSGUI = new ResourceLocation("bibliocraft", "textures/gui/paintpressGUI.png");
 	public static final ResourceLocation PAINTINGPRESSBUTTONS = new ResourceLocation("bibliocraft", "textures/gui/paintpressGUIbuttons.png");
-	
+
 	public static final ResourceLocation BLACKWOOL = new ResourceLocation("textures/blocks/wool_colored_black.png");
 	public static final ResourceLocation BLUEWOOL = new ResourceLocation("textures/blocks/wool_colored_blue.png");
 	public static final ResourceLocation BROWNWOOL = new ResourceLocation("textures/blocks/wool_colored_brown.png");
@@ -172,41 +172,57 @@ public class CommonProxy
 	public static final ResourceLocation WHITEWOOL = new ResourceLocation("textures/blocks/wool_colored_white.png");
 	public static final ResourceLocation YELOOWWOOL = new ResourceLocation("textures/blocks/wool_colored_yellow.png");
 	public static final ResourceLocation GLINT_PNG = new ResourceLocation("textures/misc/enchanted_item_glint.png");
-	
+
 	public static final ResourceLocation PLANKSOAK = new ResourceLocation("textures/blocks/planks_oak.png");
 	public static final ResourceLocation PAINTINGSHEET = new ResourceLocation("textures/painting/paintings_kristoffer_zetterstrand.png");
-	
-	
-	public static final String SOUND_BELL_DING_TEXT = "bibliocraft:ding";
-	public static final SoundEvent SOUND_DING = new SoundEvent(new ResourceLocation(SOUND_BELL_DING_TEXT));
-	
-	public static final SoundEvent SOUND_TYPEWRITER_ADDPAPER = new SoundEvent(new ResourceLocation("bibliocraft:addpaper"));
-	public static final SoundEvent SOUND_TYPEWRITER_TYPEING = new SoundEvent(new ResourceLocation("bibliocraft:typing"));
-	public static final SoundEvent SOUND_TYPEWRITER_ENDBELL = new SoundEvent(new ResourceLocation("bibliocraft:endbell"));
-	public static final SoundEvent SOUND_TYPEWRITER_REMOVEBOOK = new SoundEvent(new ResourceLocation("bibliocraft:removebook"));
-	public static final SoundEvent SOUND_TYPEWRITER_TYPESINGLE = new SoundEvent(new ResourceLocation("bibliocraft:typingsingle"));
-	
-	public static final SoundEvent SOUND_CLOCK_TICK = new SoundEvent(new ResourceLocation("bibliocraft:tick"));
-	public static final SoundEvent SOUND_CLOCK_TOCK = new SoundEvent(new ResourceLocation("bibliocraft:tock"));
-	public static final SoundEvent SOUND_CLOCK_CHIME = new SoundEvent(new ResourceLocation("bibliocraft:woundchime"));
-	public static final SoundEvent SOUND_CLOCK_WIND = new SoundEvent(new ResourceLocation("bibliocraft:wind"));
-	
-	public static final SoundEvent SOUND_ITEM_HANDDRILL = new SoundEvent(new ResourceLocation("bibliocraft:drill"));
-	public static final SoundEvent SOUND_ITEM_SCREWGUN = new SoundEvent(new ResourceLocation("bibliocraft:screw"));
-	
+
+    public static final ResourceLocation CLIPBOARD_BLOCK = new ResourceLocation("bibliocraft", "textures/models/clipboard.png");
+    public static final ResourceLocation CLIPBOARD_BOX_X = new ResourceLocation("bibliocraft", "textures/models/boxx.png");
+    public static final ResourceLocation CLIPBOARD_BOX_CHECK = new ResourceLocation("bibliocraft", "textures/models/boxcheck.png");
+
+    public static final ResourceLocation ARMORSTAND_BLOCK = new ResourceLocation("bibliocraft", "textures/models/armorstand.png");
+    public static final ResourceLocation TEST_BLOCK = new ResourceLocation("bibliocraft", "textures/models/test.png");
+
+    public static final ResourceLocation GLASS = new ResourceLocation("textures/blocks/glass.png");
+    public static final ResourceLocation IRON = new ResourceLocation("textures/blocks/iron_block.png");
+    public static final ResourceLocation COOKIE = new ResourceLocation("textures/items/cookie.png");
+
+
+    public static final ResourceLocation CRAFTINGTOP = new ResourceLocation("textures/blocks/crafting_table_top.png");
+    public static final ResourceLocation WORKBENCH_SIDES = new ResourceLocation("bibliocraft","textures/models/benchsides.png");
+    public static final ResourceLocation BOOKCASE_BOOKS = new ResourceLocation("bibliocraft", "textures/models/bookcase_books.png");
+
+
+    public static final String SOUND_BELL_DING_TEXT = "bibliocraft:ding";
+	public static final String SOUND_DING = SOUND_BELL_DING_TEXT;
+
+	public static final String SOUND_TYPEWRITER_ADDPAPER = "bibliocraft:addpaper";
+	public static final String SOUND_TYPEWRITER_TYPEING = "bibliocraft:typing";
+	public static final String SOUND_TYPEWRITER_ENDBELL = "bibliocraft:endbell";
+	public static final String SOUND_TYPEWRITER_REMOVEBOOK = "bibliocraft:removebook";
+	public static final String SOUND_TYPEWRITER_TYPESINGLE = "bibliocraft:typingsingle";
+
+	public static final String SOUND_CLOCK_TICK ="bibliocraft:tick";
+	public static final String SOUND_CLOCK_TOCK ="bibliocraft:tock";
+	public static final String SOUND_CLOCK_CHIME ="bibliocraft:woundchime";
+	public static final String SOUND_CLOCK_WIND = "bibliocraft:wind";
+
+	public static final String SOUND_ITEM_HANDDRILL = "bibliocraft:drill";
+	public static final String SOUND_ITEM_SCREWGUN = "bibliocraft:screw";
+
 	public static final String SOUND_CASE_OPEN_TEXT = "bibliocraft:copen";
 	public static final String SOUND_CASE_CLOSE_TEXT = "bibliocraft:cclose";
-	public static final SoundEvent SOUND_CASE_OPEN = new SoundEvent(new ResourceLocation(SOUND_CASE_OPEN_TEXT));
-	public static final SoundEvent SOUND_CASE_CLOSE = new SoundEvent(new ResourceLocation(SOUND_CASE_CLOSE_TEXT));
-	
-	public static final SoundEvent SOUND_TAPE_OPEN = new SoundEvent(new ResourceLocation("bibliocraft:tapeopen"));
-	public static final SoundEvent SOUND_TAPE_CLOSE = new SoundEvent(new ResourceLocation("bibliocraft:tapeclose"));
-	
+	public static final String SOUND_CASE_OPEN = SOUND_CASE_OPEN_TEXT;
+	public static final String SOUND_CASE_CLOSE = SOUND_CASE_CLOSE_TEXT;
+
+	public static final String SOUND_TAPE_OPEN = "bibliocraft:tapeopen";
+	public static final String SOUND_TAPE_CLOSE = "bibliocraft:tapeclose";
+
 	public void registerRenderers()
 	{
-		
+
 	}
-	
+
 	public void initTileEntities()
 	{
 		if (Config.enableBookcase){
@@ -270,9 +286,49 @@ public class CommonProxy
 		if (Config.enableTypewriter){
 			GameRegistry.registerTileEntity(TileEntityTypewriter.class, BlockTypeWriter.name);}
 	}
-	
-	public void initNetwork()
-	{
-	}
 
+	public void initNetwork()
+	{}
+    public static ResourceLocation VanilaPlankTexture(int meta){
+        switch (meta){
+            case 1:
+                return new ResourceLocation("textures/blocks/planks_spruce.png");
+            case 2:
+                return new ResourceLocation("textures/blocks/planks_birch.png");
+            case 3:
+                return new ResourceLocation("textures/blocks/planks_jungle.png");
+            case 4:
+                return new ResourceLocation("textures/blocks/planks_acacia.png");
+            case 5:
+                return new ResourceLocation("textures/blocks/planks_big_oak.png");
+            case 6:
+                return new ResourceLocation("bibliocraft","textures/blocks/frame.png");
+            default:
+                return new ResourceLocation("textures/blocks/planks_oak.png");
+        }
+    }
+    public static ResourceLocation WoolColourTexture(int meta) {
+        switch (meta) {
+            case 0:
+                return WHITEWOOL;
+            case 1:
+                return BLACKWOOL;
+            case 2:
+                return new ResourceLocation("textures/blocks/wool_colours.png");
+            case 3:
+                return new ResourceLocation("textures/blocks/wool_colours.png");
+            case 4:
+                return new ResourceLocation("textures/blocks/wool_colours.png");
+            case 5:
+                return new ResourceLocation("textures/blocks/wool_colours.png");
+            case 6:
+                return new ResourceLocation("textures/blocks/wool_colours.png");
+            case 7:
+                return new ResourceLocation("textures/blocks/wool_colours.png");
+            case 8:
+                return new ResourceLocation("textures/blocks/wool_colours.png");
+            default:
+                return new ResourceLocation("textures/blocks/wool_colours.png");
+        }
+    }
 }

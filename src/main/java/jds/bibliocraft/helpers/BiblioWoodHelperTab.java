@@ -1,32 +1,34 @@
 package jds.bibliocraft.helpers;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+
+import java.util.List;
 
 public class BiblioWoodHelperTab  extends CreativeTabs
 {
 	private String[] textureString;
-	private ItemStack icon;
-	public BiblioWoodHelperTab(String name, String[] textures, ItemStack icon)
+	private Item icon;
+	public BiblioWoodHelperTab(String name, String[] textures, Item icon)
 	{
 		super(name);
 		this.textureString = textures;
 		this.icon = icon;
 	}
-	
+
 	@Override
 	@SideOnly(Side.CLIENT)
-	public ItemStack getTabIconItem() 
+	public Item getTabIconItem()
 	{
 		return this.icon;
-		
+
 	}
-	
+
     @SideOnly(Side.CLIENT)
-    public void displayAllRelevantItems(NonNullList<ItemStack> list)
+    public void displayAllReleventItems(List<ItemStack> list)
     {
     	for (int i = 0; i < textureString.length; i++)
     	{
@@ -34,7 +36,7 @@ public class BiblioWoodHelperTab  extends CreativeTabs
         	for (int j = 0; j < reg.getFramedBlockList().size(); j++)
         	{
         		if (reg.getEnableList()[j])
-        			list.add(reg.getFramedBlockList().get(j));
+        			list.set(i, new ItemStack(reg.getFramedBlockList().get(j).getItem()));
         	}
     	}
     }

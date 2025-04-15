@@ -4,14 +4,11 @@ import java.util.List;
 
 import jds.bibliocraft.BiblioCraft;
 import jds.bibliocraft.BlockLoader;
-import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 
 public class ItemSlottedBook extends Item {
@@ -24,16 +21,16 @@ public class ItemSlottedBook extends Item {
 		setCreativeTab(BlockLoader.biblioTab);
 		setUnlocalizedName(name);
 		setMaxStackSize(1);
-		setRegistryName(name);
+		setUnlocalizedName(name);
 	}
 
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
-		if (!world.isRemote && hand == EnumHand.MAIN_HAND) {
-			player.openGui(BiblioCraft.instance, 101, player.world, (int) player.posX, (int) player.posY,
+	public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player) {
+		if (!world.isRemote) {
+			player.openGui(BiblioCraft.instance, 101, player.worldObj, (int) player.posX, (int) player.posY,
 					(int) player.posZ);
 		}
-		return new ActionResult<ItemStack>(EnumActionResult.PASS, player.getHeldItem(hand));
+		return stack;
 	}
 
 	@Override
@@ -42,13 +39,13 @@ public class ItemSlottedBook extends Item {
 	}
 
 	@Override
-	public void addInformation(ItemStack stack, World player, List<String> tooltip, ITooltipFlag advanced) {
+	public void addInformation(ItemStack stack, EntityPlayer player, List<String> tooltip, boolean advanced) {
 		/*
 		 * // TODO so broken, cant access playername
 		 * List<EntityPlayer> p = player.playerEntities;
 		 * if (p != null && p.size() > 0)
 		 * {
-		 * playername = I18n.translateToLocal("redbook.by") +
+		 * playername = I18n.format("redbook.by") +
 		 * " "+p.get(0).getDisplayName().getFormattedText();
 		 * }
 		 * else
@@ -68,4 +65,8 @@ public class ItemSlottedBook extends Item {
 		tooltip.add(playername);
 		super.addInformation(stack, player, tooltip, advanced);
 	}
+    @Override
+    public void registerIcons(IIconRegister register) {
+        this.itemIcon = register.registerIcon("bibliocraft:slottedbook");
+    }
 }

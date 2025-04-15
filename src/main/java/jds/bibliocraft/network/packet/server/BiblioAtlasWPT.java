@@ -1,5 +1,9 @@
 package jds.bibliocraft.network.packet.server;
 
+import cpw.mods.fml.common.network.ByteBufUtils;
+import cpw.mods.fml.common.network.simpleimpl.IMessage;
+import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import io.netty.buffer.ByteBuf;
 import jds.bibliocraft.items.ItemAtlas;
 import jds.bibliocraft.network.packet.Utils;
@@ -10,17 +14,15 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+
 
 // Doesn't crash but I have no idea how to work the atlas so I am not sure if it's fully working!
 public class BiblioAtlasWPT implements IMessage {
     boolean toMapFrame;
-    BlockPos pos;
+    int posX;
+    int posY;
+    int posZ;
     ItemStack atlasStack;
 
     // dummy constructor for FML
@@ -28,23 +30,29 @@ public class BiblioAtlasWPT implements IMessage {
 
     }
 
-    public BiblioAtlasWPT(boolean toMapFrame, BlockPos pos, ItemStack atlasStack) {
+    public BiblioAtlasWPT(boolean toMapFrame, int posX, int posY, int posZ, ItemStack atlasStack) {
         this.toMapFrame = toMapFrame;
-        this.pos = pos;
+        this.posX = posX;
+        this.posY = posY;
+        this.posZ = posZ;
         this.atlasStack = atlasStack;
     }
 
     @Override
     public void fromBytes(ByteBuf buf) {
         this.toMapFrame = buf.readBoolean();
-        this.pos = BlockPos.fromLong(buf.readLong());
+        this.posX = buf.readInt();
+        this.posY = buf.readInt();
+        this.posZ = buf.readInt();
         this.atlasStack = ByteBufUtils.readItemStack(buf);
     }
 
     @Override
     public void toBytes(ByteBuf buf) {
         buf.writeBoolean(this.toMapFrame);
-        buf.writeLong(this.pos.toLong());
+        buf.writeInt(this.posX);
+        buf.writeInt(this.posY);
+        buf.writeInt(this.posZ);
         ByteBufUtils.writeItemStack(buf, this.atlasStack);
     }
 
@@ -52,25 +60,21 @@ public class BiblioAtlasWPT implements IMessage {
 
         @Override
         public IMessage onMessage(BiblioAtlasWPT message, MessageContext ctx) {
-            ctx.getServerHandler().player.getServerWorld().addScheduledTask(() -> {
-                EntityPlayerMP player = ctx.getServerHandler().player;
-                if (Utils.hasPointLoaded(player, message.pos)) {
-                    TileEntity tile = player.world.getTileEntity(message.pos);
-                    if (tile != null && tile instanceof TileEntityMapFrame && message.atlasStack != ItemStack.EMPTY
+                EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+                if (Utils.hasPointLoaded(player, message.posX, message.posY, message.posZ)) {
+                    TileEntity tile = player.worldObj.getTileEntity(message.posX, message.posY, message.posZ);
+                    if (tile != null && tile instanceof TileEntityMapFrame && message.atlasStack != null
                             && message.atlasStack.getItem() instanceof ItemAtlas) {
                         TileEntityMapFrame frameTile = (TileEntityMapFrame) tile;
                         if (message.toMapFrame) {
                             transferWaypointsToMapFrame(frameTile, message.atlasStack);
                             // player.worldObj.markBlockForUpdate(frameTile.getPos());
-                            frameTile.getWorld().notifyBlockUpdate(frameTile.getPos(),
-                                    frameTile.getWorld().getBlockState(frameTile.getPos()),
-                                    frameTile.getWorld().getBlockState(frameTile.getPos()), 3);
+                            frameTile.getWorldObj().markBlockForUpdate(frameTile.xCoord, frameTile.yCoord, frameTile.zCoord);
                         } else {
                             transferWaypointsToAtlas(frameTile, message.atlasStack, player);
                         }
                     }
                 }
-            });
             return null;
         }
 
@@ -78,7 +82,7 @@ public class BiblioAtlasWPT implements IMessage {
             InventoryBasic inv = Utils.getInventory(atlasStack);
             NBTTagCompound atlasTags = atlasStack.getTagCompound();
             ItemStack mapStack = Utils.getCurrentMapStack(atlasStack);
-            if (atlasTags != null && inv != null && mapStack != ItemStack.EMPTY && atlasTags.hasKey("maps")) {
+            if (atlasTags != null && inv != null && mapStack != null && atlasTags.hasKey("maps")) {
                 NBTTagList maps = atlasTags.getTagList("maps", Constants.NBT.TAG_COMPOUND);
                 NBTTagCompound mapTag = null;
                 String mapName = "Map_" + mapStack.getItemDamage();

@@ -5,33 +5,38 @@ import jds.bibliocraft.network.packet.Utils;
 import jds.bibliocraft.tileentities.TileEntityClipboard;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import cpw.mods.fml.common.network.simpleimpl.IMessage;
+import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 
 public class BiblioClipboard implements IMessage {
-    BlockPos pos;
+    int posX, posY, posZ;
     int updatePos;
 
     public BiblioClipboard() {
 
     }
 
-    public BiblioClipboard(BlockPos pos, int updatePos) {
-        this.pos = pos;
+    public BiblioClipboard(int x, int y, int z, int updatePos) {
+        this.posX = x;
+        this.posY = y;
+        this.posZ = z;
         this.updatePos = updatePos;
     }
 
     @Override
     public void fromBytes(ByteBuf buf) {
-        this.pos = BlockPos.fromLong(buf.readLong());
+        this.posX = buf.readInt();
+        this.posY = buf.readInt();
+        this.posZ = buf.readInt();
         this.updatePos = buf.readInt();
     }
 
     @Override
     public void toBytes(ByteBuf buf) {
-        buf.writeLong(this.pos.toLong());
+        buf.writeInt(this.posX);
+        buf.writeInt(this.posY);
+        buf.writeInt(this.posZ);
         buf.writeInt(this.updatePos);
     }
 
@@ -39,16 +44,14 @@ public class BiblioClipboard implements IMessage {
 
         @Override
         public IMessage onMessage(BiblioClipboard message, MessageContext ctx) {
-            ctx.getServerHandler().player.getServerWorld().addScheduledTask(() -> {
-                EntityPlayerMP player = ctx.getServerHandler().player;
-                if (Utils.hasPointLoaded(player, message.pos)) {
-                    TileEntity tile = player.world.getTileEntity(message.pos);
+                EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+                if (Utils.hasPointLoaded(player, message.posX, message.posY, message.posZ)) {
+                    TileEntity tile = player.worldObj.getTileEntity(message.posX, message.posY, message.posZ);
                     if (tile != null && tile instanceof TileEntityClipboard) {
                         TileEntityClipboard clipboard = (TileEntityClipboard) tile;
                         clipboard.updateClipboardFromPlayerSelection(message.updatePos);
                     }
                 }
-            });
             return null;
         }
 

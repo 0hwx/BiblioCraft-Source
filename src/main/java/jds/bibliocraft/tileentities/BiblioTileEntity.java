@@ -1,47 +1,47 @@
 package jds.bibliocraft.tileentities;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import jds.bibliocraft.blocks.BiblioBlock;
 import jds.bibliocraft.helpers.EnumShiftPosition;
 import jds.bibliocraft.helpers.EnumVertPosition;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SPacketUpdateTileEntity;
+import net.minecraft.network.Packet;
+import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.common.util.ForgeDirection;
 
-public abstract class BiblioTileEntity extends TileEntity implements IInventory, IItemHandler
+
+public abstract class BiblioTileEntity extends TileEntity implements IInventory, ISidedInventory
 {
-	private EnumFacing angle = EnumFacing.NORTH;
-	private EnumShiftPosition shift = EnumShiftPosition.NO_SHIFT; 
+	private ForgeDirection angle = ForgeDirection.NORTH;
+	private EnumShiftPosition shift = EnumShiftPosition.NO_SHIFT;
 	private EnumVertPosition vertPosition = EnumVertPosition.WALL;
-	public NonNullList<ItemStack> inventory;
+	public ItemStack[] inventory;
 	private String customTexture = "none";
 	private boolean isRetexturable; // this also means that the block comes in all the wood flavors
 	private boolean isLocked = false;
 	private String lockee = "";
 	private int renderBoxAdditionalSize = 1;
-	
+
 	public BiblioTileEntity(int inventorySize, boolean canRetexture)
 	{
-		this.inventory = NonNullList.<ItemStack>withSize(inventorySize, ItemStack.EMPTY); //new ItemStack[inventorySize];
+		this.inventory = new ItemStack[inventorySize];
 		this.isRetexturable = canRetexture;
 	}
-	
+
 
 	public boolean addStackToInventoryFromWorld(ItemStack stack, int slot, EntityPlayer player)
 	{
@@ -49,50 +49,50 @@ public abstract class BiblioTileEntity extends TileEntity implements IInventory,
 			return false;
 		boolean returnValue = false;
 		ItemStack currentStack = getStackInSlot(slot);
-		if (stack != ItemStack.EMPTY && currentStack == ItemStack.EMPTY)
+		if (stack != null && currentStack == null)
 		{
 			setInventorySlotContents(slot, stack);
-			player.inventory.setInventorySlotContents(player.inventory.currentItem, ItemStack.EMPTY); 
+			player.inventory.setInventorySlotContents(player.inventory.currentItem, null);
 			returnValue = true;
 		}
-		else if (stack != ItemStack.EMPTY && currentStack != ItemStack.EMPTY)
+		else if (stack != null && currentStack != null)
 		{
 			ItemStack leftStack = stack.copy();
 			ItemStack rightStack = currentStack.copy();
-			leftStack.setCount(1);
-			rightStack.setCount(1);
+			leftStack.stackSize = (1);
+			rightStack.stackSize =(1);
 			if (getIsItemStacksEqual(leftStack, rightStack))
 			{
-				int total = stack.getCount() + currentStack.getCount();
-				if (total > stack.getMaxStackSize() && currentStack.getCount() != currentStack.getMaxStackSize())
+				int total = stack.stackSize + currentStack.stackSize;
+				if (total > stack.getMaxStackSize() && currentStack.stackSize != currentStack.getMaxStackSize())
 				{
-					currentStack.setCount(stack.getMaxStackSize());
-					stack.setCount(total - stack.getMaxStackSize());
+					currentStack.stackSize =(stack.getMaxStackSize());
+					stack.stackSize = (total - stack.getMaxStackSize());
 					setInventorySlotContents(slot, currentStack);
-					player.inventory.setInventorySlotContents(player.inventory.currentItem, stack); 
+					player.inventory.setInventorySlotContents(player.inventory.currentItem, stack);
 					returnValue = true;
 				}
 				else if (total <= stack.getMaxStackSize())
 				{
-					currentStack.setCount(total);
+					currentStack.stackSize = (total);
 					setInventorySlotContents(slot, currentStack);
-					player.inventory.setInventorySlotContents(player.inventory.currentItem, ItemStack.EMPTY); 
+					player.inventory.setInventorySlotContents(player.inventory.currentItem, null);
 					returnValue = true;
 				}
 			}
-			
+
 			if (returnValue)
 			{
-				getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+				getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 			}
 		}
 		return returnValue;
 	}
-	
+
 	public boolean getIsItemStacksEqual(ItemStack stack1, ItemStack stack2)
 	{
 		boolean output = false;
-	    if (stack1 != ItemStack.EMPTY && stack2 != ItemStack.EMPTY)
+	    if (stack1 != null && stack2 != null)
 	    {
 	    	if (stack1.getItem() == stack2.getItem() && stack1.getItemDamage() == stack2.getItemDamage())
 	    	{
@@ -110,291 +110,230 @@ public abstract class BiblioTileEntity extends TileEntity implements IInventory,
 	    }
 		return output;
 	}
-	
+
 	public boolean addStackToInventoryFromWorldSingleStackSize(ItemStack stack, int slot, EntityPlayer player)
 	{
 		boolean returnValue = false;
 		ItemStack currentStack = getStackInSlot(slot);
-		if (stack != ItemStack.EMPTY && currentStack == ItemStack.EMPTY)
+		if (stack != null && currentStack == null)
 		{
-			if (stack.getCount() > 1)
+			if (stack.stackSize > 1)
 			{
 				ItemStack newStack = stack.copy();
-				newStack.setCount(1);
-				stack.setCount(stack.getCount() - 1);
+				newStack.stackSize =(1);
+				stack.stackSize =(stack.stackSize - 1);
 				setInventorySlotContents(slot, newStack);
-				player.inventory.setInventorySlotContents(player.inventory.currentItem, stack); 
+				player.inventory.setInventorySlotContents(player.inventory.currentItem, stack);
 			}
 			else
 			{
 				setInventorySlotContents(slot, stack);
-				player.inventory.setInventorySlotContents(player.inventory.currentItem, ItemStack.EMPTY); 
+				player.inventory.setInventorySlotContents(player.inventory.currentItem, null);
 			}
 			returnValue = true;
 		}
-		
+
 		if (returnValue)
 		{
-			getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+			getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 		}
 		return returnValue;
 	}
-	
+
 	public boolean removeStackFromInventoryFromWorld(int slot, EntityPlayer player, BiblioBlock block)
 	{
 		boolean returnValue = false;
 		ItemStack stack = getStackInSlot(slot);
-		if (stack != ItemStack.EMPTY)
+		if (stack != null)
 		{
-			BlockPos newPos = this.getPos();
-			if (player != null)
+			Vec3 newPos = Vec3.createVectorHelper(xCoord,yCoord,zCoord);
+
+           if (player != null)
 			{
-				newPos = block.getDropPositionOffset(this.getPos(), player);
+				newPos = block.getDropPositionOffset((int) newPos.xCoord, (int) newPos.yCoord, (int) newPos.zCoord, player);
 			}
-			block.dropStackInSlot(this.world, this.getPos(), slot, newPos);
-			setInventorySlotContents(slot, ItemStack.EMPTY);
-			getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+			block.dropStackInSlot(this.worldObj, xCoord, yCoord, zCoord, slot, newPos);
+			setInventorySlotContents(slot, null);
+			getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 			returnValue = true;
 		}
-		
+
 		return returnValue;
 	}
-	
+
 	/** Called when something is added or change in the inventory */
 	public abstract void setInventorySlotContentsAdditionalCommands(int slot, ItemStack stack);
-	
+
     /** Use this to load custom tags from the NBT data  */
     public abstract void loadCustomNBTData(NBTTagCompound nbt);
-    
+
     /** Use this to save custom NBT data tags */
     public abstract NBTTagCompound writeCustomNBTData(NBTTagCompound nbt);
-	
-	public void setAngle(EnumFacing facing)
+
+	public void setAngle(ForgeDirection facing)
 	{
 		this.angle = facing;
-		getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+		getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
-	
+
 	public void setShiftPosition(EnumShiftPosition position)
 	{
 		this.shift = position;
-		getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+		getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
-	
+
 	public void setVertPosition(EnumVertPosition position)
 	{
 		this.vertPosition = position;
-		getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+		getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
-	
-	public EnumFacing getAngle()
+
+	public ForgeDirection getAngle()
 	{
 		return this.angle;
 	}
-	
+
 	public EnumShiftPosition getShiftPosition()
 	{
 		return this.shift;
 	}
-	
+
 	public EnumVertPosition getVertPosition()
 	{
 		return this.vertPosition;
 	}
-	
+
 	public boolean canRetextureBlock()
 	{
 		return this.isRetexturable;
 	}
-	
+
 	public String getCustomTextureString()
 	{
 		return this.customTexture;
 	}
-	
+
 	public void setCustomTexureString(String tex)
 	{
 		this.customTexture = tex;
-		getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
-		world.markBlockRangeForRenderUpdate(pos, pos);
+		getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
+		worldObj.markBlockRangeForRenderUpdate(xCoord, yCoord, zCoord, xCoord, yCoord, zCoord);
 	}
 
 	public boolean isLocked()
 	{
 		return isLocked;
 	}
-    
+
 	// as of now it only locks single blocks, so double clocks will have to be locked on the top and bottom blocks, as well as other multi blocks. I guess that is ok.
 	public void setLocked(boolean locked)
 	{
 		isLocked = locked;
-		getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+		getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
-	
+
 	public String getLockee()
 	{
 		return lockee;
 	}
-	
+
 	public void setLockee(String lockeeperson)
 	{
 		lockee = lockeeperson;
 	}
-	
-	@Override
-	public int getSizeInventory()
-	{
-		return inventory.size();
-	}
+
 
 	@Override
 	public ItemStack getStackInSlot(int slot)
 	{
-		ItemStack output = ItemStack.EMPTY;
-		if (slot >= 0 && slot < this.inventory.size())
+		ItemStack output = null;
+		if (slot >= 0 && slot < this.inventory.length)
 		{
-			output = inventory.get(slot);
+			output = inventory[slot];
 		}
 		return output;
 	}
-	
-	@Override 
+
+	@Override
 	public void setInventorySlotContents(int slot, ItemStack stack)
 	{
-		if (slot >= 0 && slot < this.inventory.size())
+		if (slot >= 0 && slot < this.inventory.length)
 		{
-			inventory.set(slot, stack);
-			if (stack != ItemStack.EMPTY && stack.getCount() > getInventoryStackLimit()) // this may be a place that needs to be edited for limiting stuff, maybe look at brewing stand tile entity for reference on these limits I would like to impose
+			inventory[slot] = stack;
+			if (stack != null && stack.stackSize > getInventoryStackLimit()) // this may be a place that needs to be edited for limiting stuff, maybe look at brewing stand tile entity for reference on these limits I would like to impose
 			{
-				stack.setCount(getInventoryStackLimit());
+				stack.stackSize =(getInventoryStackLimit());
 			}
 			setInventorySlotContentsAdditionalCommands(slot, stack);
-			getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+			getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 		}
 	}
-	
 
-	
+
+
 	@Override
 	public ItemStack decrStackSize(int slot, int amount)
 	{
 		ItemStack stack = getStackInSlot(slot);
 		Item stackSizeTest = stack.getItem();
-		if (stack != ItemStack.EMPTY)
+		if (stack != null)
 		{
-			if (stack.getCount() <= amount)
+			if (stack.stackSize <= amount)
 			{
-				setInventorySlotContents(slot, ItemStack.EMPTY);
+				setInventorySlotContents(slot, null);
 			}
 			else
 			{
 				stack = stack.splitStack(amount);
-				if (stack.getCount() == 0)
+				if (stack.stackSize == 0)
 				{
-					setInventorySlotContents(slot, ItemStack.EMPTY);
+					setInventorySlotContents(slot, null);
 				}
 			}
 		}
 		return stack;
 	}
-	
-	@Override
-	public ItemStack removeStackFromSlot(int slot)
-	{
-		ItemStack stack = getStackInSlot(slot);
-		if (stack != ItemStack.EMPTY)
-		{
-			setInventorySlotContents(slot, ItemStack.EMPTY);
-		}
-		return stack;
-	}
-	
-	@Override
-	public abstract int getInventoryStackLimit();
 
-	
 	@Override
 	public boolean isItemValidForSlot(int slot, ItemStack itemstack)
 	{
 		return true;
 	}
-	
+
 	@Override
     @SideOnly(Side.CLIENT)
     public AxisAlignedBB getRenderBoundingBox()
     {
         AxisAlignedBB bb = INFINITE_EXTENT_AABB;
-        bb = new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + renderBoxAdditionalSize, pos.getY() + renderBoxAdditionalSize, pos.getZ() + renderBoxAdditionalSize);
+        bb = AxisAlignedBB.getBoundingBox(xCoord, yCoord, zCoord, xCoord + renderBoxAdditionalSize, yCoord + renderBoxAdditionalSize, zCoord + renderBoxAdditionalSize);
         return bb;
     }
-	
+
 	public void setRenderBoxAdditionalSize(int size)
 	{
 		this.renderBoxAdditionalSize = size;
 	}
-	
-	@Override
-	public boolean hasCustomName() 
-	{
-		return false;
-	}
 
-	@Override
-	public void openInventory(EntityPlayer player) {}
 
-	@Override
-	public void closeInventory(EntityPlayer player) {}
 
-	@Override
-	public int getField(int id) 
-	{
-		return 0;
-	}
-
-	@Override
-	public void setField(int id, int value) 
-	{
-
-	}
-
-	@Override
-	public int getFieldCount() 
-	{
-		return 0;
-	}
-
-	@Override
-	public void clear() 
-	{
-		
-	}
-	
-	@Override
+    @Override
     public void readFromNBT(NBTTagCompound nbt)
     {
-		super.readFromNBT(nbt);
-		loadNBTData(nbt);
+        super.readFromNBT(nbt);
+        loadNBTData(nbt);
     }
-	
-    @Override
-    public void onDataPacket(NetworkManager manager, SPacketUpdateTileEntity packet)
-    {
-    	NBTTagCompound nbtData = packet.getNbtCompound();
-    	loadNBTData(nbtData);
-    	world.markBlockRangeForRenderUpdate(getPos(), getPos());
-    }
-    
+
     private void loadNBTData(NBTTagCompound nbt)
     {
     	NBTTagList tagList = nbt.getTagList("Inventory", Constants.NBT.TAG_COMPOUND);
-		this.inventory = NonNullList.<ItemStack>withSize(this.getSizeInventory(), ItemStack.EMPTY); //new ItemStack[this.getSizeInventory()];
+		this.inventory = new ItemStack[this.getSizeInventory()];
 		for (int i = 0; i < tagList.tagCount(); i++)
 		{
 			NBTTagCompound tag = (NBTTagCompound) tagList.getCompoundTagAt(i);
 			byte slot = tag.getByte("Slot");
-			if (slot >= 0 && slot < this.inventory.size())
+			if (slot >= 0 && slot < this.inventory.length)
 			{
-				this.inventory.set(slot, new ItemStack(tag));
+				this.inventory[slot] = ItemStack.loadItemStackFromNBT(tag); // new ItemStack(tag)); //todo use copy()
 			}
 		}
 
@@ -407,60 +346,91 @@ public abstract class BiblioTileEntity extends TileEntity implements IInventory,
 		loadCustomNBTData(nbt);
 		if (isRetexturable)
 			this.customTexture = nbt.getString("customTexture");
-		
+
     }
-	
+
 	@Override
-    public NBTTagCompound writeToNBT(NBTTagCompound nbt)
-    {
-		super.writeToNBT(nbt);
-    	nbt = writeNBTData(nbt);
-    	return nbt;
+    public void writeToNBT(NBTTagCompound nbt)
+    {   super.writeToNBT(nbt);
+        writeNBTData(nbt);
     }
-	
-	@Override
-	public SPacketUpdateTileEntity getUpdatePacket() 
-    {
-    	NBTTagCompound dataTag = new NBTTagCompound();
-    	dataTag = writeNBTData(dataTag);
-    	return new SPacketUpdateTileEntity(pos, 1, dataTag);
-    }
-	
-	
-	@Override
-	public NBTTagCompound getUpdateTag() 
-	{
-		NBTTagCompound tags = super.getUpdateTag();
-		return writeNBTData(tags);
-	}
-	
+
     private NBTTagCompound writeNBTData(NBTTagCompound nbt)
     {
-    	NBTTagList itemList = new NBTTagList();
-    	for (int i = 0; i < inventory.size(); i++)
-    	{
-    		ItemStack stack = inventory.get(i);
-    		if (stack != ItemStack.EMPTY)
-    		{
-    			NBTTagCompound tag = new NBTTagCompound();
-    			tag.setByte("Slot", (byte) i);
-    			stack.writeToNBT(tag);
-    			itemList.appendTag(tag);
-    		}
-    	}
-    	nbt.setTag("Inventory", itemList);
-    	nbt.setBoolean("locked", isLocked);
-    	nbt.setString("lockee", lockee);
-    	nbt.setInteger("angle", getAngleIDFromFacing(angle));
-    	nbt.setInteger("shift", shift.getID());
-    	nbt.setInteger("position", vertPosition.getID());
-    	nbt = writeCustomNBTData(nbt);
-    	if (isRetexturable)
-    		nbt.setString("customTexture", customTexture);
-    	return nbt;
+        NBTTagList itemList = new NBTTagList();
+        for (int i = 0; i < inventory.length; i++)
+        {
+            ItemStack stack = inventory[i];
+            if (stack != null)
+            {
+                NBTTagCompound tag = new NBTTagCompound();
+                tag.setByte("Slot", (byte) i);
+                stack.writeToNBT(tag);
+                itemList.appendTag(tag);
+            }
+        }
+        nbt.setTag("Inventory", itemList);
+        nbt.setBoolean("locked", isLocked);
+        nbt.setString("lockee", lockee);
+        nbt.setInteger("angle", getAngleIDFromFacing(angle));
+        nbt.setInteger("shift", shift.getID());
+        nbt.setInteger("position", vertPosition.getID());
+        nbt = writeCustomNBTData(nbt);
+        if (isRetexturable)
+            nbt.setString("customTexture", customTexture);
+        return nbt;
     }
-    
-    private int getAngleIDFromFacing(EnumFacing facing)
+
+	@Override
+    public Packet getDescriptionPacket() {
+        {
+            NBTTagCompound dataTag = new NBTTagCompound();
+            writeToNBT(dataTag);
+            return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 1, dataTag);
+        }
+    }
+    @Override
+    public void onDataPacket(NetworkManager manager, S35PacketUpdateTileEntity packet)
+    {
+        NBTTagCompound nbtData = packet.func_148857_g();
+        readFromNBT(nbtData);
+        worldObj.markBlockRangeForRenderUpdate(xCoord, yCoord, zCoord, xCoord, yCoord, zCoord);
+    }
+//
+//	@Override
+//	public NBTTagCompound getUpdateTag()
+//	{
+//		NBTTagCompound tags = super.getUpdateTag();
+//		return writeNBTData(tags);
+//	}
+
+//    private NBTTagCompound writeNBTData(NBTTagCompound nbt)
+//    {
+//    	NBTTagList itemList = new NBTTagList();
+//    	for (int i = 0; i < inventory.size(); i++)
+//    	{
+//    		ItemStack stack = inventory.get(i);
+//    		if (stack != null)
+//    		{
+//    			NBTTagCompound tag = new NBTTagCompound();
+//    			tag.setByte("Slot", (byte) i);
+//    			stack.writeToNBT(tag);
+//    			itemList.appendTag(tag);
+//    		}
+//    	}
+//    	nbt.setTag("Inventory", itemList);
+//    	nbt.setBoolean("locked", isLocked);
+//    	nbt.setString("lockee", lockee);
+//    	nbt.setInteger("angle", getAngleIDFromFacing(angle));
+//    	nbt.setInteger("shift", shift.getID());
+//    	nbt.setInteger("position", vertPosition.getID());
+//    	nbt = writeCustomNBTData(nbt);
+//    	if (isRetexturable)
+//    		nbt.setString("customTexture", customTexture);
+//    	return nbt;
+//    }
+
+    private int getAngleIDFromFacing(ForgeDirection facing)
     {
     	int angleID = 0;
     	switch (facing)
@@ -474,155 +444,142 @@ public abstract class BiblioTileEntity extends TileEntity implements IInventory,
     	}
     	return angleID;
     }
-    
+
     public int getAngleID()
     {
     	return getAngleIDFromFacing(getAngle());
     }
-    
-    private EnumFacing getFacingFromAngleID(int angle)
+
+    private ForgeDirection getFacingFromAngleID(int angle)
     {
-    	EnumFacing face = EnumFacing.SOUTH; 
+    	ForgeDirection face = ForgeDirection.SOUTH;
     	switch (angle)
     	{
-	    	case 1:{ face = EnumFacing.WEST; break; }
-	    	case 2:{ face = EnumFacing.NORTH; break; }
-	    	case 3:{ face = EnumFacing.EAST; break; }
-	    	case 4:{ face = EnumFacing.DOWN; break; }
-	    	case 5:{ face = EnumFacing.UP; break; }
+	    	case 1:{ face = ForgeDirection.WEST; break; }
+	    	case 2:{ face = ForgeDirection.NORTH; break; }
+	    	case 3:{ face = ForgeDirection.EAST; break; }
+	    	case 4:{ face = ForgeDirection.DOWN; break; }
+	    	case 5:{ face = ForgeDirection.UP; break; }
     	}
     	return face;
     }
-    
+
     public void updateSurroundingBlocks(Block blocktype)
     {
-		world.notifyNeighborsOfStateChange(new BlockPos(pos.getX(),		pos.getY(), 	pos.getZ()), 	 blocktype, true);
-		world.notifyNeighborsOfStateChange(new BlockPos(pos.getX() + 1, 	pos.getY(), 	pos.getZ()), 	 blocktype, true);
-		world.notifyNeighborsOfStateChange(new BlockPos(pos.getX() - 1, 	pos.getY(), 	pos.getZ() + 1), blocktype, true);
-		world.notifyNeighborsOfStateChange(new BlockPos(pos.getX(), 		pos.getY(), 	pos.getZ() - 1), blocktype, true);
-		world.notifyNeighborsOfStateChange(new BlockPos(pos.getX(), 		pos.getY() + 1, pos.getZ()), 	 blocktype, true);
-		world.notifyNeighborsOfStateChange(new BlockPos(pos.getX(), 		pos.getY() - 1, pos.getZ()), 	 blocktype, true);
-		world.notifyNeighborsOfStateChange(new BlockPos(pos.getX(), 		pos.getY(), 	pos.getZ()), 	 blocktype, true);
-		world.notifyNeighborsOfStateChange(new BlockPos(pos.getX() + 2, 	pos.getY(), 	pos.getZ()), 	 blocktype, true);
-		world.notifyNeighborsOfStateChange(new BlockPos(pos.getX() - 2,	pos.getY(), 	pos.getZ()), 	 blocktype, true);
-		world.notifyNeighborsOfStateChange(new BlockPos(pos.getX(), 		pos.getY(), 	pos.getZ() + 2), blocktype, true);
-		world.notifyNeighborsOfStateChange(new BlockPos(pos.getX(), 		pos.getY(), 	pos.getZ() - 2), blocktype, true);
-		world.notifyNeighborsOfStateChange(new BlockPos(pos.getX(), 		pos.getY() + 2, pos.getZ()), 	 blocktype, true);
-		world.notifyNeighborsOfStateChange(new BlockPos(pos.getX(), 		pos.getY() - 2, pos.getZ()), 	 blocktype, true);
-		getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+		worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord,  blocktype);
+		worldObj.notifyBlocksOfNeighborChange(xCoord + 1, yCoord, zCoord, blocktype);
+		worldObj.notifyBlocksOfNeighborChange(xCoord - 1, 	yCoord, 	zCoord + 1, blocktype);
+		worldObj.notifyBlocksOfNeighborChange(xCoord, 		yCoord, 	zCoord - 1, blocktype);
+		worldObj.notifyBlocksOfNeighborChange(xCoord, 		yCoord + 1, zCoord, 	 blocktype);
+		worldObj.notifyBlocksOfNeighborChange(xCoord, 		yCoord - 1, zCoord, 	 blocktype);
+		worldObj.notifyBlocksOfNeighborChange(xCoord, 		yCoord, 	zCoord, 	 blocktype);
+		worldObj.notifyBlocksOfNeighborChange(xCoord + 2, 	yCoord, 	zCoord, 	 blocktype);
+		worldObj.notifyBlocksOfNeighborChange(xCoord - 2,	yCoord, 	zCoord, 	 blocktype);
+		worldObj.notifyBlocksOfNeighborChange(xCoord, 		yCoord, 	zCoord + 2, blocktype);
+		worldObj.notifyBlocksOfNeighborChange(xCoord, 		yCoord, 	zCoord - 2, blocktype);
+		worldObj.notifyBlocksOfNeighborChange(xCoord, 		yCoord + 2, zCoord, 	 blocktype);
+		worldObj.notifyBlocksOfNeighborChange(xCoord, 		yCoord - 2, zCoord, 	 blocktype);
+		getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
     }
-    
+
     @Override
-    public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newSate)
+    public boolean shouldRefresh(Block oldBlock, Block newBlock, int oldMeta, int newMeta, World world, int x, int y, int z)
     {
         return true;
     }
-    
+
+//	@Override
+//	public boolean isEmpty()
+//	{
+//		boolean output = true;
+//		for (int i = 0; i < inventory.size(); i++)
+//		{
+//			if (inventory.get(i) != null)
+//			{
+//				output = false;
+//				break;
+//			}
+//		}
+//		return output;
+//	}
+
 	@Override
-	public boolean isEmpty() 
+	public boolean isUseableByPlayer(EntityPlayer player)
 	{
-		boolean output = true;
-		for (int i = 0; i < inventory.size(); i++)
-		{
-			if (inventory.get(i) != ItemStack.EMPTY)
-			{
-				output = false;
-				break;
-			}
-		}
-		return output;
+		return worldObj.getTileEntity(xCoord, yCoord, zCoord) == this && player.getDistanceSq(xCoord + 0.5, yCoord + 0.5, zCoord + 0.5) < 64;
 	}
 
 	@Override
-	public boolean isUsableByPlayer(EntityPlayer player) 
-	{
-		return world.getTileEntity(pos) == this && player.getDistanceSq(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) < 64;
-	}
-
-	@Override
-	public int getSlots() 
-	{
+	public int getSizeInventory()
+    {
 		// TODO This might have to be tweaked for things like the chair and table that have extra special slots for carpets
-		return this.inventory.size();
+		return this.inventory.length;
 	}
 
 	@Override
-	public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) 
+	public boolean canInsertItem(int slot, ItemStack stack, int simulate)
 	{
 		ItemStack returnStack = stack;
-		if (slot < this.inventory.size())
-		{
-			ItemStack currentSlot = this.getStackInSlot(slot);
-			if (currentSlot != ItemStack.EMPTY)
-			{
-				if (stack.getItem() == currentSlot.getItem() && currentSlot.getCount() < currentSlot.getMaxStackSize())
-				{
-					if (!simulate)
-					{
-						int count = currentSlot.getCount() + stack.getCount();
-						if (count > stack.getMaxStackSize())
-						{
-							currentSlot.setCount(currentSlot.getMaxStackSize());
-							setInventorySlotContents(slot, currentSlot);
-							returnStack = stack.copy();
-							returnStack.setCount(count - currentSlot.getMaxStackSize());
-						}
-						else
-						{
-							stack.setCount(count);
-							setInventorySlotContents(slot, stack);
-							returnStack = ItemStack.EMPTY;
-						}
-					}
-				}
-			}
-			else
-			{
-				if (!simulate)
-				{
-					this.setInventorySlotContents(slot, stack);
-					returnStack = ItemStack.EMPTY;
-				}
-			}
+		if (slot < this.inventory.length) {
+            ItemStack currentSlot = this.getStackInSlot(slot);
+            if (currentSlot != null) {
+                if (stack.getItem() == currentSlot.getItem() && currentSlot.stackSize < currentSlot.getMaxStackSize()) {
+                    int count = currentSlot.stackSize + stack.stackSize;
+                    if (count > stack.getMaxStackSize()) {
+                        currentSlot.stackSize = (currentSlot.getMaxStackSize());
+                        setInventorySlotContents(slot, currentSlot);
+                        returnStack = stack.copy();
+                        returnStack.stackSize =(count - currentSlot.getMaxStackSize());
+                    } else {
+                        stack.stackSize =(count);
+                        setInventorySlotContents(slot, stack);
+                        returnStack = null;
+                    }
+                }
+            } else {
+                this.setInventorySlotContents(slot, stack);
+                returnStack = null;
+
+            }
 		}
-		return returnStack;
+		return false;
 	}
 
 	@Override
-	public ItemStack extractItem(int slot, int amount, boolean simulate) 
+	public boolean canExtractItem(int slot, ItemStack stack, int simulate)
 	{
-		ItemStack result = ItemStack.EMPTY;
-		if (slot < this.inventory.size())
+		ItemStack result = null;
+		if (slot < this.inventory.length)
 		{
 			ItemStack slottedStack = this.getStackInSlot(slot);
-			if (slottedStack != ItemStack.EMPTY && !simulate)
+			if (slottedStack != null)
 			{
 				result = slottedStack.copy();
-				if (amount >= slottedStack.getCount())
+				if (stack.stackSize >= slottedStack.stackSize)
 				{
 					// send it all
-					this.setInventorySlotContents(slot, ItemStack.EMPTY);
+					this.setInventorySlotContents(slot, null);
 				}
 				else
 				{
-					result.setCount(amount);
-					slottedStack.setCount(slottedStack.getCount() - amount);
+					result.stackSize =(stack.stackSize);
+					slottedStack.stackSize =(slottedStack.stackSize - stack.stackSize);
 					this.setInventorySlotContents(slot, slottedStack);
 				}
 			}
-			
-			if (simulate)
-			{
-				// TODO return the simulated extracted ItemStack
-			}
+//
+//			if (simulate)
+//			{
+//				// TODO return the simulated extracted ItemStack
+//			}
 		}
-		return result;
+		return false;
 	}
 
 	@Override
-	public int getSlotLimit(int slot) 
+	public int getInventoryStackLimit()
 	{
-		// TODO I may have to tweak this for certain use cases? Like map frames, armor stands, clipboard block, 
+		// TODO I may have to tweak this for certain use cases? Like map frames, armor stands, clipboard block,
 		return 64;
 	}
 

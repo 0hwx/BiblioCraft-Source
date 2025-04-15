@@ -7,15 +7,15 @@ import jds.bibliocraft.tileentities.TileEntityFramedChest;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.translation.I18n;
+import net.minecraft.client.resources.I18n;
 
 public class GuiFramedChest extends GuiContainer
 {
 	private static final ResourceLocation chest_texture = new ResourceLocation("textures/gui/container/generic_54.png");
 	private int inventoryRows = 3;
-	
+
 	TileEntityFramedChest mainChest;
-	
+
 	public GuiFramedChest(InventoryPlayer inventoryPlayer, TileEntityFramedChest tile, TileEntityFramedChest tile2)
 	{
 		super(new ContainerFramedChest(inventoryPlayer, tile, tile2));
@@ -26,14 +26,14 @@ public class GuiFramedChest extends GuiContainer
 		mainChest = tile;
 		this.ySize = 114 + this.inventoryRows * 18;
 	}
-	
+
 	@Override
 	protected void drawGuiContainerForegroundLayer(int var1, int var2)
 	{
-		this.fontRenderer.drawString(I18n.translateToLocal(this.mainChest.getName()), 6, 6, 4210752);
-		this.fontRenderer.drawString(I18n.translateToLocal("container.inventory"), 6, ySize - 94, 4210752);
+		this.fontRendererObj.drawString(I18n.format(this.mainChest.getInventoryName()), 6, 6, 4210752);
+		this.fontRendererObj.drawString(I18n.format("container.inventory"), 6, ySize - 94, 4210752);
 	}
-	
+
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float var1, int var2, int var3)
 	{
@@ -45,11 +45,11 @@ public class GuiFramedChest extends GuiContainer
         this.drawTexturedModalRect(k, l + this.inventoryRows * 18 + 17, 0, 126, this.xSize, 96);
 
 	}
-	
+
 	@Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         super.drawScreen(mouseX, mouseY, partialTicks);
-        this.renderHoveredToolTip(mouseX, mouseY);
+//        this.renderHoveredToolTip(mouseX, mouseY);
     }
 }

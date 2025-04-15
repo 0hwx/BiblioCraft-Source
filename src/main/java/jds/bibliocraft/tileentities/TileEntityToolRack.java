@@ -13,56 +13,53 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.item.ItemTool;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
 
-public class TileEntityToolRack extends BiblioTileEntity 
+public class TileEntityToolRack extends BiblioTileEntity
 {
 	public int showWText = 0;
-	
+
 	public TileEntityToolRack()
 	{
 		super(4, true);
 	}
-	
+
 	public boolean checkSlot(int slot)
     {
-    	if (getStackInSlot(slot) != ItemStack.EMPTY)
+    	if (getStackInSlot(slot) != null)
     	{
     		return true;
     	}
     	return false;
     }
-    
+
     public ItemStack getTool(int slot)
     {
-    	ItemStack tool = inventory.get(slot);
-    	if(tool != ItemStack.EMPTY)
+    	ItemStack tool = inventory[slot];
+    	if(tool != null)
     	{
     		return tool;
     	}
     	else
     	{
-    		return ItemStack.EMPTY;
+    		return null;
     	}
     }
-    
+
     public void removeTool(int slot)
     {
-    	if (inventory.get(slot) != ItemStack.EMPTY)
+    	if (inventory[slot] != null)
     	{
-    		setInventorySlotContents(slot, ItemStack.EMPTY);
-    		getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
-    	}
+    		setInventorySlotContents(slot, null);
+            getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);    	}
     }
-    
+
     public boolean addTool(int slot, ItemStack stack)
     {
-    	if (inventory.get(slot) == ItemStack.EMPTY)
+    	if (inventory[slot] == null)
     	{
     		setInventorySlotContents(slot, stack);
-    		getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
-    		return true;
+            getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
+            return true;
     	}
     	else
     	{
@@ -74,7 +71,7 @@ public class TileEntityToolRack extends BiblioTileEntity
 	public boolean isItemValidForSlot(int slot, ItemStack itemstack)
 	{
 		Item stackitem = itemstack.getItem();
-		if (stackitem != ItemStack.EMPTY.getItem())
+		if (stackitem != null)
 		{
 			if (isItemTool(stackitem, itemstack))
 			{
@@ -83,7 +80,7 @@ public class TileEntityToolRack extends BiblioTileEntity
 		}
 		return false;
 	}
-	
+
 	public static boolean isItemTool(Item tool, ItemStack stack)
 	{
 		String toolName = tool.getItemStackDisplayName(stack);
@@ -99,11 +96,11 @@ public class TileEntityToolRack extends BiblioTileEntity
 		}
 	}
 
-	@Override
-	public String getName() 
-	{
-		return BlockToolRack.name;
-	}
+//	@Override
+//	public String getName()
+//	{
+//		return BlockToolRack.name;
+//	}
 
 	@Override
 	public void setInventorySlotContentsAdditionalCommands(int slot, ItemStack stack) {		setVertPosition(EnumVertPosition.WALL);}
@@ -112,21 +109,51 @@ public class TileEntityToolRack extends BiblioTileEntity
 	public void loadCustomNBTData(NBTTagCompound nbt) {}
 
 	@Override
-	public NBTTagCompound writeCustomNBTData(NBTTagCompound nbt) 
+	public NBTTagCompound writeCustomNBTData(NBTTagCompound nbt)
 	{
 		return nbt;
 	}
 
-	@Override
-	public int getInventoryStackLimit() 
+    @Override
+    public ItemStack getStackInSlotOnClosing(int index) {
+        return null;
+    }
+
+    @Override
+    public String getInventoryName() {
+        return "";
+    }
+
+    @Override
+    public boolean hasCustomInventoryName() {
+        return false;
+    }
+
+    @Override
+	public int getInventoryStackLimit()
 	{
 		return 64;
-	} 
-	
-	@Override
-	public ITextComponent getDisplayName() 
-	{
-		ITextComponent chat = new TextComponentString(getName());
-		return chat;
 	}
+
+    @Override
+    public void openInventory() {
+
+    }
+
+    @Override
+    public void closeInventory() {
+
+    }
+
+//    @Override
+//	public ITextComponent getDisplayName()
+//	{
+//		ITextComponent chat = new ChatComponentText(getName());
+//		return chat;
+//	}
+
+    @Override
+    public int[] getAccessibleSlotsFromSide(int p_94128_1_) {
+        return new int[0];
+    }
 }

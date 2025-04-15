@@ -14,7 +14,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.text.translation.I18n;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.world.World;
 
 public class GuiWaypointCompass extends GuiScreen
@@ -33,7 +33,7 @@ public class GuiWaypointCompass extends GuiScreen
 	private ItemWaypointCompass compassItem;
 	private int currxcoord;
 	private int currzcoord;
-	
+
 	public GuiWaypointCompass(World world, EntityPlayer player, ItemStack compassstack)
 	{
 		this.compassStack = compassstack;
@@ -52,12 +52,12 @@ public class GuiWaypointCompass extends GuiScreen
 		this.currxcoord = (int)player.posX;
 		this.currzcoord = (int)player.posZ;
 	}
-	
+
 	public void initNBTData()
 	{
-		
+
 	}
-	
+
 	@Override
 	public void initGui()
 	{
@@ -66,11 +66,11 @@ public class GuiWaypointCompass extends GuiScreen
     	buttonList.clear();
     	int widthRender = (this.width - this.guiImageWidth) / 2;
     	int heightRender = (this.height - this.guiImageHeight) / 2;
-    	buttonList.add(this.buttonAccept = new GuiButton(0, widthRender+145, heightRender+68, 64, 20, I18n.translateToLocal("gui.mapWaypoint.accept"))); 
-    	buttonList.add(this.buttonSetToCurrentLoc = new GuiButton(1, widthRender+47, heightRender+68, 64, 20, I18n.translateToLocal("gui.compass.currentlocation")));
-    	this.textField = new GuiBiblioTextField(this.fontRenderer, widthRender+17, heightRender+28, 222, 12);
-    	this.textFieldX = new GuiBiblioTextField(this.fontRenderer, widthRender+57, heightRender+52, 70, 12);
-    	this.textFieldZ = new GuiBiblioTextField(this.fontRenderer, widthRender+155, heightRender+52, 70, 12);
+    	buttonList.add(this.buttonAccept = new GuiButton(0, widthRender+145, heightRender+68, 64, 20, I18n.format("gui.mapWaypoint.accept")));
+    	buttonList.add(this.buttonSetToCurrentLoc = new GuiButton(1, widthRender+47, heightRender+68, 64, 20, I18n.format("gui.compass.currentlocation")));
+    	this.textField = new GuiBiblioTextField(this.fontRendererObj, widthRender+17, heightRender+28, 222, 12);
+    	this.textFieldX = new GuiBiblioTextField(this.fontRendererObj, widthRender+57, heightRender+52, 70, 12);
+    	this.textFieldZ = new GuiBiblioTextField(this.fontRendererObj, widthRender+155, heightRender+52, 70, 12);
     	this.textField.setEnableBackgroundDrawing(false);
     	this.textFieldX.setEnableBackgroundDrawing(false);
     	this.textFieldZ.setEnableBackgroundDrawing(false);
@@ -86,7 +86,7 @@ public class GuiWaypointCompass extends GuiScreen
     	this.textFieldX.setText(xText);
     	this.textFieldZ.setText(zText);
 	}
-	
+
     @Override
 	public void drawScreen(int x, int y, float f)
     {
@@ -98,19 +98,19 @@ public class GuiWaypointCompass extends GuiScreen
     	this.textField.drawTextBox();
     	this.textFieldX.drawTextBox();
     	this.textFieldZ.drawTextBox();
-    	this.drawString(fontRenderer, I18n.translateToLocal("gui.compass.x"), widthRender+42, heightRender+52, -1);
-    	this.drawString(fontRenderer, I18n.translateToLocal("gui.compass.z"), widthRender+140, heightRender+52, -1);
-    	
+    	this.drawString(fontRendererObj, I18n.format("gui.compass.x"), widthRender+42, heightRender+52, -1);
+    	this.drawString(fontRendererObj, I18n.format("gui.compass.z"), widthRender+140, heightRender+52, -1);
+
     	//this.drawString(par1fontRenderer, par2Str, par3, par4, par5)
     	super.drawScreen(x, y, f);
     }
-    
+
     @Override
 	public void updateScreen()
     {
         super.updateScreen();
     }
-    
+
     @Override
 	protected void actionPerformed(GuiButton click)
     {
@@ -118,7 +118,7 @@ public class GuiWaypointCompass extends GuiScreen
     	{
     		//sendPacket(true);
     		String xtest = textFieldX.getText();
-    		String ztest = textFieldZ.getText(); 
+    		String ztest = textFieldZ.getText();
     		boolean packet = sendPacket(xtest, ztest, textField.getText());
     		if (packet)
     		{
@@ -132,7 +132,7 @@ public class GuiWaypointCompass extends GuiScreen
     		textFieldZ.setText(""+this.currzcoord);
     	}
     }
-    
+
     private boolean sendPacket(String xcoord, String zcoord, String name)
     {
     	try
@@ -140,7 +140,7 @@ public class GuiWaypointCompass extends GuiScreen
     		int newXcoord = Integer.parseInt(xcoord);
     		int newZcoord = Integer.parseInt(zcoord);
     		ItemStack updatedCompass = compassItem.writeNBT(compassStack, newXcoord, newZcoord, name);
-    		if (updatedCompass != ItemStack.EMPTY)
+    		if (updatedCompass != null)
     		{
 		        try
 		        {
@@ -155,7 +155,7 @@ public class GuiWaypointCompass extends GuiScreen
 		            ex.printStackTrace();
 		        }
     		}
-    		
+
     	}
     	catch (NumberFormatException  ex)
     	{
@@ -164,48 +164,34 @@ public class GuiWaypointCompass extends GuiScreen
     	}
     	return false;
     }
-    
+
     @Override
     protected void mouseClicked(int par1, int par2, int par3)
     {
-        try 
-        {
-			super.mouseClicked(par1, par2, par3);
-		} 
-        catch (IOException e) 
-        {
-			e.printStackTrace();
-		}
+        super.mouseClicked(par1, par2, par3);
         this.textField.mouseClicked(par1, par2, par3);
         this.textFieldZ.mouseClicked(par1, par2, par3);
         this.textFieldX.mouseClicked(par1, par2, par3);
     }
-    
+
     @Override
     protected void keyTyped(char par1, int par2)
     {
     	if (this.textField.textboxKeyTyped(par1, par2))
     	{
-    		
+
     	}
     	else if (this.textFieldZ.textboxKeyTyped(par1, par2))
     	{
-    		
+
     	}
     	else if (this.textFieldX.textboxKeyTyped(par1, par2))
     	{
-    		
+
     	}
     	else
     	{
-    		try 
-    		{
-				super.keyTyped(par1, par2);
-			} 
-    		catch (IOException e) 
-    		{
-				e.printStackTrace();
-			}
-    	}
+            super.keyTyped(par1, par2);
+        }
     }
 }

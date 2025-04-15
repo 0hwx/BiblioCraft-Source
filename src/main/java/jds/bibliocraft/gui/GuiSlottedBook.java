@@ -2,6 +2,7 @@ package jds.bibliocraft.gui;
 
 import java.io.IOException;
 
+import com.mojang.realmsclient.gui.ChatFormatting;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
@@ -19,10 +20,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.translation.I18n;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
+import net.minecraft.client.resources.I18n;
+import cpw.mods.fml.common.network.ByteBufUtils;
 
 public class GuiSlottedBook extends GuiContainer
 {
@@ -34,25 +33,25 @@ public class GuiSlottedBook extends GuiContainer
 	private GuiBiblioTextField line5Field;
     private GuiButton buttonAccept;
     private GuiButton buttonCancel;
-    private ItemStack book = ItemStack.EMPTY;
-    private String title = I18n.translateToLocal("book.title"); 
-    private String line1 = I18n.translateToLocal("book.description"); 
+    private ItemStack book = null;
+    private String title = I18n.format("book.title");
+    private String line1 = I18n.format("book.description");
     private String line2 = "";
     private String line3 = "";
     private String line4 = "";
     private String line5 = "";
     private static ContainerSlottedBook container;
-    
+
     private boolean inHand = true;
     private int tilex = 0;
     private int tiley = 0;
     private int tilez = 0;
     private EntityPlayer player;
-    
+
 	public GuiSlottedBook(InventoryPlayer inventoryPlayer, ItemStack handStack, boolean inhand, int tx, int ty, int tz)
 	{
 		super(container = new ContainerSlottedBook(inventoryPlayer));
-		if (inventoryPlayer.getCurrentItem() != ItemStack.EMPTY)
+		if (inventoryPlayer.getCurrentItem() != null)
 		{
 			if (inventoryPlayer.getCurrentItem().getItem() instanceof ItemSlottedBook)
 			{
@@ -65,9 +64,9 @@ public class GuiSlottedBook extends GuiContainer
 		tilex = tx;
 		tiley = ty;
 		tilez = tz;
-		// 
+		//
 	}
-	
+
     public void getNBTTitleAndLines()
     {
     	NBTTagCompound nbt = book.getTagCompound();
@@ -96,13 +95,13 @@ public class GuiSlottedBook extends GuiContainer
     		}
     		else
     		{
-    		     title = I18n.translateToLocal("book.title");
-    		     line1 = I18n.translateToLocal("book.description");
+    		     title = I18n.format("book.title");
+    		     line1 = I18n.format("book.description");
     		     nbt.setBoolean("init", true);
     		}
     	}
     }
-    
+
     public void setNBTTitleAndLines()
     {
     	NBTTagCompound nbt = book.getTagCompound();
@@ -113,21 +112,21 @@ public class GuiSlottedBook extends GuiContainer
     	if (nbt != null)
     	{
 			NBTTagCompound display = new NBTTagCompound();
-			display.setString("Name", TextFormatting.WHITE+titleField.getText()); // TextFormatting.WHITE+
+			display.setString("Name", ChatFormatting.WHITE+titleField.getText()); // ChatFormatting.WHITE+
 			NBTTagCompound lines = new NBTTagCompound();
     		lines.setString("line1", line1Field.getText());
     		lines.setString("line2", line2Field.getText());
     		lines.setString("line3", line3Field.getText());
     		lines.setString("line4", line4Field.getText());
     		lines.setString("line5", line5Field.getText());
-    		
+
     		nbt.setTag("display", display);
     		nbt.setTag("lines", lines);
         	book.setTagCompound(nbt);
         	//System.out.println("saving NBT");
     	}
     }
-    
+
     @Override
     public void initGui()
     {
@@ -136,14 +135,14 @@ public class GuiSlottedBook extends GuiContainer
     	Keyboard.enableRepeatEvents(true);
 		int w = (width - 172) / 2;
 		int h = (height - 240) / 2;
-    	buttonList.add(this.buttonAccept = new GuiButton(0, w+100, h+104, 42, 20, I18n.translateToLocal("book.save"))); 
-    	buttonList.add(this.buttonCancel = new GuiButton(1, w+30, h+104, 42, 20, I18n.translateToLocal("book.cancel"))); 
-    	this.titleField = new GuiBiblioTextField(this.fontRenderer, w+31, h+15, 110, 12);
-    	this.line1Field = new GuiBiblioTextField(this.fontRenderer, w+31, h+54, 110, 12);
-    	this.line2Field = new GuiBiblioTextField(this.fontRenderer, w+31, h+64, 110, 12);
-    	this.line3Field = new GuiBiblioTextField(this.fontRenderer, w+31, h+74, 110, 12);
-    	this.line4Field = new GuiBiblioTextField(this.fontRenderer, w+31, h+84, 110, 12);
-    	this.line5Field = new GuiBiblioTextField(this.fontRenderer, (w+31), (h+94), 110, 12); // I has to multiple w and h by 1/scale of new scale to get position correct
+    	buttonList.add(this.buttonAccept = new GuiButton(0, w+100, h+104, 42, 20, I18n.format("book.save")));
+    	buttonList.add(this.buttonCancel = new GuiButton(1, w+30, h+104, 42, 20, I18n.format("book.cancel")));
+    	this.titleField = new GuiBiblioTextField(this.fontRendererObj, w+31, h+15, 110, 12);
+    	this.line1Field = new GuiBiblioTextField(this.fontRendererObj, w+31, h+54, 110, 12);
+    	this.line2Field = new GuiBiblioTextField(this.fontRendererObj, w+31, h+64, 110, 12);
+    	this.line3Field = new GuiBiblioTextField(this.fontRendererObj, w+31, h+74, 110, 12);
+    	this.line4Field = new GuiBiblioTextField(this.fontRendererObj, w+31, h+84, 110, 12);
+    	this.line5Field = new GuiBiblioTextField(this.fontRendererObj, (w+31), (h+94), 110, 12); // I has to multiple w and h by 1/scale of new scale to get position correct
     	this.titleField.setTextColor(0x000000);
     	this.line1Field.setTextColor(0x000000);
     	this.line2Field.setTextColor(0x000000);
@@ -169,16 +168,16 @@ public class GuiSlottedBook extends GuiContainer
     	this.line4Field.setEnableBackgroundDrawing(false);
     	this.line5Field.setEnableBackgroundDrawing(false);
     }
-	
+
 	@Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         super.drawScreen(mouseX, mouseY, partialTicks);
-        this.renderHoveredToolTip(mouseX, mouseY);
+//        this.renderHoveredToolTip(mouseX, mouseY);
     }
-	
+
 	@Override
-	protected void drawGuiContainerBackgroundLayer(float f, int x, int y) 
+	protected void drawGuiContainerBackgroundLayer(float f, int x, int y)
 	{
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		this.mc.getTextureManager().bindTexture(CommonProxy.SLOTTEDBOOKGUI);
@@ -195,14 +194,14 @@ public class GuiSlottedBook extends GuiContainer
 		this.line5Field.drawTextBox();
 		//GL11.glScalef(2f, 2f, 2f);
 	}
-	
+
 	@Override
 	protected void drawGuiContainerForegroundLayer(int var1, int var2)
 	{
-		
+
 	}
-	
-	
+
+
     @Override
 	protected void actionPerformed(GuiButton click)
     {
@@ -211,15 +210,15 @@ public class GuiSlottedBook extends GuiContainer
     	{
     		setNBTTitleAndLines();
     		sendPacket();
-    		this.mc.player.closeScreen();
+    		this.mc.thePlayer.closeScreen();
     		//System.out.println("called after?");
     	}
     	if (click.id == 1)
     	{
-    		this.mc.player.closeScreen();
+    		this.mc.thePlayer.closeScreen();
     	}
     }
-    
+
     public void sendPacket()
     {
     	ByteBuf buffer = Unpooled.buffer();
@@ -231,37 +230,30 @@ public class GuiSlottedBook extends GuiContainer
     	}
     	else
     	{
-			// TODO: no `currentPage` is specified? 
-			BiblioNetworking.INSTANCE.sendToServer(new BiblioMCBEdit(new BlockPos(tilex, tiley, tilez), 0, book));
+			// TODO: no `currentPage` is specified?
+			BiblioNetworking.INSTANCE.sendToServer(new BiblioMCBEdit(tilex, tiley, tilez, 0, book));
     		// buffer.writeInt(tilex);
         	// buffer.writeInt(tiley);
         	// buffer.writeInt(tilez);
         	// BiblioCraft.ch_BiblioMCBEdit.sendToServer(new FMLProxyPacket(new PacketBuffer(buffer), "BiblioMCBEdit"));
     	}
     }
-    
+
 	@Override
     protected void mouseClicked(int left, int top, int click)
     {
 		int w = (width - 172) / 2;
 		int h = (height - 240) / 2;
 		int heldSlot = this.player.inventory.currentItem;
-		
+
 		 if (left >= w+5+heldSlot*18 && left <= w+4+(heldSlot+1)*18 && top >= h+190 && top <= h+190+17)
 		 {
-			return; 
+			return;
 		 }
 		 else
 		 {
-			 try
-			{
-				super.mouseClicked(left, top, click);
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
-		 }
+             super.mouseClicked(left, top, click);
+         }
 
 		this.titleField.mouseClicked(left, top, click);
 		this.line1Field.mouseClicked(left, top, click);
@@ -271,14 +263,14 @@ public class GuiSlottedBook extends GuiContainer
 		this.line5Field.mouseClicked(left, top, click);
 
     }
-	
+
 	@Override
 	protected void keyTyped(char par1, int par2)
 	{
 		//System.out.println(this.line1Field.getCursorPosition());
         if (par2 == 1)
         {
-            this.mc.player.closeScreen();
+            this.mc.thePlayer.closeScreen();
         }
         if (par2 == 200)
         {
@@ -336,7 +328,7 @@ public class GuiSlottedBook extends GuiContainer
         		this.line4Field.setFocused(false);
         	}
         }
-        
+
         if (this.titleField.isFocused())
         {
         	if (par2 == 28)
@@ -348,7 +340,7 @@ public class GuiSlottedBook extends GuiContainer
         	{
         		this.titleField.textboxKeyTyped(par1, par2);
         	}
-        	
+
         }
         else if (this.line1Field.isFocused())
         {
@@ -365,7 +357,7 @@ public class GuiSlottedBook extends GuiContainer
         	}
         	else if (this.line1Field.getCursorPosition() == 0 && par2 == 14)
         	{
-        		
+
         	}
         	else
         	{
@@ -441,7 +433,7 @@ public class GuiSlottedBook extends GuiContainer
         	}
         	else
         	{
-        
+
         	this.line4Field.textboxKeyTyped(par1, par2);
         	}
         }
@@ -463,7 +455,7 @@ public class GuiSlottedBook extends GuiContainer
         	}
         }
 	}
-	
+
     @Override
     public void onGuiClosed()
     {

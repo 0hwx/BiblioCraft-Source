@@ -1,5 +1,9 @@
 package jds.bibliocraft.rendering;
 
+import net.minecraft.block.Block;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.item.ItemStack;
 import org.lwjgl.opengl.GL11;
 
 import jds.bibliocraft.CommonProxy;
@@ -8,15 +12,9 @@ import jds.bibliocraft.helpers.EnumPaintingFrame;
 import jds.bibliocraft.helpers.PaintingUtil;
 import jds.bibliocraft.tileentities.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityPainting;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.item.EntityPainting.EnumArt;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.model.Attributes;
-import net.minecraftforge.client.model.pipeline.LightUtil;
+
 
 public class TileEntityPaintingRenderer extends TileEntityBiblioRenderer
 {
@@ -39,15 +37,15 @@ public class TileEntityPaintingRenderer extends TileEntityBiblioRenderer
 	private int customPaintingAspectY = 1;
 	private boolean hideFrame = false;
 	private String customTex = "none";
-	private IBlockState state;
-	
+	private Block state;
+
 	@Override
-	public void render(BiblioTileEntity te, double x, double y, double z, float tick)
+	public void renderTileEntityAt(BiblioTileEntity te, double x, double y, double z, float tick)
 	{
 		TileEntityPainting tile = (TileEntityPainting)te;
 		if (state == null)
 		{
-			state = tile.getWorld().getBlockState(tile.getPos());
+			state = tile.getWorldObj().getBlock(tile.xCoord, tile.yCoord, tile.zCoord);
 		}
 		this.style = tile.getFrameStyle();
 		this.paintingType = tile.getPaintingType();
@@ -65,20 +63,20 @@ public class TileEntityPaintingRenderer extends TileEntityBiblioRenderer
 		this.customPaintingAspectY = tile.getCustomPaintingAspectY();
 		this.hideFrame = tile.getHideFrame();
 		this.customTex = tile.getCustomTextureString();
-		
+
         if (tile.hasPainting())
         {
-        	GlStateManager.pushMatrix();
-        	GlStateManager.disableLighting();
-        	GlStateManager.translate(x + xshift, y, z + zshift);
-        	GlStateManager.rotate(degreeAngle - 90.0F, 0.0F, 1.0F, 0.0F);
-        	GlStateManager.translate(0.01, 0.5, -0.5);
+        	GL11.glPushMatrix();
+        	RenderHelper.disableStandardItemLighting();
+        	GL11.glTranslated(x + xshift, y, z + zshift);
+        	GL11.glRotatef(degreeAngle - 90.0F, 0.0F, 1.0F, 0.0F);
+        	GL11.glTranslated(0.01, 0.5, -0.5);
 	        bindTexture(CommonProxy.PAINTINGCANVAS);
-	        GlStateManager.rotate(-this.paintingRotation*90, 1.0f, 0.0f, 0.0f);
+	        GL11.glRotatef(-this.paintingRotation*90, 1.0f, 0.0f, 0.0f);
 	        switch (this.paintingMasterCorner)
 	        {
 	        	case 0:
-	        	{ 
+	        	{
 	        		switch (this.paintingRotation)
 	        		{
 	        			case 1:{this.paintingMasterCorner = 3; break;}
@@ -88,7 +86,7 @@ public class TileEntityPaintingRenderer extends TileEntityBiblioRenderer
 	        		break;
 	        	}
 	        	case 1:
-	        	{ 
+	        	{
 	        		switch (this.paintingRotation)
 	        		{
 	        			case 1:{this.paintingMasterCorner = 0; break;}
@@ -98,7 +96,7 @@ public class TileEntityPaintingRenderer extends TileEntityBiblioRenderer
 	        		break;
 	        	}
 	        	case 2:
-	        	{ 
+	        	{
 	        		switch (this.paintingRotation)
 	        		{
 	        			case 1:{this.paintingMasterCorner = 1; break;}
@@ -108,7 +106,7 @@ public class TileEntityPaintingRenderer extends TileEntityBiblioRenderer
 	        		break;
 	        	}
 	        	case 3:
-	        	{ 
+	        	{
 	        		switch (this.paintingRotation)
 	        		{
 	        			case 1:{this.paintingMasterCorner = 2; break;}
@@ -129,13 +127,13 @@ public class TileEntityPaintingRenderer extends TileEntityBiblioRenderer
 	        				bindTexture(this.biblioArtList[i].paintingTextures[this.paintingAspectRatio][this.paintingPixelRes]);
 	        		        switch (this.paintingMasterCorner)
 	        		        {
-	        		        	case 0:{ GlStateManager.translate(0.0, -0.5+(0.5*this.biblioArtList[i].sizeY[this.paintingAspectRatio]*this.paintingScale),  0.5-(0.5*this.biblioArtList[i].sizeX[this.paintingAspectRatio]*this.paintingScale)); break; }
-	        		        	case 1:{ GlStateManager.translate(0.0,  0.5-(0.5*this.biblioArtList[i].sizeY[this.paintingAspectRatio]*this.paintingScale),  0.5-(0.5*this.biblioArtList[i].sizeX[this.paintingAspectRatio]*this.paintingScale)); break; }
-	        		        	case 2:{ GlStateManager.translate(0.0,  0.5-(0.5*this.biblioArtList[i].sizeY[this.paintingAspectRatio]*this.paintingScale), -0.5+(0.5*this.biblioArtList[i].sizeX[this.paintingAspectRatio]*this.paintingScale)); break; }
-	        		        	case 3:{ GlStateManager.translate(0.0, -0.5+(0.5*this.biblioArtList[i].sizeY[this.paintingAspectRatio]*this.paintingScale), -0.5+(0.5*this.biblioArtList[i].sizeX[this.paintingAspectRatio]*this.paintingScale)); break; }
+	        		        	case 0:{ GL11.glTranslated(0.0, -0.5+(0.5*this.biblioArtList[i].sizeY[this.paintingAspectRatio]*this.paintingScale),  0.5-(0.5*this.biblioArtList[i].sizeX[this.paintingAspectRatio]*this.paintingScale)); break; }
+	        		        	case 1:{ GL11.glTranslated(0.0,  0.5-(0.5*this.biblioArtList[i].sizeY[this.paintingAspectRatio]*this.paintingScale),  0.5-(0.5*this.biblioArtList[i].sizeX[this.paintingAspectRatio]*this.paintingScale)); break; }
+	        		        	case 2:{ GL11.glTranslated(0.0,  0.5-(0.5*this.biblioArtList[i].sizeY[this.paintingAspectRatio]*this.paintingScale), -0.5+(0.5*this.biblioArtList[i].sizeX[this.paintingAspectRatio]*this.paintingScale)); break; }
+	        		        	case 3:{ GL11.glTranslated(0.0, -0.5+(0.5*this.biblioArtList[i].sizeY[this.paintingAspectRatio]*this.paintingScale), -0.5+(0.5*this.biblioArtList[i].sizeX[this.paintingAspectRatio]*this.paintingScale)); break; }
 	        		        }
-	        		       GlStateManager.scale(1.0, 1.0*this.biblioArtList[i].sizeY[this.paintingAspectRatio]*this.paintingScale, 1.0*this.biblioArtList[i].sizeX[this.paintingAspectRatio]*this.paintingScale);
-	        		       
+	        		       GL11.glScaled(1.0, 1.0*this.biblioArtList[i].sizeY[this.paintingAspectRatio]*this.paintingScale, 1.0*this.biblioArtList[i].sizeX[this.paintingAspectRatio]*this.paintingScale);
+
 	        			}
 	        		}
 	        		break;
@@ -149,12 +147,12 @@ public class TileEntityPaintingRenderer extends TileEntityBiblioRenderer
 	        				double aspectDiff = (this.vanillaArtList[i].sizeX*1.0) / (this.vanillaArtList[i].sizeY*1.0);
 	        				switch (this.paintingMasterCorner)
 	        				{
-	        					case 0:{GlStateManager.translate(0.0, -0.5+(0.5*(this.paintingScale*(this.vanillaArtList[i].sizeY/16.0))),  0.5-(0.5*(this.paintingScale*(this.vanillaArtList[i].sizeX/16.0))));break;}
-	        					case 1:{GlStateManager.translate(0.0,  0.5-((this.vanillaArtList[i].sizeY/16.0)*this.paintingScale)+(0.5*(this.paintingScale*(this.vanillaArtList[i].sizeY/16.0))),  0.5-(0.5*(this.paintingScale*(this.vanillaArtList[i].sizeX/16.0))));break;}
-	        					case 2:{GlStateManager.translate(0.0,  0.5-((this.vanillaArtList[i].sizeY/16.0)*this.paintingScale)+(0.5*(this.paintingScale*(this.vanillaArtList[i].sizeY/16.0))),  -0.5+((this.vanillaArtList[i].sizeX/16.0)*this.paintingScale)-(0.5*(this.paintingScale*(this.vanillaArtList[i].sizeX/16.0))));break;}
-	        					case 3:{GlStateManager.translate(0.0, -0.5+(0.5*(this.paintingScale*(this.vanillaArtList[i].sizeY/16.0))),  -0.5+((this.vanillaArtList[i].sizeX/16.0)*this.paintingScale)-(0.5*(this.paintingScale*(this.vanillaArtList[i].sizeX/16.0))));break;}
+	        					case 0:{GL11.glTranslated(0.0, -0.5+(0.5*(this.paintingScale*(this.vanillaArtList[i].sizeY/16.0))),  0.5-(0.5*(this.paintingScale*(this.vanillaArtList[i].sizeX/16.0))));break;}
+	        					case 1:{GL11.glTranslated(0.0,  0.5-((this.vanillaArtList[i].sizeY/16.0)*this.paintingScale)+(0.5*(this.paintingScale*(this.vanillaArtList[i].sizeY/16.0))),  0.5-(0.5*(this.paintingScale*(this.vanillaArtList[i].sizeX/16.0))));break;}
+	        					case 2:{GL11.glTranslated(0.0,  0.5-((this.vanillaArtList[i].sizeY/16.0)*this.paintingScale)+(0.5*(this.paintingScale*(this.vanillaArtList[i].sizeY/16.0))),  -0.5+((this.vanillaArtList[i].sizeX/16.0)*this.paintingScale)-(0.5*(this.paintingScale*(this.vanillaArtList[i].sizeX/16.0))));break;}
+	        					case 3:{GL11.glTranslated(0.0, -0.5+(0.5*(this.paintingScale*(this.vanillaArtList[i].sizeY/16.0))),  -0.5+((this.vanillaArtList[i].sizeX/16.0)*this.paintingScale)-(0.5*(this.paintingScale*(this.vanillaArtList[i].sizeX/16.0))));break;}
 	        				}
-	        				GlStateManager.scale(1.0, 1.0*(this.paintingScale*(this.vanillaArtList[i].sizeY/16.0)), 1.0*(this.paintingScale*(this.vanillaArtList[i].sizeX/16.0)));
+	        				GL11.glScaled(1.0, 1.0*(this.paintingScale*(this.vanillaArtList[i].sizeY/16.0)), 1.0*(this.paintingScale*(this.vanillaArtList[i].sizeX/16.0)));
 	        				bindTexture(CommonProxy.PAINTINGSHEET);
 	        				renderVanillaPainting(i);
 	        			}
@@ -173,24 +171,24 @@ public class TileEntityPaintingRenderer extends TileEntityBiblioRenderer
 	    						bindTexture(PaintingUtil.customArtResources[i]);
 	    						switch (this.paintingMasterCorner)
 		        		        {
-		        		        	case 0:{ GlStateManager.translate(0.0, -0.5+(0.5*this.paintingScale*this.customPaintingAspectY),  0.5-(0.5*this.paintingScale*this.customPaintingAspectX)); break; }
-		        		        	case 1:{ GlStateManager.translate(0.0,  0.5-(0.5*this.paintingScale*this.customPaintingAspectY),  0.5-(0.5*this.paintingScale*this.customPaintingAspectX)); break; }
-		        		        	case 2:{ GlStateManager.translate(0.0,  0.5-(0.5*this.paintingScale*this.customPaintingAspectY), -0.5+(0.5*this.paintingScale*this.customPaintingAspectX)); break; }
-		        		        	case 3:{ GlStateManager.translate(0.0, -0.5+(0.5*this.paintingScale*this.customPaintingAspectY), -0.5+(0.5*this.paintingScale*this.customPaintingAspectX)); break; }
+		        		        	case 0:{ GL11.glTranslated(0.0, -0.5+(0.5*this.paintingScale*this.customPaintingAspectY),  0.5-(0.5*this.paintingScale*this.customPaintingAspectX)); break; }
+		        		        	case 1:{ GL11.glTranslated(0.0,  0.5-(0.5*this.paintingScale*this.customPaintingAspectY),  0.5-(0.5*this.paintingScale*this.customPaintingAspectX)); break; }
+		        		        	case 2:{ GL11.glTranslated(0.0,  0.5-(0.5*this.paintingScale*this.customPaintingAspectY), -0.5+(0.5*this.paintingScale*this.customPaintingAspectX)); break; }
+		        		        	case 3:{ GL11.glTranslated(0.0, -0.5+(0.5*this.paintingScale*this.customPaintingAspectY), -0.5+(0.5*this.paintingScale*this.customPaintingAspectX)); break; }
 		        		        }
-	    						GlStateManager.scale(1.0, 1.0*this.paintingScale*this.customPaintingAspectY, 1.0*this.paintingScale*this.customPaintingAspectX);
+	    						GL11.glScaled(1.0, 1.0*this.paintingScale*this.customPaintingAspectY, 1.0*this.paintingScale*this.customPaintingAspectX);
 	    						foundMatch = true;
 	    					}
 	    				}
 	    			}
 	        		if (!foundMatch)
 	        		{
-	        			bindTexture(CommonProxy.PAINTINGNOTFOUND); 
+	        			bindTexture(CommonProxy.PAINTINGNOTFOUND);
 	        		}
 	        		break;
 				}
 	        }
-	        
+
 	        if (!connectedBottom && !connectedLeft && !connectedRight && !connectedTop && (this.style != EnumPaintingFrame.BORDERLESS) && this.paintingType != 1 && this.paintingScale == 1 && this.paintingAspectRatio == 0)
 	        {
 				renderPainting(true);
@@ -202,36 +200,37 @@ public class TileEntityPaintingRenderer extends TileEntityBiblioRenderer
 	        		renderPainting(false);
 	        	}
 	        }
-	        GlStateManager.enableLighting();
-	        GlStateManager.popMatrix();
+	        RenderHelper.enableStandardItemLighting();
+	        GL11.glPopMatrix();
         }
 	}
-	
-	private void renderPart(IBakedModel model)
-	{
-	    worldRenderer.begin(GL11.GL_QUADS, Attributes.DEFAULT_BAKED_FORMAT);
-	    for (BakedQuad quad :  model.getQuads(null, null, 0))
-		{
-			LightUtil.renderQuadColor(worldRenderer, quad, 0xFFFFFFFF);
-		}
-		tessellator.draw();
-	}
-	
+
+//	private void renderPart(IBakedModel model)
+//	{
+//	    worldRenderer.begin(GL11.GL_QUADS, Attributes.DEFAULT_BAKED_FORMAT);
+//	    for (BakedQuad quad :  model.getQuads(null, null, 0))
+//		{
+//			LightUtil.renderQuadColor(worldRenderer, quad, 0xFFFFFFFF);
+//		}
+//		tessellator.draw();
+//	}
+
 	private void renderVanillaPainting(int i)
 	{
         float x1 = (float)(vanillaArtList[i].offsetX) / 256.0F;
         float x2 = (float)(vanillaArtList[i].offsetX + vanillaArtList[i].sizeX) / 256.0F;
         float y1 = (float)(vanillaArtList[i].offsetY) / 256.0F;
         float y2 = (float)(vanillaArtList[i].offsetY + vanillaArtList[i].sizeY) / 256.0F;
-        worldRenderer.begin(7, DefaultVertexFormats.POSITION_TEX);
-        worldRenderer.pos(0.024, -0.5, -0.5).tex(x2, y2).endVertex();
-        worldRenderer.pos(0.024,  0.5, -0.5).tex(x2, y1).endVertex();
-        worldRenderer.pos(0.024,  0.5,  0.5).tex(x1, y1).endVertex();
-        worldRenderer.pos(0.024, -0.5,  0.5).tex(x1, y2).endVertex();
+        Tessellator tessellator = Tessellator.instance;
+        tessellator.startDrawingQuads();
+        tessellator.addVertexWithUV(0.024, -0.5, -0.5, x2, y2);
+        tessellator.addVertexWithUV(0.024,  0.5, -0.5, x2, y1);
+        tessellator.addVertexWithUV(0.024,  0.5,  0.5, x1, y1);
+        tessellator.addVertexWithUV(0.024, -0.5,  0.5, x1, y2);
 		tessellator.draw();
 	}
-	
-	
+
+
 	// TODO I think these are left to right reveresed. Check it out
 	private void renderPainting(boolean smallCanvas)
 	{
@@ -240,11 +239,12 @@ public class TileEntityPaintingRenderer extends TileEntityBiblioRenderer
 		{
 			adjust = 0.1;
 		}
-        worldRenderer.begin(7, DefaultVertexFormats.POSITION_TEX);
-        worldRenderer.pos(0.028, -0.5 + adjust, -0.5 + adjust).tex(1.0, 1.0).endVertex();
-        worldRenderer.pos(0.028,  0.5 - adjust, -0.5 + adjust).tex(1.0, 0.0).endVertex();
-        worldRenderer.pos(0.028,  0.5 - adjust,  0.5 - adjust).tex(0.0, 0.0).endVertex();
-        worldRenderer.pos(0.028, -0.5 + adjust,  0.5 - adjust).tex(0.0, 1.0).endVertex();
+        Tessellator tessellator = Tessellator.instance;
+        tessellator.startDrawingQuads();
+        tessellator.addVertexWithUV(-0.028, -0.5 + adjust, -0.5 + adjust, 0.0, 1.0);
+        tessellator.addVertexWithUV(-0.028,  0.5 - adjust, -0.5 + adjust, 0.0, 0.0);
+        tessellator.addVertexWithUV(-0.028,  0.5 - adjust,  0.5 - adjust, 1.0, 0.0);
+        tessellator.addVertexWithUV(-0.028, -0.5 + adjust,  0.5 - adjust, 1.0, 1.0);
 		tessellator.draw();
 	}
 }

@@ -6,16 +6,12 @@ import java.util.List;
 import jds.bibliocraft.blocks.BlockFramedChest;
 import jds.bibliocraft.containers.ContainerFramedChest;
 import jds.bibliocraft.helpers.BiblioSortingHelper;
+import net.minecraft.client.renderer.texture.ITickable;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ITickable;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.AxisAlignedBB;
 
 public class TileEntityFramedChest extends BiblioTileEntity implements ITickable
 {
@@ -24,27 +20,27 @@ public class TileEntityFramedChest extends BiblioTileEntity implements ITickable
 	private ItemStack labelStack = null;
 	private boolean isDouble = false;
 	private boolean isLeft = true;
-	
+
 	private int ticksSinceSync = 0;
 	private int numPlayersUsing = 0;
 	private float prevLidAngle = 0.0f;
 	private float lidAngle = 0.0f;
-	
+
 	public TileEntityFramedChest adjacentDoubleChest = null;
 	//public ResourceLocation customChestFillerTexture = null;
 
 
-	
+
 	public TileEntityFramedChest()
 	{
 		super(27, true);
 	}
-	
+
 	public float getPrevLidAngle()
 	{
 		return this.prevLidAngle;
 	}
-	
+
 	public void addUsingPlayer(boolean add)
 	{
 		if (add)
@@ -59,9 +55,9 @@ public class TileEntityFramedChest extends BiblioTileEntity implements ITickable
 				this.numPlayersUsing = 0;
 			}
 		}
-		getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+        getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
-	
+
 	public ItemStack getLabelStack()
 	{
 		return this.labelStack;
@@ -70,57 +66,82 @@ public class TileEntityFramedChest extends BiblioTileEntity implements ITickable
 	{
 		this.labelStack = stack;
 	}
-	
+
 	public boolean getIsDouble()
 	{
 		return this.isDouble;
 	}
-	
+
 	public boolean getIsLeft()
 	{
 		return this.isLeft;
 	}
-	
+
 	public void setIsDouble(boolean dub, boolean left, TileEntityFramedChest secondChest)
 	{
 		this.isDouble = dub;
 		this.isLeft = left;
 		this.adjacentDoubleChest = secondChest;
-		getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+        getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
-	
+
 	public void setAdjacentChest(TileEntityFramedChest secondChest)
 	{
 		this.adjacentDoubleChest = secondChest;
 	}
 
-	@Override
+    @Override
+    public ItemStack getStackInSlotOnClosing(int index) {
+        return null;
+    }
+
+    @Override
+    public String getInventoryName() {
+        return "";
+    }
+
+    @Override
+    public boolean hasCustomInventoryName() {
+        return false;
+    }
+
+    @Override
 	public int getInventoryStackLimit()
 	{
 		return 64;
 	}
 
+    @Override
+    public void openInventory() {
+
+    }
+
+    @Override
+    public void closeInventory() {
+
+    }
+
     public void setOpenChest(boolean chest)
     {
     	this.openChest = chest;
-    	getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+        getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
     }
     public boolean getOpenChest()
     {
     	return this.openChest;
     }
-	
+
 	@Override
-    public void update()
+    public void tick()
     {
-        
+
         ++this.ticksSinceSync;
         float f;
-        if (!this.world.isRemote && this.numPlayersUsing != 0 && (this.ticksSinceSync + this.pos.getX() + this.pos.getY() + this.pos.getZ()) % 200 == 0)
+        if (!this.worldObj.isRemote && this.numPlayersUsing != 0 && (this.ticksSinceSync + this.xCoord + this.yCoord + this.zCoord) % 200 == 0)
         {
             this.numPlayersUsing = 0;
             f = 5.0F;
-            List list = this.world.getEntitiesWithinAABB(EntityPlayer.class, new AxisAlignedBB((double)((float)this.pos.getX() - f), (double)((float)this.pos.getY() - f), (double)((float)this.pos.getZ() - f), (double)((float)(this.pos.getX() + 1) + f), (double)((float)(this.pos.getY() + 1) + f), (double)((float)(this.pos.getZ() + 1) + f)));
+            List list = this.worldObj.getEntitiesWithinAABB(EntityPlayer.class, AxisAlignedBB.getBoundingBox(((float)this.xCoord - f), ((float)this.yCoord - f), ((float)this.zCoord - f), ((float)(this.xCoord + 1) + f), ((float)(this.yCoord + 1) + f), ((float)(this.zCoord + 1) + f)));
             Iterator iterator = list.iterator();
 
             while (iterator.hasNext())
@@ -144,24 +165,24 @@ public class TileEntityFramedChest extends BiblioTileEntity implements ITickable
         f = 0.1F;
         double d2;
 
-        if (this.numPlayersUsing > 0 && this.lidAngle == 0.0F && !this.world.isRemote)
+        if (this.numPlayersUsing > 0 && this.lidAngle == 0.0F && !this.worldObj.isRemote)
         {
-            double d1 = (double)this.pos.getX() + 0.5D;
-            d2 = (double)this.pos.getZ() + 0.5D;
+            double d1 = (double)this.xCoord + 0.5D;
+            d2 = (double)this.zCoord + 0.5D;
             if (this.getIsDouble() && this.adjacentDoubleChest != null)
             {
-                if (this.adjacentDoubleChest.pos.getZ() == (this.pos.getZ()+1)) //zpos
+                if (this.adjacentDoubleChest.zCoord == (this.zCoord +1)) //zpos
                 {
                     d2 += 0.5D;
                 }
-                if (this.adjacentDoubleChest.pos.getX() == (this.pos.getX()+1)) //xpos
+                if (this.adjacentDoubleChest.xCoord == (this.xCoord +1)) //xpos
                 {
                     d1 += 0.5D;
                 }
             }
             if ((this.getIsDouble() && this.getIsLeft()) || !this.getIsDouble())
             {
-            	this.getWorld().playSound(null, d1, (double)this.pos.getY() + 0.5D, d2, SoundEvents.BLOCK_CHEST_OPEN, SoundCategory.BLOCKS, 0.5F, this.world.rand.nextFloat() * 0.1F + 0.9F);
+            	this.getWorldObj().playSoundEffect(d1, yCoord + 0.5D, d2, "random.chestopen",  0.5F, this.worldObj.rand.nextFloat() * 0.1F + 0.9F);
             }
         }
 
@@ -183,21 +204,21 @@ public class TileEntityFramedChest extends BiblioTileEntity implements ITickable
             {
                 this.lidAngle = 1.0F;
             }
-            
+
             float f2 = 0.5F;
             // here is where we deal with the lid closing sound
-            if (this.lidAngle < f2 && f1 >= f2 && !this.world.isRemote)
+            if (this.lidAngle < f2 && f1 >= f2 && !this.worldObj.isRemote)
             {
-                d2 = (double)this.pos.getX() + 0.5D;
-                double d0 = (double)this.pos.getZ() + 0.5D;
+                d2 = (double)this.xCoord + 0.5D;
+                double d0 = (double)this.zCoord + 0.5D;
 
                 if (this.getIsDouble() && this.adjacentDoubleChest != null)
                 {
-	                if (this.adjacentDoubleChest.pos.getZ() == (this.pos.getZ()+1)) //zpos
+	                if (this.adjacentDoubleChest.zCoord == (this.zCoord +1)) //zpos
 	                {
 	                    d0 += 0.5D;
 	                }
-	                if (this.adjacentDoubleChest.pos.getX() == (this.pos.getX()+1)) //xpos
+	                if (this.adjacentDoubleChest.xCoord == (this.xCoord +1)) //xpos
 	                {
 	                    d2 += 0.5D;
 	                }
@@ -205,7 +226,7 @@ public class TileEntityFramedChest extends BiblioTileEntity implements ITickable
 
                 if ((this.getIsDouble() && this.getIsLeft()) || !this.getIsDouble())
                 {
-                	this.getWorld().playSound(null, d2, (double)this.pos.getY() + 0.5D, d0, SoundEvents.BLOCK_CHEST_CLOSE, SoundCategory.BLOCKS, 0.5F, this.world.rand.nextFloat() * 0.1F + 0.9F);
+                	this.getWorldObj().playSoundEffect(d2, (double)this.yCoord + 0.5D, d0, "random.chestopen", 0.5F, this.worldObj.rand.nextFloat() * 0.1F + 0.9F);
                 }
             }
 
@@ -213,27 +234,27 @@ public class TileEntityFramedChest extends BiblioTileEntity implements ITickable
             {
                 this.lidAngle = 0.0F;
             }
-        }    
+        }
     }
-	
+
 	public void setLidAngle(float langle)
 	{
 		this.lidAngle = langle;
-		getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+        getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
-	
+
 	public float getLidAngle()
 	{
 		return this.lidAngle;
 	}
-	
+
 	private boolean checkIfIsAdjacentDoubleChest(TileEntityFramedChest tile)
 	{
 		if (tile != null && this.adjacentDoubleChest != null)
 		{
 			if (tile.getIsDouble() && this.adjacentDoubleChest.getIsDouble() && this.getIsDouble() && this.getIsLeft())
 			{
-				if (tile.pos.getX() == this.adjacentDoubleChest.pos.getX() && tile.pos.getY() == this.adjacentDoubleChest.pos.getY() && tile.pos.getZ() == this.adjacentDoubleChest.pos.getZ())
+				if (tile.xCoord == this.adjacentDoubleChest.xCoord && tile.yCoord == this.adjacentDoubleChest.yCoord && tile.zCoord == this.adjacentDoubleChest.zCoord)
 				{
 					return true;
 				}
@@ -242,35 +263,35 @@ public class TileEntityFramedChest extends BiblioTileEntity implements ITickable
 		return false;
 	}
 
-	@Override
-	public String getName() 
-	{
-		return BlockFramedChest.name;
-	}
+//	@Override
+//	public String getName()
+//	{
+//		return BlockFramedChest.name;
+//	}
 
 	@Override
-	public void setInventorySlotContentsAdditionalCommands(int slot, ItemStack stack) 
+	public void setInventorySlotContentsAdditionalCommands(int slot, ItemStack stack)
 	{
 		ItemStack bestStack = BiblioSortingHelper.getLargestStackInList(BiblioSortingHelper.getStackForBuiltinLabel(this));
-		if (bestStack != ItemStack.EMPTY)
+		if (bestStack != null)
 		{
-			bestStack.setCount(1);
+			bestStack.stackSize = (1);
 		}
 		this.labelStack = bestStack;
 	}
 
 	@Override
-	public void loadCustomNBTData(NBTTagCompound nbt) 
+	public void loadCustomNBTData(NBTTagCompound nbt)
 	{
 		this.openChest = nbt.getBoolean("openChest");
 		this.isDouble = nbt.getBoolean("isDouble");
 		this.isLeft = nbt.getBoolean("isLeft");
 		this.numPlayersUsing = nbt.getInteger("numPlayersUsing");
-		this.labelStack = new ItemStack(nbt.getCompoundTag("labelStack"));
+		this.labelStack = ItemStack.loadItemStackFromNBT(nbt.getCompoundTag("labelStack"));
 	}
 
 	@Override
-	public NBTTagCompound writeCustomNBTData(NBTTagCompound nbt) 
+	public NBTTagCompound writeCustomNBTData(NBTTagCompound nbt)
 	{
     	nbt.setBoolean("openChest", this.openChest);
     	nbt.setBoolean("isDouble", this.isDouble);
@@ -286,11 +307,16 @@ public class TileEntityFramedChest extends BiblioTileEntity implements ITickable
     	}
 		return nbt;
 	}
-    
-	@Override
-	public ITextComponent getDisplayName() 
-	{
-		ITextComponent chat = new TextComponentString(getName());
-		return chat;
-	}
+
+//	@Override
+//	public ITextComponent getDisplayName()
+//	{
+//		ITextComponent chat = new ChatComponentText(getName());
+//		return chat;
+//	}
+
+    @Override
+    public int[] getAccessibleSlotsFromSide(int p_94128_1_) {
+        return new int[0];
+    }
 }

@@ -1,5 +1,6 @@
 package jds.bibliocraft;
 
+import cpw.mods.fml.common.registry.GameRegistry;
 import jds.bibliocraft.blocks.BlockArmorStand;
 import jds.bibliocraft.blocks.BlockBell;
 import jds.bibliocraft.blocks.BlockBookcase;
@@ -37,6 +38,7 @@ import jds.bibliocraft.blocks.BlockTable;
 import jds.bibliocraft.blocks.BlockToolRack;
 import jds.bibliocraft.blocks.BlockTypeWriter;
 import jds.bibliocraft.blocks.BlockTypesettingTable;
+import jds.bibliocraft.blocks.blockitems.BiblioWoodBlockItem;
 import jds.bibliocraft.blocks.blockitems.BlockItemArmorStand;
 import jds.bibliocraft.blocks.blockitems.BlockItemBookcase;
 import jds.bibliocraft.blocks.blockitems.BlockItemBookcaseCreative;
@@ -67,10 +69,11 @@ import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
-import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.client.IItemRenderer;
+import net.minecraftforge.client.MinecraftForgeClient;
 
-public class BlockLoader 
-{	
+public class BlockLoader
+{
     public static String[] dyes =
     {
         "dyeWhite",
@@ -90,9 +93,9 @@ public class BlockLoader
         "dyePink",
         "dyeBrown"
     };
-	
+
     public static String[] dyes2 =
-    {        
+    {
         "dyeBlack",
         "dyeRed",
         "dyeGreen",
@@ -109,288 +112,288 @@ public class BlockLoader
         "dyeMagenta",
         "dyeOrange",
         "dyeWhite"
-        
+
     };
-	
+
 	public static int creativetabID = CreativeTabs.getNextID();
-	
+
 	public static final CreativeTabs biblioTab = new BiblioTab("BiblioCraft");
 	public static CreativeTabs biblioLightsTab;// = new BiblioLightsTab("BiblioCraftLights");
 	public static void initLightTab()
 	{
 		biblioLightsTab = new BiblioLightsTab("BiblioCraftLights");
 	}
-	
+
 	/** The number of woods starting at 0 so easy use in loops.  */
 	public final static int NUMBER_OF_WOODS = 6;
-	
-	
-	
-	/** BiblioBlocks */ 
+
+
+
+	/** BiblioBlocks */
 	/*
 	@ObjectHolder(BlockBookcase.name)
 	public static final Block bookcase_block = BlockBookcase.instance;
 	@ObjectHolder(BlockBookcase.name)
 	public static final Item bookcase_item = BlockItemBookcase.instance;
 	*/
-	
 
-	
-	public static void initBlocks(RegistryEvent.Register<Block> event)
+
+
+	public static void initBlocks()
 	{
 		if (Config.enableBookcase)
 		{
-			event.getRegistry().register(BlockBookcase.instance);
-			event.getRegistry().register(BlockBookcaseCreative.instance);
+            GameRegistry.registerBlock(BlockBookcase.instance, BlockItemBookcase.class ,BlockBookcase.name);
+            GameRegistry.registerBlock(BlockBookcaseCreative.instance, BlockItemBookcaseCreative.class, BlockBookcaseCreative.name);
 		}
 		if (Config.enableGenericshelf)
-		{	
-			event.getRegistry().register(BlockShelf.instance);
+		{
+            GameRegistry.registerBlock(BlockShelf.instance,BlockItemShelf.class, BlockShelf.name);
 		}
 		if (Config.enableTapemeasure)
 		{
-			event.getRegistry().register(BlockMarkerPole.instance);
+            GameRegistry.registerBlock(BlockMarkerPole.instance, BlockMarkerPole.name);
 		}
 		if (Config.enableClipboard)
 		{
-			event.getRegistry().register(BlockClipboard.instance);
+            GameRegistry.registerBlock(BlockClipboard.instance, BlockClipboard.name);
 		}
-		
+
 		if (Config.enableLantern)
-		{	
-			event.getRegistry().register(BlockLanternGold.instance);
-			event.getRegistry().register(BlockLanternIron.instance);
+		{
+//            GameRegistry.registerBlock(BlockLanternGold.instance,BlockItemLantern.class, BlockLanternGold.name);
+//            GameRegistry.registerBlock(BlockLanternIron.instance,BlockItemLantern.class, BlockLanternIron.name);
 		}
 		if (Config.enableLamp)
-		{	
-			event.getRegistry().register(BlockLampGold.instance);
-			event.getRegistry().register(BlockLampIron.instance);
+		{
+//            GameRegistry.registerBlock(BlockLampGold.instance, BlockItemLamp.class, BlockLampGold.name);
+//            GameRegistry.registerBlock(BlockLampIron.instance, BlockItemLamp.class, BlockLampIron.name);
 		}
 		if (Config.enableFurniturePaneler)
 		{
-			event.getRegistry().register(BlockFurniturePaneler.instance);
+            GameRegistry.registerBlock(BlockFurniturePaneler.instance,BlockItemFurniturePaneler.class, BlockFurniturePaneler.name);
 		}
 		if (Config.enableFramedChest)
 		{
-			event.getRegistry().register(BlockFramedChest.instance);
+            GameRegistry.registerBlock(BlockFramedChest.instance,BlockItemFramedChest.class, BlockFramedChest.name);
 		}
 		if (Config.enableFancySign)
 		{
-			event.getRegistry().register(BlockFancySign.instance);
+            GameRegistry.registerBlock(BlockFancySign.instance,BlockItemFancySign.class, BlockFancySign.name);
 		}
 		if (Config.enableFancyWorkbench)
 		{
-			event.getRegistry().register(BlockFancyWorkbench.instance);
+            GameRegistry.registerBlock(BlockFancyWorkbench.instance,BlockItemFancyWorkbench.class, BlockFancyWorkbench.name);
 		}
 		if (Config.enablePotionshelf)
 		{
-			event.getRegistry().register(BlockPotionShelf.instance);
+            GameRegistry.registerBlock(BlockPotionShelf.instance,BlockItemPotionShelf.class, BlockPotionShelf.name);
 		}
 		if (Config.enableToolrack)
-		{	
-			event.getRegistry().register(BlockToolRack.instance);
+		{
+            GameRegistry.registerBlock(BlockToolRack.instance,BlockItemToolRack.class, BlockToolRack.name);
 		}
 		if (Config.enableWoodLabel)
-		{	
-			event.getRegistry().register(BlockLabel.instance);
+		{
+            GameRegistry.registerBlock(BlockLabel.instance,BlockItemLabel.class, BlockLabel.name);
 		}
 		if (Config.enableWritingdesk)
-		{	
-			event.getRegistry().register(BlockDesk.instance);
+		{
+            GameRegistry.registerBlock(BlockDesk.instance,BlockItemDesk.class, BlockDesk.name);
 		}
 		if (Config.enableTable)
-		{	
-			event.getRegistry().register(BlockTable.instance);
+		{
+            GameRegistry.registerBlock(BlockTable.instance,BlockItemTable.class, BlockTable.name);
 		}
 		if (Config.enableSeat)
 		{
-			event.getRegistry().register(BlockSeat.instance);
+            GameRegistry.registerBlock(BlockSeat.instance,BlockItemSeat.class, BlockSeat.name);
 		}
-		
+
 		if (Config.enableClock)
 		{
-			event.getRegistry().register(BlockClock.instance);
+            GameRegistry.registerBlock(BlockClock.instance,BlockItemClock.class, BlockClock.name);
 		}
 		if (Config.enableWeaponcase)
-		{	
-			event.getRegistry().register(BlockCase.instance);
+		{
+            GameRegistry.registerBlock(BlockCase.instance,BlockItemCase.class, BlockCase.name);
 		}
 		if (Config.enableMapFrame)
 		{
-			event.getRegistry().register(BlockMapFrame.instance);
+            GameRegistry.registerBlock(BlockMapFrame.instance,BlockItemMapFrame.class, BlockMapFrame.name);
 		}
-		
+
 		if (Config.enablePainting)
 		{
-			event.getRegistry().register(BlockPaintingFrameFlat.instance);
-			event.getRegistry().register(BlockPaintingFrameSimple.instance);
-			event.getRegistry().register(BlockPaintingFrameMiddle.instance);
-			event.getRegistry().register(BlockPaintingFrameFancy.instance);
-			event.getRegistry().register(BlockPaintingFrameBorderless.instance);
+            GameRegistry.registerBlock(BlockPaintingFrameFlat.instance,BlockItemPaintingFrameFlat.class, BlockPaintingFrameFlat.name);
+            GameRegistry.registerBlock(BlockPaintingFrameSimple.instance,BlockItemPaintingFrameSimple.class, BlockPaintingFrameSimple.name);
+            GameRegistry.registerBlock(BlockPaintingFrameMiddle.instance,BlockItemPaintingFrameMiddle.class, BlockPaintingFrameMiddle.name);
+            GameRegistry.registerBlock(BlockPaintingFrameFancy.instance,BlockItemPaintingFrameFancy.class, BlockPaintingFrameFancy.name);
+            GameRegistry.registerBlock(BlockPaintingFrameBorderless.instance,BlockItemPaintingFrameBorderless.class, BlockPaintingFrameBorderless.name);
 
-			event.getRegistry().register(BlockPaintingPress.instance);
+            GameRegistry.registerBlock(BlockPaintingPress.instance, BlockPaintingPress.name);
+
 		}
 		if (Config.enableTypewriter)
 		{
-			event.getRegistry().register(BlockTypeWriter.instance);
+            GameRegistry.registerBlock(BlockTypeWriter.instance,BlockItemTypewriter.class, BlockTypeWriter.name);
 		}
 		if (Config.enableSwordPedestal)
 		{
-			event.getRegistry().register(BlockSwordPedestal.instance);
+            GameRegistry.registerBlock(BlockSwordPedestal.instance,BlockItemSwordPedestal.class, BlockSwordPedestal.name);
 		}
 		if (Config.enableArmorstand)
-		{	
-			event.getRegistry().register(BlockArmorStand.instance);
+		{
+            GameRegistry.registerBlock(BlockArmorStand.instance,BlockItemArmorStand.class, BlockArmorStand.name);
 		}
 		if (Config.enableDeskBell)
 		{
-			event.getRegistry().register(BlockBell.instance); 
+            GameRegistry.registerBlock(BlockBell.instance, BlockBell.name);
 		}
 		if (Config.enablePrintpressTypeMachine)
-		{	
-			event.getRegistry().register(BlockTypesettingTable.instance);
-			event.getRegistry().register(BlockPrintingPress.instance); 
+		{
+            GameRegistry.registerBlock(BlockTypesettingTable.instance, BlockTypesettingTable.name);
 		}
 		if (Config.enableCookieJar)
 		{
-			event.getRegistry().register(BlockCookieJar.instance); 
+            GameRegistry.registerBlock(BlockCookieJar.instance, BlockCookieJar.name);
 		}
 		if (Config.enableDinnerPlate)
 		{
-			event.getRegistry().register(BlockDinnerPlate.instance); 
+            GameRegistry.registerBlock(BlockDinnerPlate.instance, BlockDinnerPlate.name);
 		}
 		if (Config.enableDiscRack)
 		{
-			event.getRegistry().register(BlockDiscRack.instance); 
+            GameRegistry.registerBlock(BlockDiscRack.instance, BlockDiscRack.name);
 		}
 	}
-	
-	public static void initBlockItems(RegistryEvent.Register<Item> event)
-	{
-		if (Config.enableBookcase)
-		{
-			event.getRegistry().register(BlockItemBookcase.instance);
 
-			event.getRegistry().register(BlockItemBookcaseCreative.instance); 
-		}
-		if (Config.enableGenericshelf)
-		{	
-			event.getRegistry().register(BlockItemShelf.instance); 
-		}
-		if (Config.enableTapemeasure)
+	public static void initBlockItemsRenderer()
+	{
+			if (Config.enableBookcase)
 		{
-			event.getRegistry().register(new ItemBlock(BlockMarkerPole.instance).setRegistryName(BlockMarkerPole.name)); 
+            GameRegistry.registerBlock(BlockBookcase.instance, BlockItemBookcase.class ,BlockBookcase.name);
+            GameRegistry.registerBlock(BlockBookcaseCreative.instance, BlockItemBookcaseCreative.class, BlockBookcaseCreative.name);
 		}
-		if (Config.enableClipboard)
-		{
-			event.getRegistry().register(new ItemBlock(BlockClipboard.instance).setRegistryName(BlockClipboard.name)); 
-		}
-		
-		if (Config.enableLantern)
-		{	
-			event.getRegistry().register(BlockItemLantern.instanceGold); 
-			event.getRegistry().register(BlockItemLantern.instanceIron); 
-		}
-		if (Config.enableLamp)
-		{	
-			event.getRegistry().register(BlockItemLamp.instanceGold); 
-			event.getRegistry().register(BlockItemLamp.instanceIron); 
-		}
-		if (Config.enableFurniturePaneler)
-		{
-			event.getRegistry().register(BlockItemFurniturePaneler.instance); 
-		}
-		if (Config.enableFramedChest)
-		{
-			event.getRegistry().register(BlockItemFramedChest.instance); 
-		}
-		if (Config.enableFancySign)
-		{
-			event.getRegistry().register(BlockItemFancySign.instance); 
-		}
-		if (Config.enableFancyWorkbench)
-		{
-			event.getRegistry().register(BlockItemFancyWorkbench.instance); 
-		}
-		if (Config.enablePotionshelf)
-		{
-			event.getRegistry().register(BlockItemPotionShelf.instance); 
-		}
-		if (Config.enableToolrack)
-		{	
-			event.getRegistry().register(BlockItemToolRack.instance); 
-		}
-		if (Config.enableWoodLabel)
-		{	
-			event.getRegistry().register(BlockItemLabel.instance); 
-		}
-		if (Config.enableWritingdesk)
-		{	
-			event.getRegistry().register(BlockItemDesk.instance); 
-		}
-		if (Config.enableTable)
-		{	
-			event.getRegistry().register(BlockItemTable.instance); 
-		}
-		if (Config.enableSeat)
-		{
-			event.getRegistry().register(BlockItemSeat.instance); 
-		}
-		
-		if (Config.enableClock)
-		{
-			event.getRegistry().register(BlockItemClock.instance); 
-		}
-		if (Config.enableWeaponcase)
-		{	
-			event.getRegistry().register(BlockItemCase.instance); 
-		}
-		if (Config.enableMapFrame)
-		{
-			event.getRegistry().register(BlockItemMapFrame.instance); 
-		}
-		
-		if (Config.enablePainting)
-		{
-			event.getRegistry().register(BlockItemPaintingFrameFlat.instance); 
-			event.getRegistry().register(BlockItemPaintingFrameSimple.instance); 
-			event.getRegistry().register(BlockItemPaintingFrameMiddle.instance); 
-			event.getRegistry().register(BlockItemPaintingFrameFancy.instance); 
-			event.getRegistry().register(BlockItemPaintingFrameBorderless.instance); 
-			event.getRegistry().register(new ItemBlock(BlockPaintingPress.instance).setRegistryName(BlockPaintingPress.name)); 
-		}
-		if (Config.enableTypewriter)
-		{
-			event.getRegistry().register(BlockItemTypewriter.instance); 
-		}
-		if (Config.enableSwordPedestal)
-		{
-			event.getRegistry().register(BlockItemSwordPedestal.instance); 
-		}
-		if (Config.enableArmorstand)
-		{	
-			event.getRegistry().register(BlockItemArmorStand.instance); 
-		}
-		if (Config.enableDeskBell)
-		{
-			event.getRegistry().register(new ItemBlock(BlockBell.instance).setRegistryName(BlockBell.name)); 
-		}
-		if (Config.enablePrintpressTypeMachine)
-		{	
-			event.getRegistry().register(new ItemBlock(BlockTypesettingTable.instance).setRegistryName(BlockTypesettingTable.name)); 
-			event.getRegistry().register(new ItemBlock(BlockPrintingPress.instance).setRegistryName(BlockPrintingPress.name)); 
-		}
-		if (Config.enableCookieJar)
-		{
-			event.getRegistry().register(new ItemBlock(BlockCookieJar.instance).setRegistryName(BlockCookieJar.name)); 
-		}
-		if (Config.enableDinnerPlate)
-		{
-			event.getRegistry().register(new ItemBlock(BlockDinnerPlate.instance).setRegistryName(BlockDinnerPlate.name)); 
-		}
-		if (Config.enableDiscRack)
-		{
-			event.getRegistry().register(new ItemBlock(BlockDiscRack.instance).setRegistryName(BlockDiscRack.name)); 
-		}
+//		if (Config.enableGenericshelf)
+//		{
+//            GameRegistry.registerBlock(BlockShelf.instance,BlockItemShelf.class, BlockShelf.name);
+//		}
+//		if (Config.enableTapemeasure)
+//		{
+//            GameRegistry.registerBlock(BlockMarkerPole.instance, BlockMarkerPole.name);
+//		}
+//		if (Config.enableClipboard)
+//		{
+//            GameRegistry.registerBlock(BlockClipboard.instance, BlockClipboard.name);
+//		}
+//
+//		if (Config.enableLantern)
+//		{
+////            GameRegistry.registerBlock(BlockLanternGold.instance,BlockItemLantern.class, BlockLanternGold.name);
+////            GameRegistry.registerBlock(BlockLanternIron.instance,BlockItemLantern.class, BlockLanternIron.name);
+//		}
+//		if (Config.enableLamp)
+//		{
+////            GameRegistry.registerBlock(BlockLampGold.instance, BlockItemLamp.class, BlockLampGold.name);
+////            GameRegistry.registerBlock(BlockLampIron.instance, BlockItemLamp.class, BlockLampIron.name);
+//		}
+//		if (Config.enableFurniturePaneler)
+//		{
+//            GameRegistry.registerBlock(BlockFurniturePaneler.instance,BlockItemFurniturePaneler.class, BlockFurniturePaneler.name);
+//		}
+//		if (Config.enableFramedChest)
+//		{
+//            GameRegistry.registerBlock(BlockFramedChest.instance,BlockItemFramedChest.class, BlockFramedChest.name);
+//		}
+//		if (Config.enableFancySign)
+//		{
+//            GameRegistry.registerBlock(BlockFancySign.instance,BlockItemFancySign.class, BlockFancySign.name);
+//		}
+//		if (Config.enableFancyWorkbench)
+//		{
+//            GameRegistry.registerBlock(BlockFancyWorkbench.instance,BlockItemFancyWorkbench.class, BlockFancyWorkbench.name);
+//		}
+//		if (Config.enablePotionshelf)
+//		{
+//            GameRegistry.registerBlock(BlockPotionShelf.instance,BlockItemPotionShelf.class, BlockPotionShelf.name);
+//		}
+//		if (Config.enableToolrack)
+//		{
+//            GameRegistry.registerBlock(BlockToolRack.instance,BlockItemToolRack.class, BlockToolRack.name);
+//		}
+//		if (Config.enableWoodLabel)
+//		{
+//            GameRegistry.registerBlock(BlockLabel.instance,BlockItemLabel.class, BlockLabel.name);
+//		}
+//		if (Config.enableWritingdesk)
+//		{
+//            GameRegistry.registerBlock(BlockDesk.instance,BlockItemDesk.class, BlockDesk.name);
+//		}
+//		if (Config.enableTable)
+//		{
+//            GameRegistry.registerBlock(BlockTable.instance,BlockItemTable.class, BlockTable.name);
+//		}
+//		if (Config.enableSeat)
+//		{
+//            GameRegistry.registerBlock(BlockSeat.instance,BlockItemSeat.class, BlockSeat.name);
+//		}
+//
+//		if (Config.enableClock)
+//		{
+//            GameRegistry.registerBlock(BlockClock.instance,BlockItemClock.class, BlockClock.name);
+//		}
+//		if (Config.enableWeaponcase)
+//		{
+//            GameRegistry.registerBlock(BlockCase.instance,BlockItemCase.class, BlockCase.name);
+//		}
+//		if (Config.enableMapFrame)
+//		{
+//            GameRegistry.registerBlock(BlockMapFrame.instance,BlockItemMapFrame.class, BlockMapFrame.name);
+//		}
+//
+//		if (Config.enablePainting)
+//		{
+//            GameRegistry.registerBlock(BlockPaintingFrameFlat.instance,BlockItemPaintingFrameFlat.class, BlockPaintingFrameFlat.name);
+//            GameRegistry.registerBlock(BlockPaintingFrameSimple.instance,BlockItemPaintingFrameSimple.class, BlockPaintingFrameSimple.name);
+//            GameRegistry.registerBlock(BlockPaintingFrameMiddle.instance,BlockItemPaintingFrameMiddle.class, BlockPaintingFrameMiddle.name);
+//            GameRegistry.registerBlock(BlockPaintingFrameFancy.instance,BlockItemPaintingFrameFancy.class, BlockPaintingFrameFancy.name);
+//            GameRegistry.registerBlock(BlockPaintingFrameBorderless.instance,BlockItemPaintingFrameBorderless.class, BlockPaintingFrameBorderless.name);
+//
+//            GameRegistry.registerBlock(BlockPaintingPress.instance, BlockPaintingPress.name);
+//
+//		}
+//		if (Config.enableTypewriter)
+//		{
+//            GameRegistry.registerBlock(BlockTypeWriter.instance,BlockItemTypewriter.class, BlockTypeWriter.name);
+//		}
+//		if (Config.enableSwordPedestal)
+//		{
+//            GameRegistry.registerBlock(BlockSwordPedestal.instance,BlockItemSwordPedestal.class, BlockSwordPedestal.name);
+//		}
+//		if (Config.enableArmorstand)
+//		{
+//            GameRegistry.registerBlock(BlockArmorStand.instance,BlockItemArmorStand.class, BlockArmorStand.name);
+//		}
+//		if (Config.enableDeskBell)
+//		{
+//            GameRegistry.registerBlock(BlockBell.instance, BlockBell.name);
+//		}
+//		if (Config.enablePrintpressTypeMachine)
+//		{
+//            GameRegistry.registerBlock(BlockTypesettingTable.instance, BlockTypesettingTable.name);
+//		}
+//		if (Config.enableCookieJar)
+//		{
+//            GameRegistry.registerBlock(BlockCookieJar.instance, BlockCookieJar.name);
+//		}
+//		if (Config.enableDinnerPlate)
+//		{
+//            GameRegistry.registerBlock(BlockDinnerPlate.instance, BlockDinnerPlate.name);
+//		}
+//		if (Config.enableDiscRack)
+//		{
+//            GameRegistry.registerBlock(BlockDiscRack.instance, BlockDiscRack.name);
+//		}
 	}
 }

@@ -1,5 +1,8 @@
 package jds.bibliocraft.network;
 
+import cpw.mods.fml.common.network.NetworkRegistry;
+import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import cpw.mods.fml.relauncher.Side;
 import jds.bibliocraft.BiblioCraft;
 import jds.bibliocraft.network.packet.client.BiblioAtlasClient;
 import jds.bibliocraft.network.packet.client.BiblioAtlasSWPClient;
@@ -34,20 +37,17 @@ import jds.bibliocraft.network.packet.server.BiblioTypeDelete;
 import jds.bibliocraft.network.packet.server.BiblioTypeFlag;
 import jds.bibliocraft.network.packet.server.BiblioTypeUpdate;
 import jds.bibliocraft.network.packet.server.BiblioUpdateInv;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-import net.minecraftforge.fml.relauncher.Side;
 
 /**
  * Networking manager class
- * 
+ *
  * @author Exopteron
  */
-public class BiblioNetworking 
+public class BiblioNetworking
 {
     public static final SimpleNetworkWrapper INSTANCE = NetworkRegistry.INSTANCE.newSimpleChannel(BiblioCraft.MODID);
     private static int packetId = 0;
-    public static void setup() 
+    public static void setup()
     {
         INSTANCE.registerMessage(BiblioAtlasWPT.Handler.class, BiblioAtlasWPT.class, packetId++, Side.SERVER);
         INSTANCE.registerMessage(BiblioType.Handler.class, BiblioType.class, packetId++, Side.SERVER);
@@ -72,7 +72,7 @@ public class BiblioNetworking
         INSTANCE.registerMessage(BiblioPaintPress.Handler.class, BiblioPaintPress.class, packetId++, Side.SERVER);
         INSTANCE.registerMessage(BiblioPainting.Handler.class, BiblioPainting.class, packetId++, Side.SERVER);
         INSTANCE.registerMessage(BiblioPaintingC.Handler.class, BiblioPaintingC.class, packetId++, Side.SERVER);
-        
+
         INSTANCE.registerMessage(BiblioDrillText.Handler.class, BiblioDrillText.class, packetId++, Side.CLIENT);
         INSTANCE.registerMessage(BiblioAtlasClient.Handler.class, BiblioAtlasClient.class, packetId++, Side.CLIENT);
         INSTANCE.registerMessage(BiblioPanelerClient.Handler.class, BiblioPanelerClient.class, packetId++, Side.CLIENT);
@@ -82,7 +82,7 @@ public class BiblioNetworking
         INSTANCE.registerMessage(BiblioDeskOpenGui.Handler.class, BiblioDeskOpenGui.class, packetId++, Side.CLIENT);
         INSTANCE.registerMessage(BiblioAtlasSWPClient.Handler.class, BiblioAtlasSWPClient.class, packetId++, Side.CLIENT);
         INSTANCE.registerMessage(BiblioAtlasTGUI.Handler.class, BiblioAtlasTGUI.class, packetId++, Side.CLIENT);
-        
+
         INSTANCE.registerMessage(BiblioSoundPlayer.Handler.class, BiblioSoundPlayer.class, packetId++, Side.CLIENT);
     }
 

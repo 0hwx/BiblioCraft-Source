@@ -1,5 +1,7 @@
 package jds.bibliocraft.items;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import jds.bibliocraft.BlockLoader;
 import jds.bibliocraft.CommonProxy;
 import jds.bibliocraft.blocks.BlockMarkerPole;
@@ -7,113 +9,110 @@ import jds.bibliocraft.helpers.EnumVertPosition;
 import jds.bibliocraft.network.BiblioNetworking;
 import jds.bibliocraft.network.packet.server.BiblioMeasure;
 import jds.bibliocraft.tileentities.TileEntityMarkerPole;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.Block;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentString;
+
+
 //import net.minecraft.network.packet.Packet;
 //import net.minecraft.network.packet.Packet250CustomPayload;
-import net.minecraft.util.text.translation.I18n;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-//import net.minecraftforge.common.ForgeDirection;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.common.util.ForgeDirection;
 
 public class ItemTapeMeasure extends Item
 {
 	public static final String name = "tapeMeasure";
 	public static final ItemTapeMeasure instance = new ItemTapeMeasure();
-	
+
 	private int firstMeasurex = 0;
 	private int firstMeasurey = 0;
 	private int firstMeasurez = 0;
 	private int oldx = 0;
 	private int oldy = 0;
 	private int oldz = 0;
-	private EnumFacing oldface = EnumFacing.NORTH;
-	
+	private ForgeDirection oldface = ForgeDirection.NORTH;
+
 	private int mode = 1;
-	
+
 	private int ticktime = 0;
-	
+
 	public ItemTapeMeasure()
 	{
 		super();
 		setCreativeTab(BlockLoader.biblioTab);
 		setUnlocalizedName(name);
 		setMaxStackSize(1);
-		setRegistryName(name);
+		setUnlocalizedName(name);
 	}
 
 	@SideOnly(Side.CLIENT)
 	@Override
-	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
+	public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
 	{
 		if (world.isRemote)
 		{
+            ForgeDirection direction = ForgeDirection.getOrientation(side);
 			if (firstMeasurex != 0 || firstMeasurey != 0 || firstMeasurez != 0)
 			{
 
-				int xdist = Math.abs(firstMeasurex - pos.getX());
-				int ydist = Math.abs(firstMeasurey - pos.getY());
-				int zdist = Math.abs(firstMeasurez - pos.getZ());
+				int xdist = Math.abs(firstMeasurex - x);
+				int ydist = Math.abs(firstMeasurey - y);
+				int zdist = Math.abs(firstMeasurez - z);
 				xdist++;
 				zdist++;
-				if (side != EnumFacing.DOWN && side != EnumFacing.UP)
+				if (direction != ForgeDirection.DOWN && direction != ForgeDirection.UP)
 				{
 					ydist = ydist + 1;
 				}
 				int measurmentxz = (int) Math.sqrt((xdist*xdist)+(zdist*zdist));
 				int measurmentxy = (int) Math.sqrt((xdist*xdist)+(ydist*ydist));
 				int measurmentyz = (int) Math.sqrt((ydist*ydist)+(zdist*zdist));
-				
+
 				if (mode == 1)
 				{
 						if (zdist != 1)
 						{
-							player.sendMessage(new TextComponentString(I18n.translateToLocal("tape.measurenorthsouth")+zdist)); //Measurement North/South = 
+							player.addChatMessage(new ChatComponentText(I18n.format("tape.measurenorthsouth")+zdist)); //Measurement North/South =
 						}
 						if (xdist != 1)
 						{
-							player.sendMessage(new TextComponentString(I18n.translateToLocal("tape.measureeastwest")+xdist)); //Measurement East/West = 
+							player.addChatMessage(new ChatComponentText(I18n.format("tape.measureeastwest")+xdist)); //Measurement East/West =
 						}
 						if (ydist != 0)
 						{
-							player.sendMessage(new TextComponentString(I18n.translateToLocal("tape.measureheight")+ydist)); //Measurement Height = 
+							player.addChatMessage(new ChatComponentText(I18n.format("tape.measureheight")+ydist)); //Measurement Height =
 						}
 						if (xdist == 1 && zdist == 1 && ydist == 0)
 						{
-							player.sendMessage(new TextComponentString(I18n.translateToLocal("tape.nomeasure")));             //No Measurement
+							player.addChatMessage(new ChatComponentText(I18n.format("tape.nomeasure")));             //No Measurement
 						}
-					
+
 
 				}
 			   if (mode == 0)
 				{
 					if (ydist == 0)
 					{
-						player.sendMessage(new TextComponentString(I18n.translateToLocal("tape.measure")+measurmentxz)); //Measurement = 
+						player.addChatMessage(new ChatComponentText(I18n.format("tape.measure")+measurmentxz)); //Measurement =
 					}
 					else if (xdist == 0)
 					{
-						player.sendMessage(new TextComponentString(I18n.translateToLocal("tape.measure")+measurmentyz));  //Measurement = 
+						player.addChatMessage(new ChatComponentText(I18n.format("tape.measure")+measurmentyz));  //Measurement =
 					}
 					else if (zdist == 0)
 					{
-						player.sendMessage(new TextComponentString(I18n.translateToLocal("tape.measure")+measurmentxy));  //Measurement = 
+						player.addChatMessage(new ChatComponentText(I18n.format("tape.measure")+measurmentxy));  //Measurement =
 					}
 					else
 					{
 						int euclideon = (int) Math.sqrt((xdist*xdist)+(ydist*ydist)+(zdist*zdist));
-						player.sendMessage(new TextComponentString(I18n.translateToLocal("tape.measure")+euclideon));  //Measurement = 
+						player.addChatMessage(new ChatComponentText(I18n.format("tape.measure")+euclideon));  //Measurement =
 					}
 				}
 			    player.playSound(CommonProxy.SOUND_TAPE_CLOSE, 1.0F, 1.0F);
@@ -127,25 +126,25 @@ public class ItemTapeMeasure extends Item
 			}
 			else
 			{
-				player.playSound(CommonProxy.SOUND_TAPE_OPEN, 1.0F, 1.0F); 
-				player.sendMessage(new TextComponentString(I18n.translateToLocal("tape.startmeasure")));  //Starting Measurement.
-				firstMeasurex = pos.getX();
-				firstMeasurey = pos.getY();
-				firstMeasurez = pos.getZ();
-				oldface = side;
-				sendPacket(true, firstMeasurex, firstMeasurey, firstMeasurez, side);
-				placeBlock(world, firstMeasurex, firstMeasurey, firstMeasurez, side);
+				player.playSound(CommonProxy.SOUND_TAPE_OPEN, 1.0F, 1.0F);
+				player.addChatMessage(new ChatComponentText(I18n.format("tape.startmeasure")));  //Starting Measurement.
+				firstMeasurex = x;
+				firstMeasurey = y;
+				firstMeasurez = z;
+				oldface = direction;
+				sendPacket(true, firstMeasurex, firstMeasurey, firstMeasurez, direction);
+				placeBlock(world, firstMeasurex, firstMeasurey, firstMeasurez, direction);
 			}
 		}
-		return EnumActionResult.SUCCESS;
+		return true;
 	}
-	
-	public void sendPacket(boolean newOrOld, int i, int j, int k, EnumFacing direction)
+
+	public void sendPacket(boolean newOrOld, int i, int j, int k, ForgeDirection direction)
 	{
         // ByteBuf buffer = Unpooled.buffer();
         try
         {
-			BiblioNetworking.INSTANCE.sendToServer(new BiblioMeasure(new BlockPos(i, j, k), newOrOld, direction.getIndex()));
+			BiblioNetworking.INSTANCE.sendToServer(new BiblioMeasure(i, j, k, newOrOld, direction.ordinal()));
         	// buffer.writeInt(i);
         	// buffer.writeInt(j);
         	// buffer.writeInt(k);
@@ -157,10 +156,10 @@ public class ItemTapeMeasure extends Item
         {
             ex.printStackTrace();
         }
-        
+
 	}
-	
-	private void placeBlock(World world, int x, int y, int z, EnumFacing facing)
+
+	private void placeBlock(World world, int x, int y, int z, ForgeDirection facing)
 	{
 		int xadj = 0;
 		int yadj = 0;
@@ -175,19 +174,22 @@ public class ItemTapeMeasure extends Item
 		case EAST: xadj = 1;  break;
 		default: xadj = 1; break;
 		}
-		BlockPos pos = new BlockPos(x+xadj, y+yadj, z+zadj);
-		
-		IBlockState st = BlockMarkerPole.instance.getDefaultState();
-		world.setBlockState(pos, st);
-		TileEntityMarkerPole poleTile = (TileEntityMarkerPole)world.getTileEntity(pos);
+
+        int posX = x+xadj;
+        int posY = y+yadj;
+        int posZ = z+zadj;
+
+		Block st = BlockMarkerPole.instance;
+		world.setBlock(posX, posY, posZ, st);
+		TileEntityMarkerPole poleTile = (TileEntityMarkerPole)world.getTileEntity(posX, posY, posZ);
 		if (poleTile != null)
 		{
-			poleTile.setAngle(EnumFacing.NORTH);
-			if (facing == EnumFacing.UP)
+			poleTile.setAngle(ForgeDirection.NORTH);
+			if (facing == ForgeDirection.UP)
 			{
 				poleTile.setVertPosition(EnumVertPosition.FLOOR);
 			}
-			else if (facing == EnumFacing.DOWN)
+			else if (facing == ForgeDirection.DOWN)
 			{
 				poleTile.setVertPosition(EnumVertPosition.CEILING);
 			}
@@ -195,19 +197,19 @@ public class ItemTapeMeasure extends Item
 			{
 				switch (facing)
 				{
-					case NORTH: {facing = EnumFacing.WEST; break;}
-					case WEST: {facing = EnumFacing.SOUTH; break;}
-					case SOUTH: {facing = EnumFacing.EAST; break;}
-					case EAST: {facing = EnumFacing.NORTH; break;}
+					case NORTH: {facing = ForgeDirection.WEST; break;}
+					case WEST: {facing = ForgeDirection.SOUTH; break;}
+					case SOUTH: {facing = ForgeDirection.EAST; break;}
+					case EAST: {facing = ForgeDirection.NORTH; break;}
 					default: break;
 				}
 				poleTile.setAngle(facing);
 				poleTile.setVertPosition(EnumVertPosition.WALL);
 			}
-			world.markBlockRangeForRenderUpdate(pos, pos);
+			world.markBlockRangeForRenderUpdate(posX, posY, posZ, posX, posY, posZ);
 		}
 	}
-	
+
 	public void setMeasurments(boolean newOrOld, int i, int j, int k)
 	{
 		if (newOrOld)
@@ -223,28 +225,28 @@ public class ItemTapeMeasure extends Item
 			oldz = k;
 		}
 	}
-	
+
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
+	public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
 	{
 		if (world.isRemote)
 		{
 			if (mode == 0)
 			{
-				player.sendMessage(new TextComponentString(I18n.translateToLocal("tape.mode0")));  //Switching mode to North/South, East/West, and height.
+				player.addChatMessage(new ChatComponentText(I18n.format("tape.mode0")));  //Switching mode to North/South, East/West, and height.
 				mode = 1;
 			}
 			else if (mode == 1)
 			{
-				player.sendMessage(new TextComponentString(I18n.translateToLocal("tape.mode1")));  //Switching mode to absolute measurment.
+				player.addChatMessage(new ChatComponentText(I18n.format("tape.mode1")));  //Switching mode to absolute measurment.
 				mode = 0;
 			}
 		}
-		return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, player.getHeldItem(hand));
+		return stack;
 	}
-	
+
 	@Override
-	 public void onUpdate(ItemStack itemstack, World world, Entity entity, int par4, boolean par5) 
+	 public void onUpdate(ItemStack itemstack, World world, Entity entity, int par4, boolean par5)
 	 {
 		if (ticktime > 19)
 		{
@@ -313,5 +315,8 @@ public class ItemTapeMeasure extends Item
 			ticktime++;
 		}
 	 }
-	
+    @Override
+    public void registerIcons(IIconRegister register) {
+        this.itemIcon = register.registerIcon("bibliocraft:tapemeasure");
+    }
 }

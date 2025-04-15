@@ -15,69 +15,67 @@ import jds.bibliocraft.tileentities.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityDesk;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockCarpet;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.model.TRSRTransformation;
+import net.minecraftforge.common.util.ForgeDirection;
+
 
 public class BlockDesk extends BiblioWoodBlock
 {
 	public static final String name = "Desk";
 	public static final BlockDesk instance = new BlockDesk();
-	
+
 	public BlockDesk()
 	{
 		super(name, false);
 	}
-	
+
     @Override
-    public boolean isSideSolid(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side)
+    public boolean isSideSolid(IBlockAccess world, int x, int y, int z, ForgeDirection side)
     {
     	boolean output = false;
-    	if (side == EnumFacing.UP)
+    	if (side == ForgeDirection.UP)
     	{
     		output = true;
     	}
         return output;
     }
-	
+
 	@Override
-	public boolean onBlockActivatedCustomCommands(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ) 
+	public boolean onBlockActivatedCustomCommands(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ)
 	{
+
 		if (!world.isRemote)
 		{
-			TileEntity tile = world.getTileEntity(pos);
+			TileEntity tile = world.getTileEntity(x, y, z);
 			if (tile != null && tile instanceof TileEntityDesk)
 			{
 				TileEntityDesk desk = (TileEntityDesk)tile;
-				EnumFacing angle = desk.getAngle();
+                ForgeDirection angle = desk.getAngle();
 				boolean dontOpenGui = false;
 				if (player.isSneaking())
 				{
 					// drop stuff
-					if (isLeftBookStack(hitX, hitZ, side, angle))
+					if (isLeftBookStack(hitX, hitZ, ForgeDirection.getOrientation(side), angle))
 					{
 						dontOpenGui = desk.removeStackFromInventoryFromWorld(desk.getLeftBookFullSlot(), player, this);
 					}
-					else if (isRightBookStack(hitX, hitZ, side, angle))
+					else if (isRightBookStack(hitX, hitZ, ForgeDirection.getOrientation(side), angle))
 					{
 						dontOpenGui = desk.removeStackFromInventoryFromWorld(desk.getRightBookFullSlot(), player, this);
 					}
-					else if (isWritingBook(hitX, hitZ, side, angle))
+					else if (isWritingBook(hitX, hitZ, ForgeDirection.getOrientation(side), angle))
 					{
 						dontOpenGui = desk.removeStackFromInventoryFromWorld(0, player, this);
 					}
-					
-					if (side != EnumFacing.UP)
+
+					if (ForgeDirection.getOrientation(side) != ForgeDirection.UP)
 					{
 						dontOpenGui = desk.removeStackFromInventoryFromWorld(9, player, this);
 					}
@@ -85,37 +83,37 @@ public class BlockDesk extends BiblioWoodBlock
 				else
 				{
 					// not sneaking
-					ItemStack playerhand = player.getHeldItem(EnumHand.MAIN_HAND);
-					if (playerhand != ItemStack.EMPTY)
+					ItemStack playerhand = player.getHeldItem();
+					if (playerhand != null)
 					{
 						if (!Config.isBlock(playerhand) && Config.testBookValidity(playerhand))
 						{
-							if (isLeftBookStack(hitX, hitZ, side, angle))
+							if (isLeftBookStack(hitX, hitZ, ForgeDirection.getOrientation(side), angle))
 							{
 								if (desk.getLeftBookEmptySlot() != -1)
 									dontOpenGui = desk.addStackToInventoryFromWorld(playerhand, desk.getLeftBookEmptySlot(), player);
 							}
-							else if (isRightBookStack(hitX, hitZ, side, angle))
+							else if (isRightBookStack(hitX, hitZ, ForgeDirection.getOrientation(side), angle))
 							{
 								if (desk.getLeftBookEmptySlot() != -1)
 								dontOpenGui = desk.addStackToInventoryFromWorld(playerhand, desk.getRightBookEmptySlot(), player);
 							}
-							else if (isWritingBook(hitX, hitZ, side, angle))
+							else if (isWritingBook(hitX, hitZ, ForgeDirection.getOrientation(side), angle))
 							{
 								dontOpenGui = desk.addStackToInventoryFromWorld(playerhand, 0, player);
 							}
 						}
-						
-						if (side != EnumFacing.UP && Block.getBlockFromItem(playerhand.getItem()) instanceof BlockCarpet)
+
+						if (ForgeDirection.getOrientation(side) != ForgeDirection.UP && Block.getBlockFromItem(playerhand.getItem()) instanceof BlockCarpet)
 						{
 							dontOpenGui = desk.addStackToInventoryFromWorldSingleStackSize(playerhand, 9, player);
 						}
 					}
 				}
-				
+
 				if (!dontOpenGui)
 				{
-					if (isWritingBook(hitX, hitZ, side, angle) && desk.getStackInSlot(0) != ItemStack.EMPTY)
+					if (isWritingBook(hitX, hitZ, ForgeDirection.getOrientation(side), angle) && desk.getStackInSlot(0) != null)
 					{
 						// ByteBuf buffer = Unpooled.buffer();
 						// buffer.writeInt(pos.getX());
@@ -130,12 +128,12 @@ public class BlockDesk extends BiblioWoodBlock
 						// {
 						// 	buffer.writeBoolean(false);
 						// }
-						BiblioNetworking.INSTANCE.sendTo(new BiblioDeskOpenGui(pos, desk.getStackInSlot(0), desk.getStackInSlot(0).getItem() == ItemRecipeBook.instance ? Config.enableRecipeBookCrafting : false), (EntityPlayerMP) player);
+						BiblioNetworking.INSTANCE.sendTo(new BiblioDeskOpenGui(x, y, z, desk.getStackInSlot(0), desk.getStackInSlot(0).getItem() == ItemRecipeBook.instance ? Config.enableRecipeBookCrafting : false), (EntityPlayerMP) player);
 						// BiblioCraft.ch_BiblioDeskGUIS.sendTo(new FMLProxyPacket(new PacketBuffer(buffer), "BiblioDeskOpenGUI"), (EntityPlayerMP) player);
 					}
 					else
 					{
-						player.openGui(BiblioCraft.instance, 7, world, pos.getX(), pos.getY(), pos.getZ()); 
+						player.openGui(BiblioCraft.instance, 7, world, x, y, z);
 					}
 				}
 			}
@@ -144,99 +142,99 @@ public class BlockDesk extends BiblioWoodBlock
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(World worldIn, int meta) 
+	public TileEntity createNewTileEntity(World worldIn, int meta)
 	{
 		return new TileEntityDesk();
 	}
 
-	@Override
-	public List<String> getModelParts(BiblioTileEntity tile) 
-	{
-		List<String> modelParts = new ArrayList<String>();
-		modelParts.add("candle");
-		modelParts.add("pen");
-		modelParts.add("deskTopEndRight");
-		modelParts.add("deskTopEndLeft");
-		modelParts.add("legLeft");
-		modelParts.add("legRight");
-		modelParts.add("shelfSingle");
-		if (tile instanceof TileEntityDesk)
-		{
-			TileEntityDesk desk = (TileEntityDesk)tile;
-			switch (desk.getSingleLeftRightCenter())
-			{
-				case LEFT:
-				{
-					modelParts = new ArrayList<String>();
-					modelParts.add("deskTopRight");
-					modelParts.add("deskTopEndLeft");
-					modelParts.add("legLeft");
-					modelParts.add("shelfLeft");
-					modelParts.add("candle");
-					modelParts.add("backRight");
-					break;
-				}
-				case RIGHT:
-				{
-					modelParts = new ArrayList<String>();
-					modelParts.add("deskTopEndRight");
-					modelParts.add("deskTopLeft");
-					modelParts.add("legRight");
-					modelParts.add("shelfRight");
-					modelParts.add("pen");
-					modelParts.add("backLeft");
-					break;
-				}
-				case CENTER:
-				{
-					modelParts = new ArrayList<String>();
-					modelParts.add("deskTopRight");
-					modelParts.add("deskTopLeft");
-					modelParts.add("backBoth");
-					break;
-				}
-				default: break;
-			}
-			if (desk.getOpenBook() != ItemStack.EMPTY && desk.getOpenBook().getItem() != Items.AIR && !desk.getHasMap())
-			{
-				modelParts.add("bookOpen");
-			}
-			if (desk.getLeftBookStack() > 0) { modelParts.add("lbook1"); }
-			if (desk.getLeftBookStack() > 1) { modelParts.add("lbook2"); }
-			if (desk.getLeftBookStack() > 2) { modelParts.add("lbook3"); }
-			if (desk.getLeftBookStack() > 3) { modelParts.add("lbook4"); }
-			
-			if (desk.getRightBookStack() > 0) { modelParts.add("rbook1"); }
-			if (desk.getRightBookStack() > 1) { modelParts.add("rbook2"); }
-			if (desk.getRightBookStack() > 2) { modelParts.add("rbook3"); }
-			if (desk.getRightBookStack() > 3) { modelParts.add("rbook4"); }
-			
-			if (desk.getStackInSlot(9) != ItemStack.EMPTY)
-			{
-				modelParts.add("carpet");
-			}
-		}
-		
-		return modelParts;
-	}
+//	@Override
+//	public List<String> getModelParts(BiblioTileEntity tile)
+//	{
+//		List<String> modelParts = new ArrayList<String>();
+//		modelParts.add("candle");
+//		modelParts.add("pen");
+//		modelParts.add("deskTopEndRight");
+//		modelParts.add("deskTopEndLeft");
+//		modelParts.add("legLeft");
+//		modelParts.add("legRight");
+//		modelParts.add("shelfSingle");
+//		if (tile instanceof TileEntityDesk)
+//		{
+//			TileEntityDesk desk = (TileEntityDesk)tile;
+//			switch (desk.getSingleLeftRightCenter())
+//			{
+//				case LEFT:
+//				{
+//					modelParts = new ArrayList<String>();
+//					modelParts.add("deskTopRight");
+//					modelParts.add("deskTopEndLeft");
+//					modelParts.add("legLeft");
+//					modelParts.add("shelfLeft");
+//					modelParts.add("candle");
+//					modelParts.add("backRight");
+//					break;
+//				}
+//				case RIGHT:
+//				{
+//					modelParts = new ArrayList<String>();
+//					modelParts.add("deskTopEndRight");
+//					modelParts.add("deskTopLeft");
+//					modelParts.add("legRight");
+//					modelParts.add("shelfRight");
+//					modelParts.add("pen");
+//					modelParts.add("backLeft");
+//					break;
+//				}
+//				case CENTER:
+//				{
+//					modelParts = new ArrayList<String>();
+//					modelParts.add("deskTopRight");
+//					modelParts.add("deskTopLeft");
+//					modelParts.add("backBoth");
+//					break;
+//				}
+//				default: break;
+//			}
+//			if (desk.getOpenBook() != null && desk.getOpenBook().getItem() != null && !desk.getHasMap())
+//			{
+//				modelParts.add("bookOpen");
+//			}
+//			if (desk.getLeftBookStack() > 0) { modelParts.add("lbook1"); }
+//			if (desk.getLeftBookStack() > 1) { modelParts.add("lbook2"); }
+//			if (desk.getLeftBookStack() > 2) { modelParts.add("lbook3"); }
+//			if (desk.getLeftBookStack() > 3) { modelParts.add("lbook4"); }
+//
+//			if (desk.getRightBookStack() > 0) { modelParts.add("rbook1"); }
+//			if (desk.getRightBookStack() > 1) { modelParts.add("rbook2"); }
+//			if (desk.getRightBookStack() > 2) { modelParts.add("rbook3"); }
+//			if (desk.getRightBookStack() > 3) { modelParts.add("rbook4"); }
+//
+//			if (desk.getStackInSlot(9) != null)
+//			{
+//				modelParts.add("carpet");
+//			}
+//		}
+//
+//		return modelParts;
+//	}
 
 	@Override
-	public void additionalPlacementCommands(BiblioTileEntity biblioTile, EntityLivingBase player) 
+	public void additionalPlacementCommands(BiblioTileEntity biblioTile, EntityLivingBase player)
 	{
-		
-		
+
+
 	}
 
-	@Override
-	public TRSRTransformation getAdditionalTransforms(TRSRTransformation transform, BiblioTileEntity tile) 
-	{
-		return transform;
-	}
-    
-    public boolean isWritingBook(float hitx, float hitz, EnumFacing face, EnumFacing angle)
+//	@Override
+//	public TRSRTransformation getAdditionalTransforms(TRSRTransformation transform, BiblioTileEntity tile)
+//	{
+//		return transform;
+//	}
+
+    public boolean isWritingBook(float hitx, float hitz, ForgeDirection face, ForgeDirection angle)
     {
-    	boolean returnValue = false; 
-    	if (face == EnumFacing.UP)
+    	boolean returnValue = false;
+    	if (face == ForgeDirection.UP)
     	{
 	    	switch (angle)
 	    	{
@@ -245,32 +243,32 @@ public class BlockDesk extends BiblioWoodBlock
 	    		case NORTH: { if (hitz > 0.2 && hitz < 0.8 && hitx > 0.5) { returnValue = true; } break; }
 	    		case EAST: { if (hitx > 0.2 && hitx < 0.8 && hitz > 0.5) { returnValue = true; } break; }
 	    		default: break;
-	    		
+
 	    	}
     	}
     	return returnValue;
     }
-    public boolean isLeftBookStack(float hitx, float hitz, EnumFacing face, EnumFacing angle)
+    public boolean isLeftBookStack(float hitx, float hitz, ForgeDirection face, ForgeDirection angle)
     {
     	boolean returnValue = false;
-    	if (face == EnumFacing.UP)
+    	if (face == ForgeDirection.UP)
     	{
 	    	switch (angle)
 	    	{
 	    		case SOUTH: { if (hitx > 0.5 && hitz < 0.5) { returnValue = true; } break; }
 	    		case WEST: { if (hitx > 0.5 && hitz > 0.5) { returnValue = true; } break; }
-	    		case NORTH: { if (hitx < 0.5 && hitz > 0.5) { returnValue = true; } break; } 
+	    		case NORTH: { if (hitx < 0.5 && hitz > 0.5) { returnValue = true; } break; }
 	    		case EAST: { if (hitx < 0.5 && hitz < 0.5) { returnValue = true; } break; }
 	    		default: break;
-	    		
+
 	    	}
     	}
     	return returnValue;
     }
-    public boolean isRightBookStack(float hitx, float hitz, EnumFacing face, EnumFacing angle)
+    public boolean isRightBookStack(float hitx, float hitz, ForgeDirection face, ForgeDirection angle)
     {
     	boolean returnValue = false;
-    	if (face == EnumFacing.UP)
+    	if (face == ForgeDirection.UP)
     	{
 	    	switch (angle)
 	    	{
@@ -283,11 +281,11 @@ public class BlockDesk extends BiblioWoodBlock
     	}
     	return returnValue;
     }
-    
+
     @Override
-    public boolean canPlaceBlockOnSide(World world, BlockPos pos, EnumFacing side)
+    public boolean canPlaceBlockOnSide(World world, int x, int y, int z, int side)
     {
-    	if (world.isAirBlock(new BlockPos(pos.getX(), pos.getY() + 1, pos.getZ())))
+    	if (world.isAirBlock(x, y + 1, z))
     	{
     		return true;
     	}
@@ -301,58 +299,55 @@ public class BlockDesk extends BiblioWoodBlock
     public TextureState addAdditionTextureStateInformation(BiblioTileEntity tile, TextureState state)
     {
 		ItemStack carpet = tile.getStackInSlot(9);
-		if (carpet != ItemStack.EMPTY)
+		if (carpet != null)
 		{
 			state.setColorOne(EnumColor.getColorFromCarpetOrWool(carpet));
 		}
 		return state;
     }
-	
+
 	@Override
-	public void breakBlock(World world,BlockPos pos, IBlockState state)
+	public void breakBlock(World world, int x, int y, int z, Block blockBroken, int meta)
 	{
-		dropItems(world, pos);
-		TileEntity tile = world.getTileEntity(pos);
+		dropItems(world, x, y, z);
+		TileEntity tile = world.getTileEntity(x, y, z);
 		if (tile != null && tile instanceof TileEntityDesk)
 		{
 			TileEntityDesk currDesk = (TileEntityDesk)tile;
 			if (currDesk != null)
 			{
-				EnumFacing angle = currDesk.getAngle();
+				ForgeDirection angle = currDesk.getAngle();
 				switch (currDesk.getSingleLeftRightCenter())
 				{
 					case LEFT:
 					{
 						//adjust desl on right
-						adjustRightDesk(world, currDesk.getPos(), angle);
+						adjustRightDesk(world, currDesk.xCoord, currDesk.yCoord, currDesk.zCoord, angle);
 						break;
 					}
 					case RIGHT:
 					{
 						//adjust desk on left
-						adjustLeftDesk(world, currDesk.getPos(), angle);
+						adjustLeftDesk(world, currDesk.xCoord, currDesk.yCoord, currDesk.zCoord, angle);
 						break;
 					}
 					case CENTER:
 					{
 						//adjust desk on left and right
-						adjustLeftDesk(world, currDesk.getPos(), angle);
-						adjustRightDesk(world, currDesk.getPos(), angle);
+						adjustLeftDesk(world, currDesk.xCoord, currDesk.yCoord, currDesk.zCoord, angle);
+						adjustRightDesk(world, currDesk.xCoord, currDesk.yCoord, currDesk.zCoord, angle);
 						break;
 					}
 					default: break;
 				}
 			}
 		}
-		super.breakBlock(world, pos, state);
+		super.breakBlock(world, x, y, z, blockBroken, meta);
 	}
-	
-	private void adjustLeftDesk(World world, BlockPos pos, EnumFacing angle)
+
+	private void adjustLeftDesk(World world, int x, int y, int z, ForgeDirection angle)
 	{
-		int x = pos.getX();
-		int y = pos.getY();
-		int z = pos.getZ();
-		switch (angle)
+        switch (angle)
 		{
 			case SOUTH:
 			{
@@ -376,8 +371,8 @@ public class BlockDesk extends BiblioWoodBlock
 			}
 			default: break;
 		}
-		
-		TileEntityDesk desk = (TileEntityDesk)world.getTileEntity(new BlockPos(x, y, z));
+
+		TileEntityDesk desk = (TileEntityDesk)world.getTileEntity(x, y, z);
 		if (desk != null)
 		{
 			switch (desk.getSingleLeftRightCenter())
@@ -396,13 +391,9 @@ public class BlockDesk extends BiblioWoodBlock
 			}
 		}
 	}
-	
-	private void adjustRightDesk(World world, BlockPos pos, EnumFacing angle)
+
+	private void adjustRightDesk(World world, int x, int y, int z, ForgeDirection angle)
 	{
-		int x = pos.getX();
-		int y = pos.getY();
-		int z = pos.getZ();
-		
 		switch (angle)
 		{
 			case SOUTH:
@@ -427,7 +418,7 @@ public class BlockDesk extends BiblioWoodBlock
 			}
 			default: break;
 		}
-		TileEntityDesk desk = (TileEntityDesk)world.getTileEntity(new BlockPos(x, y, z));
+		TileEntityDesk desk = (TileEntityDesk)world.getTileEntity(x, y, z);
 		if (desk != null)
 		{
 			switch (desk.getSingleLeftRightCenter())

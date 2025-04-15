@@ -6,12 +6,11 @@ import jds.bibliocraft.tileentities.TileEntityClock;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import cpw.mods.fml.common.network.ByteBufUtils;
+import cpw.mods.fml.common.network.simpleimpl.IMessage;
+import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 
 public class BiblioClock implements IMessage {
     NBTTagCompound tag;
@@ -19,19 +18,23 @@ public class BiblioClock implements IMessage {
     boolean chime;
     boolean rsout;
     boolean rspulse;
-    BlockPos pos;
+    int posX;
+    int posY;
+    int posZ;
 
     public BiblioClock() {
 
     }
 
-    public BiblioClock(NBTTagCompound tag, boolean tick, boolean chime, boolean rsout, boolean rspulse, BlockPos pos) {
+    public BiblioClock(NBTTagCompound tag, boolean tick, boolean chime, boolean rsout, boolean rspulse, int posX, int posY, int posZ) {
         this.tag = tag;
         this.tick = tick;
         this.chime = chime;
         this.rsout = rsout;
         this.rspulse = rspulse;
-        this.pos = pos;
+        this.posX = posX;
+        this.posY = posY;
+        this.posZ = posZ;
     }
 
     @Override
@@ -41,7 +44,9 @@ public class BiblioClock implements IMessage {
         this.chime = buf.readBoolean();
         this.rsout = buf.readBoolean();
         this.rspulse = buf.readBoolean();
-        this.pos = BlockPos.fromLong(buf.readLong());
+        this.posX = buf.readInt();
+        this.posY = buf.readInt();
+        this.posZ = buf.readInt();
     }
 
     @Override
@@ -51,28 +56,28 @@ public class BiblioClock implements IMessage {
         buf.writeBoolean(this.chime);
         buf.writeBoolean(this.rsout);
         buf.writeBoolean(this.rspulse);
-        buf.writeLong(this.pos.toLong());
+        buf.writeInt(this.posX);
+        buf.writeInt(this.posY);
+        buf.writeInt(this.posZ);
     }
 
     public static class Handler implements IMessageHandler<BiblioClock, IMessage> {
 
         @Override
         public IMessage onMessage(BiblioClock message, MessageContext ctx) {
-            ctx.getServerHandler().player.getServerWorld().addScheduledTask(() -> {
-                EntityPlayerMP player = ctx.getServerHandler().player;
-                if (Utils.hasPointLoaded(player, message.pos)) {
-                    World world = player.world;
+                EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+                if (Utils.hasPointLoaded(player, message.posX, message.posY, message.posZ)) {
+                    World world = player.worldObj;
                     int[] chimes = message.tag.getIntArray("chimes");
                     int[] redstone = message.tag.getIntArray("redstone");
 
-                    TileEntity tile = world.getTileEntity(message.pos);
+                    TileEntity tile = world.getTileEntity(message.posX, message.posY, message.posZ);
                     if (tile != null && tile instanceof TileEntityClock) {
                         TileEntityClock clock = (TileEntityClock) tile;
                         clock.setSettingFromGui(chimes, redstone, message.tick, message.chime, message.rsout,
                                 message.rspulse);
                     }
                 }
-            });
             return null;
         }
 

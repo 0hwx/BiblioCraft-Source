@@ -5,11 +5,10 @@ import jds.bibliocraft.items.ItemDrill;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import cpw.mods.fml.common.network.ByteBufUtils;
+import cpw.mods.fml.common.network.simpleimpl.IMessage;
+import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 
 public class BiblioDrillText implements IMessage {
     String displayText;
@@ -32,17 +31,17 @@ public class BiblioDrillText implements IMessage {
 
         @Override
         public IMessage onMessage(BiblioDrillText message, MessageContext ctx) {
-            Minecraft.getMinecraft().addScheduledTask(() -> {
-                EntityPlayerSP player = Minecraft.getMinecraft().player;
-                ItemStack playerhand = player.getHeldItem(EnumHand.MAIN_HAND);
-                if (playerhand != ItemStack.EMPTY && playerhand.getItem() instanceof ItemDrill)
+            Minecraft.getMinecraft().func_152344_a(() -> {
+                EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+                ItemStack playerhand = player.getHeldItem();
+                if (playerhand != null && playerhand.getItem() instanceof ItemDrill)
                 {
                     ItemDrill drill = (ItemDrill)playerhand.getItem();
-                    drill.updateFromPacket(message.displayText); 
+                    drill.updateFromPacket(message.displayText);
                 }
             });
             return null;
         }
-        
+
     }
 }

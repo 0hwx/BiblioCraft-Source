@@ -17,26 +17,25 @@ public class SlotPanelerOutput extends Slot
 		this.container = panelerContainer;
 		this.tile = iInventory;
 	}
-	
+
 	@Override
 	public boolean isItemValid(ItemStack stack)
 	{
 		//this.container.onCraftMatrixChanged(this.tile);
 		return false;
 	}
-	
+
 	@Override
 	public int getSlotStackLimit()
     {
         return 64;
     }
-	
+
 	@Override
-    public ItemStack onTake(EntityPlayer playerIn, ItemStack stack)
+    public void onPickupFromSlot(EntityPlayer playerIn, ItemStack stack)
     {
 		this.tile.executeRecipe();
 		this.container.onCraftMatrixChanged(this.tile);
         this.onSlotChanged();
-        return stack;
     }
 }

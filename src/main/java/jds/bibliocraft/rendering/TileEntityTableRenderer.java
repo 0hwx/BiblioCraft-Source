@@ -2,16 +2,16 @@ package jds.bibliocraft.rendering;
 
 import jds.bibliocraft.tileentities.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityTable;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
+import org.lwjgl.opengl.GL11;
 
 public class TileEntityTableRenderer extends TileEntityBiblioRenderer
 {
 	float xAdjust = 0.0f;
 	float yAdjust = 0.0f;
-	
+
 	@Override
-	public void render(BiblioTileEntity tile, double x, double y, double z, float tick) 
+	public void renderTileEntityAt(BiblioTileEntity tile, double x, double y, double z, float tick)
 	{
 		if (tile instanceof TileEntityTable)
 		{
@@ -28,13 +28,14 @@ public class TileEntityTableRenderer extends TileEntityBiblioRenderer
 				renderSlotItem(stack, 0.5, 1.14, 0.5, 0.75f);
 			}
 		}
-		
+
 	}
-	
+
 	@Override
 	public void additionalGLStuffForItemStack()
 	{
-		GlStateManager.rotate(xAdjust, 1.0f, 0.0f, 0.0f);
-		GlStateManager.rotate(yAdjust, 0.0f, 1.0f, 0.0f);
+		GL11.glRotatef(xAdjust, 1.0f, 0.0f, 0.0f);
+		GL11.glRotatef(yAdjust, 0.0f, 1.0f, 0.0f);
 	}
+
 }

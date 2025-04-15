@@ -1,6 +1,7 @@
 package jds.bibliocraft.items;
 
 import jds.bibliocraft.BlockLoader;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
@@ -8,7 +9,7 @@ public class ItemFramingSaw extends Item
 {
 	public static final String name = "FramingSaw";
 	public static final ItemFramingSaw instance = new ItemFramingSaw();
-	
+
 	public ItemFramingSaw()
 	{
 		super();
@@ -16,7 +17,7 @@ public class ItemFramingSaw extends Item
 		setCreativeTab(BlockLoader.biblioTab);
 		setUnlocalizedName(name);
 		setMaxStackSize(1);
-		setRegistryName(name);
+		setUnlocalizedName(name);
 	}
 
     @Override
@@ -26,5 +27,9 @@ public class ItemFramingSaw extends Item
          * True if this Item has a container item (a.k.a. crafting result)
          */
         return true;
+    }
+    @Override
+    public void registerIcons(IIconRegister register) {
+        this.itemIcon = register.registerIcon("bibliocraft:saw");
     }
 }

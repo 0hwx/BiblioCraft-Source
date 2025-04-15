@@ -1,5 +1,6 @@
 package jds.bibliocraft.tileentities;
 
+import cpw.mods.fml.common.FMLCommonHandler;
 import jds.bibliocraft.Config;
 import jds.bibliocraft.blocks.BlockTypesettingTable;
 import jds.bibliocraft.helpers.FileUtil;
@@ -11,27 +12,25 @@ import jds.bibliocraft.items.ItemEnchantedPlate;
 import jds.bibliocraft.items.ItemPlate;
 import jds.bibliocraft.items.ItemRecipeBook;
 import jds.bibliocraft.items.ItemStockroomCatalog;
+import net.minecraft.client.renderer.texture.ITickable;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemEditableBook;
 import net.minecraft.item.ItemEnchantedBook;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemWrittenBook;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.ITickable;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.translation.I18n;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.common.FMLCommonHandler;
+
 
 public class TileEntityTypeMachine extends BiblioTileEntity implements ITickable
 {
-	public String nameofbook = I18n.translateToLocal("typesetting.bookSelect"); 
+	public String nameofbook = I18n.format("typesetting.bookSelect");
 	public boolean bookIsSaved;
 	public String listofbooks = "";
 	public String listofAuthors = "";
@@ -40,35 +39,50 @@ public class TileEntityTypeMachine extends BiblioTileEntity implements ITickable
 	public boolean showChaseText = false;
 	public int requiredlevels = 0;
 	public boolean showLevels = false;
-	
+
 	// these values are for live redstone data only, no nbt storage needed
 	private int redstone = 0;
 	private int counter = 0;
-	
+
 	public TileEntityTypeMachine()
 	{
 		super(3, false);
 	}
-	
+
 	public int getLevels()
 	{
 		return requiredlevels;
 	}
-	
+
 	@Override // Copied in from BiblioTileEntity becasue a crash came up claiming this was abstract.
 	public ItemStack getStackInSlot(int slot)
 	{
-		ItemStack output = ItemStack.EMPTY;
-		if (slot >= 0 && slot < this.inventory.size())
+		ItemStack output = null;
+		if (slot >= 0 && slot < this.inventory.length)
 		{
-			output = inventory.get(slot);
+			output = inventory[slot];
 		}
 		return output;
 	}
-	
-	public void booklistset()
+
+    @Override
+    public ItemStack getStackInSlotOnClosing(int index) {
+        return null;
+    }
+
+    @Override
+    public String getInventoryName() {
+        return "";
+    }
+
+    @Override
+    public boolean hasCustomInventoryName() {
+        return false;
+    }
+
+    public void booklistset()
 	{
-		if (FMLCommonHandler.instance().getMinecraftServerInstance().isDedicatedServer())//MinecraftServer.getServer().isDedicatedServer()) 
+		if (FMLCommonHandler.instance().getMinecraftServerInstance().isDedicatedServer())//MinecraftServer.getServer().isDedicatedServer())
 		{
 			FileUtil util = new FileUtil();
 			String[] blist = util.scanBookDir(false);
@@ -109,42 +123,49 @@ public class TileEntityTypeMachine extends BiblioTileEntity implements ITickable
 			setBookList(bookstring, authorString, publicsString);
 		}
 	}
-	
+
 	@Override
 	public int getInventoryStackLimit()
 	{
 		return 64;
 	}
-	
 
-	
-	
-    
-	public void writePlateNBT(ItemStack stack, String bookName)
+    @Override
+    public void openInventory() {
+
+    }
+
+    @Override
+    public void closeInventory() {
+
+    }
+
+
+    public void writePlateNBT(ItemStack stack, String bookName)
 	{
 		NBTTagCompound tag = new NBTTagCompound();
 		tag.setString("bookName", bookName);
 		stack.setTagCompound(tag);
 	}
-	
+
 	public boolean signedBookCheck()
 	{
 		ItemStack stack = getStackInSlot(0);
-		if (stack != ItemStack.EMPTY)
+		if (stack != null)
 		{
 			Item booktest = stack.getItem();
-			if (booktest instanceof ItemWrittenBook || booktest instanceof ItemBigBook || booktest instanceof ItemRecipeBook || booktest instanceof ItemAtlas || booktest instanceof ItemStockroomCatalog)
+			if (booktest instanceof ItemEditableBook || booktest instanceof ItemBigBook || booktest instanceof ItemRecipeBook || booktest instanceof ItemAtlas || booktest instanceof ItemStockroomCatalog)
 			{
 				return true;
 			}
 		}
 			return false;
 	}
-	
+
 	public boolean enchantedBookCheck()
 	{
 		ItemStack stack = getStackInSlot(0);
-		if (stack != ItemStack.EMPTY)
+		if (stack != null)
 		{
 			Item booktest = stack.getItem();
 			if (booktest instanceof ItemEnchantedBook)
@@ -154,11 +175,11 @@ public class TileEntityTypeMachine extends BiblioTileEntity implements ITickable
 		}
 			return false;
 	}
-	
+
 	public boolean atlasBookCheck()
 	{
 		ItemStack stack = getStackInSlot(0);
-		if (stack != ItemStack.EMPTY)
+		if (stack != null)
 		{
 			Item booktest = stack.getItem();
 			if (booktest instanceof ItemAtlas)
@@ -168,11 +189,11 @@ public class TileEntityTypeMachine extends BiblioTileEntity implements ITickable
 		}
 			return false;
 	}
-	
+
 	public boolean chaseCheck()
 	{
 		ItemStack stack = getStackInSlot(1);
-		if (stack != ItemStack.EMPTY)
+		if (stack != null)
 		{
 			return true;
 		}
@@ -181,14 +202,14 @@ public class TileEntityTypeMachine extends BiblioTileEntity implements ITickable
 			return false;
 		}
 	}
-	
+
 	public int getChaseNum()
 	{
 		int stacksize = 0;
 		if (chaseCheck())
 		{
 			ItemStack stack = getStackInSlot(1);
-			int sizetest = stack.getCount();
+			int sizetest = stack.stackSize;
 			if (sizetest > 0 && sizetest < 17)
 			{
 				stacksize = 1;
@@ -208,32 +229,32 @@ public class TileEntityTypeMachine extends BiblioTileEntity implements ITickable
 		}
 		return stacksize;
 	}
-	
+
 	public int addChase(ItemStack chaseStack)
 	{
 		ItemStack stack = getStackInSlot(1);
-		if (stack != ItemStack.EMPTY)
+		if (stack != null)
 		{
-			int chaseSize = chaseStack.getCount();
-			int sizetest = stack.getCount();
+			int chaseSize = chaseStack.stackSize;
+			int sizetest = stack.stackSize;
 			int totaltest = sizetest + chaseSize;
 			if (totaltest < 65)
 			{
-				stack.setCount(totaltest);
-				getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+				stack.stackSize = (totaltest);
+                getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 				return 0;
 			}
 			else
 			{
-				stack.setCount(64);
-				getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+				stack.stackSize = (64);
+                getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 				return (totaltest - 64);
 			}
 		}
 		else
 		{
 			setInventorySlotContents(1, chaseStack);
-			getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+            getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 			return 0;
 		}
 	}
@@ -246,10 +267,10 @@ public class TileEntityTypeMachine extends BiblioTileEntity implements ITickable
 	public boolean addBookorPlate(ItemStack playerstack, World world)
 	{
 		ItemStack bookstack = getStackInSlot(0);
-		if (bookstack == ItemStack.EMPTY)
+		if (bookstack == null)
 		{
 			//ItemStack stack  = getStackInSlot(0);
-			if (playerstack != ItemStack.EMPTY)
+			if (playerstack != null)
 			{
 				Item itemtest = playerstack.getItem();
 				boolean testForCustomBooks = false;
@@ -265,16 +286,16 @@ public class TileEntityTypeMachine extends BiblioTileEntity implements ITickable
 						}
 					}
 				}
-				
+
 				if (itemtest instanceof ItemStockroomCatalog)
 				{
 					testForCustomBooks = true;
 				}
-				
-				if (itemtest instanceof ItemPlate || itemtest instanceof ItemWrittenBook || itemtest instanceof ItemEnchantedBook || testForCustomBooks) 
+
+				if (itemtest instanceof ItemPlate || itemtest instanceof ItemEditableBook || itemtest instanceof ItemEnchantedBook || testForCustomBooks)
 				{
 					FileUtil util = new FileUtil();
-					
+
 					if (util.isBookSaved(playerstack, world))
 					{
 						bookIsSaved = true;
@@ -283,12 +304,12 @@ public class TileEntityTypeMachine extends BiblioTileEntity implements ITickable
 					{
 						bookIsSaved = false;
 					}
-					
+
 					if (itemtest instanceof ItemEnchantedBook)
 					{
-						
+
 						NBTTagList enchbookTagList = getEnchantmentTagList(playerstack);
-						
+
 						//System.out.println(enchbookTagList.tagCount());   // I think this is my number of enchantments
 						int enchCount = enchbookTagList.tagCount();
 						float slidingScale = 1.0F;
@@ -299,9 +320,10 @@ public class TileEntityTypeMachine extends BiblioTileEntity implements ITickable
 							int enchlvl = ((NBTTagCompound)enchbookTagList.getCompoundTagAt(x)).getShort("lvl");
 							int enchid = ((NBTTagCompound)enchbookTagList.getCompoundTagAt(x)).getShort("id");
 							int maxlvl = 1;
-							if (Enchantment.getEnchantmentByID(enchid) != null)
+                            Enchantment enchantment = Enchantment.enchantmentsList[enchid];
+							if (enchantment != null)
 							{
-								maxlvl = Enchantment.getEnchantmentByID(enchid).getMaxLevel(); 
+								maxlvl = enchantment.getMaxLevel();
 							}
 							switch (maxlvl)
 							{
@@ -316,17 +338,17 @@ public class TileEntityTypeMachine extends BiblioTileEntity implements ITickable
 							}
 							levelCalc = levelCalc + ((enchlvl*enchlvl) + 15.0F)*slidingScale;
 						}
-						
+
 						levelCalc = levelCalc*(Config.enchantmentMultiplyer/10.0F);
 						int levelcost = (int)levelCalc;
 						requiredlevels = levelcost;
 					}
 					setInventorySlotContents(0, playerstack);
-					
-					getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+
+                    getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 					return true;
 				}
-				
+
 				if (itemtest instanceof ItemAtlas)
 				{
 					// so I need to scan the book and cound the number of filled maps first
@@ -341,7 +363,7 @@ public class TileEntityTypeMachine extends BiblioTileEntity implements ITickable
 							byte slot = tag.getByte("Slot");
 							if (slot >= 0 && slot < atlasInventory.getSizeInventory())
 							{
-								ItemStack invStack = new ItemStack(tag);
+								ItemStack invStack = ItemStack.loadItemStackFromNBT(tag);
 								atlasInventory.setInventorySlotContents(slot, invStack);
 							}
 						}
@@ -349,12 +371,12 @@ public class TileEntityTypeMachine extends BiblioTileEntity implements ITickable
 						for (int i = 6; i < atlasInventory.getSizeInventory(); i++)
 						{
 							ItemStack mapTest = atlasInventory.getStackInSlot(i);
-							if (mapTest != ItemStack.EMPTY && mapTest.getItem() == Items.FILLED_MAP)
+							if (mapTest != null && mapTest.getItem() == Items.filled_map)
 							{
 								mapCount++;
 							}
 						}
-						// lets do 32xp per map. 
+						// lets do 32xp per map.
 						if (mapCount > 0)
 						{
 							// set enchantment stuff
@@ -362,7 +384,7 @@ public class TileEntityTypeMachine extends BiblioTileEntity implements ITickable
 							//System.out.println("Calculated Cost = "+enchant);
 							requiredlevels = enchant;
 							setInventorySlotContents(0, playerstack);
-							getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+                            getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 							return true;
 						}
 					}
@@ -371,8 +393,8 @@ public class TileEntityTypeMachine extends BiblioTileEntity implements ITickable
 		}
 		return false;
 	}
-	
-	
+
+
 	private int getLevelFromXP(int xp)
 	{
 		int xpcounter = 0;
@@ -393,7 +415,7 @@ public class TileEntityTypeMachine extends BiblioTileEntity implements ITickable
 			}
 			//System.out.println("total Level XP = "+xpcount+"   on level "+i);
 		}
-		
+
 		return 0;
 	}
 
@@ -403,12 +425,12 @@ public class TileEntityTypeMachine extends BiblioTileEntity implements ITickable
 		{
 			ItemStack newChase = new ItemStack(ItemChase.instance, 1, 0);
 			ItemStack chaseStack = getStackInSlot(1);
-			setInventorySlotContents(0, ItemStack.EMPTY);
-			if (chaseStack != ItemStack.EMPTY)
+			setInventorySlotContents(0, null);
+			if (chaseStack != null)
 			{
-				if (chaseStack.getCount() < 64)
+				if (chaseStack.stackSize < 64)
 				{
-					chaseStack.setCount(chaseStack.getCount() + 1);
+					chaseStack.stackSize = (chaseStack.stackSize + 1);
 				}
 				else
 				{
@@ -419,26 +441,26 @@ public class TileEntityTypeMachine extends BiblioTileEntity implements ITickable
 			{
 				setInventorySlotContents(1, newChase);
 			}
-			getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+            getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 			return true;
-			
+
 		}
 		return false;
 	}
-	
+
 	public boolean saveBook(World world)
 	{
 			ItemStack booktosave = getStackInSlot(0);
-			if (booktosave != ItemStack.EMPTY)
+			if (booktosave != null)
 			{
 				Item bookItem = booktosave.getItem();
-				if (bookItem instanceof ItemWrittenBook)
+				if (bookItem instanceof ItemEditableBook)
 				{
 					FileUtil util = new FileUtil();
-					util.saveBook(booktosave, world); 
+					util.saveBook(booktosave, world);
 					//System.out.println("Saved Book!");
 					bookIsSaved = true;
-					getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+                    getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 					return true;
 				}
 				if (bookItem instanceof ItemBigBook)
@@ -446,7 +468,7 @@ public class TileEntityTypeMachine extends BiblioTileEntity implements ITickable
 					FileUtil util = new FileUtil();
 					util.saveNBTtoFile(booktosave, world, 0);
 					bookIsSaved = true;
-					getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+                    getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 					return true;
 				}
 				if (bookItem instanceof ItemRecipeBook)
@@ -454,26 +476,26 @@ public class TileEntityTypeMachine extends BiblioTileEntity implements ITickable
 					FileUtil util = new FileUtil();
 					util.saveNBTtoFile(booktosave, world, 1);
 					bookIsSaved = true;
-					getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+                    getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 					return true;
 				}
-				if (bookItem instanceof ItemStockroomCatalog) 
+				if (bookItem instanceof ItemStockroomCatalog)
 				{
 					FileUtil util = new FileUtil();
 					util.saveNBTtoFile(booktosave, world, 2);
 					bookIsSaved = true;
-					getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+                    getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 					return true;
 				}
 			}
 		return false;
 	}
-	
+
 	public boolean enchantPlate(EntityPlayer player)
 	{
 		//System.out.println("executingEnchantPlate");
 		ItemStack stack = getStackInSlot(0);
-		if (stack != ItemStack.EMPTY && chaseCheck() && getStackInSlot(2) == ItemStack.EMPTY)
+		if (stack != null && chaseCheck() && getStackInSlot(2) == null)
 		{
 			//System.out.println("to the next stage of enchantment");
 			Item enchBook = stack.getItem();
@@ -488,9 +510,10 @@ public class TileEntityTypeMachine extends BiblioTileEntity implements ITickable
 					int enchlvl = ((NBTTagCompound)enchbookTagList.getCompoundTagAt(x)).getShort("lvl");
 					int enchid = ((NBTTagCompound)enchbookTagList.getCompoundTagAt(x)).getShort("id");
 					int maxlvl = 1;
-					if (Enchantment.getEnchantmentByID(enchid) != null)
+                    Enchantment enchantment = Enchantment.enchantmentsList[enchid];
+					if (enchantment != null)
 					{
-						maxlvl = Enchantment.getEnchantmentByID(enchid).getMaxLevel();
+						maxlvl = enchantment.getMaxLevel();
 					}
 					float slidingScale = 1.0F;
 					switch (maxlvl)
@@ -504,7 +527,7 @@ public class TileEntityTypeMachine extends BiblioTileEntity implements ITickable
 					{
 						slidingScale = (0.5F)*(1.0F/x);
 					}
-					//System.out.println(slidingScale); 
+					//System.out.println(slidingScale);
 					levelCalc = levelCalc + ((enchlvl*enchlvl) + 15.0F)*slidingScale;
 					//levelcost = levelcost + ((enchlvl*enchlvl) + 15);
 					//System.out.println(levelCalc);
@@ -516,37 +539,37 @@ public class TileEntityTypeMachine extends BiblioTileEntity implements ITickable
 				{
 					return false;
 				}
-				
+
 				ItemStack enchplate = new ItemStack(ItemEnchantedPlate.instance, 1, 0);
 				if (stack.hasTagCompound())
 				{
 					enchplate.setTagCompound((NBTTagCompound) stack.getTagCompound().copy());
 					setInventorySlotContents(2, enchplate);
 					ItemStack chases = getStackInSlot(1);
-					chases.setCount(chases.getCount() - 1);
-					setInventorySlotContents(0, ItemStack.EMPTY);
+					chases.stackSize = (chases.stackSize - 1);
+					setInventorySlotContents(0, null);
 				}
-				
+
 				 player.addExperienceLevel(-levelcost);
-				getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+                getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 				return true;
 				// ok, now I need to read the nbt data and apply it to the plate.
 			}
 		}
 		return false;
 	}
-	
+
 	public boolean createAtlasPlate(EntityPlayer player)
 	{
 		ItemStack atlas = this.getStackInSlot(0);//.copy();
-		if (atlas != ItemStack.EMPTY && atlas.getItem() instanceof ItemAtlas && chaseCheck() && getStackInSlot(2) == ItemStack.EMPTY)
+		if (atlas != null && atlas.getItem() instanceof ItemAtlas && chaseCheck() && getStackInSlot(2) == null)
 		{
 			atlas = atlas.copy();
 			if (this.requiredlevels > player.experienceLevel)
 			{
 				return false;
 			}
-			
+
 			NBTTagCompound tags = atlas.getTagCompound();
 			// so I need to search the tags and delete everything from inventory that isnt a filled map, then copy the edited tag to the atlas plate
 			InventoryBasic atlasInventory = new InventoryBasic("AtlasInventory", false, 48);
@@ -557,27 +580,27 @@ public class TileEntityTypeMachine extends BiblioTileEntity implements ITickable
 				byte slot = tag.getByte("Slot");
 				if (slot >= 0 && slot < atlasInventory.getSizeInventory())
 				{
-					ItemStack invStack = new ItemStack(tag);
+					ItemStack invStack = ItemStack.loadItemStackFromNBT(tag);
 					atlasInventory.setInventorySlotContents(slot, invStack);
 				}
 			}
 			for (int i = 0; i < atlasInventory.getSizeInventory(); i++)
 			{
 				ItemStack testStack = atlasInventory.getStackInSlot(i);
-				if (testStack != ItemStack.EMPTY)
+				if (testStack != null)
 				{
-					if (testStack.getItem() !=Items.FILLED_MAP)
+					if (testStack.getItem() !=Items.filled_map)
 					{
-						atlasInventory.setInventorySlotContents(i, ItemStack.EMPTY);
+						atlasInventory.setInventorySlotContents(i, null);
 					}
 				}
 			}
-			
+
 	    	NBTTagList itemList = new NBTTagList();
 	    	for (int i = 0; i < atlasInventory.getSizeInventory(); i++)
 	    	{
 	    		ItemStack stack = atlasInventory.getStackInSlot(i);
-	    		if (stack != ItemStack.EMPTY)
+	    		if (stack != null)
 	    		{
 	    			NBTTagCompound tag = new NBTTagCompound();
 	    			tag.setByte("Slot", (byte) i);
@@ -591,84 +614,83 @@ public class TileEntityTypeMachine extends BiblioTileEntity implements ITickable
 			plate.setTagCompound(tags);
 			player.addExperienceLevel(-requiredlevels);
 			setInventorySlotContents(2, plate);
-			if (chases.getCount() > 1)
+			if (chases.stackSize > 1)
 			{
-				chases.setCount(chases.getCount() - 1);
+				chases.stackSize = (chases.stackSize - 1);
 				this.setInventorySlotContents(1, chases);
-				
+
 			}
 			else
 			{
-				this.setInventorySlotContents(1, ItemStack.EMPTY);
-				
+				this.setInventorySlotContents(1, null);
+
 			}
-			getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+            getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 		}
 		return false;
 	}
-	
+
 	public ItemStack getEntchantedBook()
 	{
 		return getStackInSlot(0);
 	}
-	
+
     public NBTTagList getEnchantmentTagList(ItemStack stack)
     {
         return stack.getTagCompound() != null && stack.getTagCompound().hasKey("StoredEnchantments") ? (NBTTagList)stack.getTagCompound().getTag("StoredEnchantments") : new NBTTagList();
     }
-	
+
 	public void setPlate()
 	{
-		if (chaseCheck() && getStackInSlot(2) == ItemStack.EMPTY)
+		if (chaseCheck() && getStackInSlot(2) == null)
 		{
 			//System.out.println(getBookname());
 			ItemStack stack = getStackInSlot(1);
 			ItemStack newPlate = new ItemStack(ItemPlate.instance, 1, 0);
-			writePlateNBT(newPlate, getBookname()); 
-			inventory.set(2, newPlate);
-			//inventory[2] = newPlate;
-			
-			if (stack.getCount() != 1)
+			writePlateNBT(newPlate, getBookname());
+//			inventory.set(2, newPlate);
+			inventory[2] = newPlate;
+
+			if (stack.stackSize != 1)
 			{
-				stack.setCount(stack.getCount() - 1);
-				inventory.set(1, stack);
-				//inventory[1] = stack;
-				
+				stack.stackSize = (stack.stackSize - 1);
+//				inventory.set(1, stack);
+				inventory[1] = stack;
+
 			}
 			else
 			{
-				//inventory[1] = null;
-				inventory.set(1, ItemStack.EMPTY);
-				
-			}
-			getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+				inventory[1] = null;
+//				inventory.set(1, null);
 
+			}
+            getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 		}
-		
+
 	}
-    
+
     public String getBookname()
     {
     	return nameofbook;
-    	
+
     }
-    
+
     public void setBookname(String name)
     {
     	nameofbook = name;
-    	getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+        getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
     }
-    
-    
+
+
     public boolean hasSavedBook()
     {
     	return bookIsSaved;
     }
-    
+
     public boolean hasNewPlate()
     {
 		ItemStack stack = getStackInSlot(2);
-		if (stack != ItemStack.EMPTY)
+		if (stack != null)
 		{
 			return true;
 		}
@@ -680,7 +702,7 @@ public class TileEntityTypeMachine extends BiblioTileEntity implements ITickable
     public boolean hasEnchantedPlate()
     {
     	ItemStack stack = getStackInSlot(2);
-    	if (stack != ItemStack.EMPTY)
+    	if (stack != null)
     	{
     		Item item = stack.getItem();
     		if (item instanceof ItemEnchantedPlate)
@@ -690,11 +712,11 @@ public class TileEntityTypeMachine extends BiblioTileEntity implements ITickable
     	}
     	return false;
     }
-    
+
     public boolean hasAtlasPlate()
     {
     	ItemStack stack = getStackInSlot(2);
-    	if (stack != ItemStack.EMPTY)
+    	if (stack != null)
     	{
     		Item item = stack.getItem();
     		if (item instanceof ItemAtlasPlate)
@@ -704,11 +726,11 @@ public class TileEntityTypeMachine extends BiblioTileEntity implements ITickable
     	}
     	return false;
     }
-    
+
     public boolean hasOldPlate()
     {
 		ItemStack stack = getStackInSlot(0);
-		if (stack != ItemStack.EMPTY)
+		if (stack != null)
 		{
 			Item booktest = stack.getItem();
 			if (booktest instanceof ItemPlate)
@@ -718,11 +740,11 @@ public class TileEntityTypeMachine extends BiblioTileEntity implements ITickable
 		}
 			return false;
     }
-    
+
     public boolean hasLowerChase()
     {
     	ItemStack stack = getStackInSlot(0);
-		if (stack != ItemStack.EMPTY)
+		if (stack != null)
 		{
 			Item booktest = stack.getItem();
 			if (booktest instanceof ItemChase)
@@ -732,16 +754,16 @@ public class TileEntityTypeMachine extends BiblioTileEntity implements ITickable
 		}
 			return false;
     }
-    
+
 	public void setBookList(String books, String authors, String publics)
 	{
 		this.listofbooks = books;
 		this.listofAuthors = authors;
 		this.listofPublicBooks = publics;
-		getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+        getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 	//worldObj.scheduleBlockUpdate(xCoord, yCoord, xCoord, 0, 0);
 	}
-	
+
 	public String getbookListString()
 	{
 		//getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
@@ -755,14 +777,14 @@ public class TileEntityTypeMachine extends BiblioTileEntity implements ITickable
 	{
 		return this.listofPublicBooks;
 	}
-	
+
 	public String[] getbookList()
 	{
 		//getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
 		String[] booklist = listofbooks.split("&_");
 		return booklist;
 	}
-	
+
 	public String[] getAuthorList()
 	{
 		//getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
@@ -787,20 +809,20 @@ public class TileEntityTypeMachine extends BiblioTileEntity implements ITickable
 		}
 		return publiclist;
 	}
-	
+
 	@Override
 	public boolean isItemValidForSlot(int slot, ItemStack itemstack)
 	{
 		Item stackitem = itemstack.getItem();
-		if (stackitem != ItemStack.EMPTY.getItem())
+		if (stackitem != null)
 		{
 			if (slot == 0)
 			{
-				if (stackitem instanceof ItemPlate || stackitem instanceof ItemWrittenBook)
+				if (stackitem instanceof ItemPlate || stackitem instanceof ItemEditableBook)
 				{
 					return true;
 				}
-			
+
 			}
 			if (slot == 1)
 			{
@@ -813,20 +835,20 @@ public class TileEntityTypeMachine extends BiblioTileEntity implements ITickable
 		return false;
 	}
 
+//	@Override
+//	public String getName()
+//	{
+//		return BlockTypesettingTable.name;
+//	}
+
 	@Override
-	public String getName() 
+	public void setInventorySlotContentsAdditionalCommands(int slot, ItemStack stack)
 	{
-		return BlockTypesettingTable.name;
+
 	}
 
 	@Override
-	public void setInventorySlotContentsAdditionalCommands(int slot, ItemStack stack) 
-	{
-		
-	}
-
-	@Override
-	public void loadCustomNBTData(NBTTagCompound nbt) 
+	public void loadCustomNBTData(NBTTagCompound nbt)
 	{
 		this.bookIsSaved = nbt.getBoolean("savedbook");
 		this.nameofbook = nbt.getString("SavedBookName");
@@ -837,7 +859,7 @@ public class TileEntityTypeMachine extends BiblioTileEntity implements ITickable
 	}
 
 	@Override
-	public NBTTagCompound writeCustomNBTData(NBTTagCompound nbt) 
+	public NBTTagCompound writeCustomNBTData(NBTTagCompound nbt)
 	{
     	nbt.setBoolean("savedbook", bookIsSaved);
     	nbt.setString("SavedBookName", nameofbook);
@@ -847,22 +869,22 @@ public class TileEntityTypeMachine extends BiblioTileEntity implements ITickable
     	nbt.setInteger("levelreq", requiredlevels);
 		return nbt;
 	}
-	
+
+//	@Override
+//	public ITextComponent getDisplayName()
+//	{
+//		ITextComponent chat = new ChatComponentText(getName());
+//		return chat;
+//	}
+
 	@Override
-	public ITextComponent getDisplayName() 
+	public void tick()
 	{
-		ITextComponent chat = new TextComponentString(getName());
-		return chat;
-	}
-	
-	@Override
-	public void update() 
-	{
-		if (!world.isRemote)
+		if (!worldObj.isRemote)
 		{
 			if (counter >= 2)
 			{
-				int power = getWorld().isBlockIndirectlyGettingPowered(getPos());
+				int power = getWorldObj().getStrongestIndirectPower(xCoord, yCoord, zCoord); //.isBlockIndirectlyGettingPowered(getPos());
 				if (power > redstone)
 				{
 					this.setPlate();
@@ -876,4 +898,9 @@ public class TileEntityTypeMachine extends BiblioTileEntity implements ITickable
 			}
 		}
 	}
+
+    @Override
+    public int[] getAccessibleSlotsFromSide(int p_94128_1_) {
+        return new int[0];
+    }
 }

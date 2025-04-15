@@ -1,31 +1,28 @@
 package jds.bibliocraft.tileentities;
 
 import jds.bibliocraft.Config;
-import jds.bibliocraft.blocks.BlockPotionShelf;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
 
-public class TileEntityPotionShelf extends BiblioTileEntity 
+public class TileEntityPotionShelf extends BiblioTileEntity
 {
 	public int showPotText = 0;
-	
+
 	public TileEntityPotionShelf()
 	{
 		super(12, true);
 	}
-	
+
 	public boolean checkSlot(int slot)
     {
-    	if (getStackInSlot(slot) != ItemStack.EMPTY)
+    	if (getStackInSlot(slot) != null)
     	{
     		return true;
     	}
     	return false;
     }
-	
+
     public void setShowPotText(int pottext)
     {
     	showPotText = pottext;
@@ -34,28 +31,28 @@ public class TileEntityPotionShelf extends BiblioTileEntity
     {
     	return showPotText;
     }
-    
+
     public boolean addPotion(ItemStack pot, int slot)
     {
-    	if (pot ==ItemStack.EMPTY && getStackInSlot(slot) != ItemStack.EMPTY)
+    	if (pot ==null && getStackInSlot(slot) != null)
     	{
-    		setInventorySlotContents(slot, ItemStack.EMPTY);
+    		setInventorySlotContents(slot, null);
     		return false;
     	}
-    	if (pot != ItemStack.EMPTY && getStackInSlot(slot) == ItemStack.EMPTY)
+    	if (pot != null && getStackInSlot(slot) == null)
     	{
     		setInventorySlotContents(slot, pot);
     		return true;
-    		
+
     	}
     	return false;
     }
-    
+
 	@Override
 	public boolean isItemValidForSlot(int slot, ItemStack itemstack)
 	{
 		Item stackitem = itemstack.getItem();
-		if (stackitem != ItemStack.EMPTY.getItem())
+		if (stackitem != null)
 		{
 			String stackName = stackitem.toString();
 			String displayName = stackitem.getItemStackDisplayName(itemstack);
@@ -67,40 +64,70 @@ public class TileEntityPotionShelf extends BiblioTileEntity
 		return false;
 	}
 
+//	@Override
+//	public String getName()
+//	{
+//		return BlockPotionShelf.name;
+//	}
+
 	@Override
-	public String getName() 
+	public void setInventorySlotContentsAdditionalCommands(int slot, ItemStack stack)
 	{
-		return BlockPotionShelf.name;
+
 	}
 
 	@Override
-	public void setInventorySlotContentsAdditionalCommands(int slot, ItemStack stack) 
+	public void loadCustomNBTData(NBTTagCompound nbt)
 	{
 
 	}
 
 	@Override
-	public void loadCustomNBTData(NBTTagCompound nbt) 
-	{
-		
-	}
-
-	@Override
-	public NBTTagCompound writeCustomNBTData(NBTTagCompound nbt) 
+	public NBTTagCompound writeCustomNBTData(NBTTagCompound nbt)
 	{
 		return nbt;
 	}
 
-	@Override
-	public int getInventoryStackLimit() 
+    @Override
+    public ItemStack getStackInSlotOnClosing(int index) {
+        return null;
+    }
+
+    @Override
+    public String getInventoryName() {
+        return "";
+    }
+
+    @Override
+    public boolean hasCustomInventoryName() {
+        return false;
+    }
+
+    @Override
+	public int getInventoryStackLimit()
 	{
 		return 64;
 	}
-	
-	@Override
-	public ITextComponent getDisplayName() 
-	{
-		ITextComponent chat = new TextComponentString(getName());
-		return chat;
-	}
+
+    @Override
+    public void openInventory() {
+
+    }
+
+    @Override
+    public void closeInventory() {
+
+    }
+
+//    @Override
+//	public ITextComponent getDisplayName()
+//	{
+//		ITextComponent chat = new ChatComponentText(getName());
+//		return chat;
+//	}
+
+    @Override
+    public int[] getAccessibleSlotsFromSide(int p_94128_1_) {
+        return new int[0];
+    }
 }

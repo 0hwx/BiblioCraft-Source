@@ -3,6 +3,7 @@ package jds.bibliocraft.gui;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import com.mojang.realmsclient.gui.ChatFormatting;
 import jds.bibliocraft.CommonProxy;
 import jds.bibliocraft.helpers.FileUtil;
 import jds.bibliocraft.network.BiblioNetworking;
@@ -14,9 +15,7 @@ import jds.bibliocraft.tileentities.TileEntityTypeMachine;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.translation.I18n;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.world.World;
 
 public class GuiTypesetting extends GuiScreen //GuiContainer
@@ -35,11 +34,11 @@ public class GuiTypesetting extends GuiScreen //GuiContainer
 	public int j;
 	public int k;
 	public String[] booklist;
-	public boolean[] isPublic;	
+	public boolean[] isPublic;
 	public String[] authorList;
 	public boolean[] bookButtonRender = {false, false, false, false, false, false, false, false};
-	
-	private String title = I18n.translateToLocal("gui.typesetting.guiTitle"); 
+
+	private String title = I18n.format("gui.typesetting.guiTitle");
 	private int pageCurr = 1;
 	private int pageTotal = 0;
 	private GuiButton[] select;
@@ -57,71 +56,71 @@ public class GuiTypesetting extends GuiScreen //GuiContainer
 	private int listStart = 0;
 	private int listEnd = 8;
 	private boolean isServerSide = false;
-	
+
 	public GuiTypesetting(EntityPlayer player, TileEntityTypeMachine tile) /// I might try to stick in a tile entity here
 	{
 		super();
 		this.typetile = tile;
-		this.i = typetile.getPos().getX();
-		this.j = typetile.getPos().getY();
-		this.k = typetile.getPos().getZ();
-		this.playerName = player.getName();
-		if(player.capabilities.isCreativeMode)// || MinecraftServer.getServer().getConfigurationManager().isPlayerOpped(this.playerName)) 
+		this.i = typetile.xCoord;
+		this.j = typetile.yCoord;
+		this.k = typetile.zCoord;
+		this.playerName = player.getCommandSenderName();
+		if(player.capabilities.isCreativeMode)// || MinecraftServer.getServer().getConfigurationManager().isPlayerOpped(this.playerName))
 		{
-			this.creativeMode = true; 
+			this.creativeMode = true;
 		}
 		else
 		{
 			this.creativeMode = false;
 		}
 	}
-	
+
 	@Override
 	public void initGui()
 	{
 		super.initGui();
 		this.buttonList.clear();
-		World world = typetile.getWorld();
+		World world = typetile.getWorldObj();
 		int widthRender = (this.width) / 2;
     	int heightRender = (this.height) / 2;
     	heights = new int[]{heightRender-94,heightRender-69,heightRender-44,heightRender-19,heightRender+6,heightRender+31,heightRender+56,heightRender+81};
     	this.select = new GuiButton[]
     		{
-	    	new GuiButton(1, widthRender-160, heightRender-100, 40, 20, I18n.translateToLocal("gui.typesetting.select")),  // id, spce from top, space from side, width, heigh 
-	    	new GuiButton(2, widthRender-160, heightRender-75, 40, 20, I18n.translateToLocal("gui.typesetting.select")),   
-	    	new GuiButton(3, widthRender-160, heightRender-50, 40, 20, I18n.translateToLocal("gui.typesetting.select")),
-	    	new GuiButton(4, widthRender-160, heightRender-25, 40, 20, I18n.translateToLocal("gui.typesetting.select")),
-	    	new GuiButton(5, widthRender-160, heightRender, 40, 20, I18n.translateToLocal("gui.typesetting.select")),
-	    	new GuiButton(6, widthRender-160, heightRender+25, 40, 20, I18n.translateToLocal("gui.typesetting.select")),
-	    	new GuiButton(7, widthRender-160, heightRender+50, 40, 20, I18n.translateToLocal("gui.typesetting.select")),
-	    	new GuiButton(8, widthRender-160, heightRender+75, 40, 20, I18n.translateToLocal("gui.typesetting.select"))
+	    	new GuiButton(1, widthRender-160, heightRender-100, 40, 20, I18n.format("gui.typesetting.select")),  // id, spce from top, space from side, width, heigh
+	    	new GuiButton(2, widthRender-160, heightRender-75, 40, 20, I18n.format("gui.typesetting.select")),
+	    	new GuiButton(3, widthRender-160, heightRender-50, 40, 20, I18n.format("gui.typesetting.select")),
+	    	new GuiButton(4, widthRender-160, heightRender-25, 40, 20, I18n.format("gui.typesetting.select")),
+	    	new GuiButton(5, widthRender-160, heightRender, 40, 20, I18n.format("gui.typesetting.select")),
+	    	new GuiButton(6, widthRender-160, heightRender+25, 40, 20, I18n.format("gui.typesetting.select")),
+	    	new GuiButton(7, widthRender-160, heightRender+50, 40, 20, I18n.format("gui.typesetting.select")),
+	    	new GuiButton(8, widthRender-160, heightRender+75, 40, 20, I18n.format("gui.typesetting.select"))
     		};
     	this.publicToggle = new GuiButton[]
 			{
-			new GuiButton(9, widthRender+75, heightRender-100, 42, 20, I18n.translateToLocal("gui.typesetting.public")),
-			new GuiButton(10, widthRender+75, heightRender-75, 42, 20, I18n.translateToLocal("gui.typesetting.public")),
-			new GuiButton(11, widthRender+75, heightRender-50, 42, 20, I18n.translateToLocal("gui.typesetting.public")),
-			new GuiButton(12, widthRender+75, heightRender-25, 42, 20, I18n.translateToLocal("gui.typesetting.public")),
-			new GuiButton(13, widthRender+75, heightRender, 42, 20, I18n.translateToLocal("gui.typesetting.public")),
-			new GuiButton(14, widthRender+75, heightRender+25, 42, 20, I18n.translateToLocal("gui.typesetting.public")),
-			new GuiButton(15, widthRender+75, heightRender+50, 42, 20, I18n.translateToLocal("gui.typesetting.public")),
-			new GuiButton(16, widthRender+75, heightRender+75, 42, 20, I18n.translateToLocal("gui.typesetting.public"))
+			new GuiButton(9, widthRender+75, heightRender-100, 42, 20, I18n.format("gui.typesetting.public")),
+			new GuiButton(10, widthRender+75, heightRender-75, 42, 20, I18n.format("gui.typesetting.public")),
+			new GuiButton(11, widthRender+75, heightRender-50, 42, 20, I18n.format("gui.typesetting.public")),
+			new GuiButton(12, widthRender+75, heightRender-25, 42, 20, I18n.format("gui.typesetting.public")),
+			new GuiButton(13, widthRender+75, heightRender, 42, 20, I18n.format("gui.typesetting.public")),
+			new GuiButton(14, widthRender+75, heightRender+25, 42, 20, I18n.format("gui.typesetting.public")),
+			new GuiButton(15, widthRender+75, heightRender+50, 42, 20, I18n.format("gui.typesetting.public")),
+			new GuiButton(16, widthRender+75, heightRender+75, 42, 20, I18n.format("gui.typesetting.public"))
 			};
     	this.delete = new GuiButton[]
 			{
-	    	new GuiButton(17, widthRender+120, heightRender-100, 40, 20, I18n.translateToLocal("gui.typesetting.delete")),
-	    	new GuiButton(18, widthRender+120, heightRender-75, 40, 20, I18n.translateToLocal("gui.typesetting.delete")),
-	    	new GuiButton(19, widthRender+120, heightRender-50, 40, 20, I18n.translateToLocal("gui.typesetting.delete")),
-	    	new GuiButton(20, widthRender+120, heightRender-25, 40, 20, I18n.translateToLocal("gui.typesetting.delete")),
-	    	new GuiButton(21, widthRender+120, heightRender, 40, 20, I18n.translateToLocal("gui.typesetting.delete")),
-	    	new GuiButton(22, widthRender+120, heightRender+25, 40, 20, I18n.translateToLocal("gui.typesetting.delete")),
-	    	new GuiButton(23, widthRender+120, heightRender+50, 40, 20, I18n.translateToLocal("gui.typesetting.delete")),
-	    	new GuiButton(24, widthRender+120, heightRender+75, 40, 20, I18n.translateToLocal("gui.typesetting.delete"))
+	    	new GuiButton(17, widthRender+120, heightRender-100, 40, 20, I18n.format("gui.typesetting.delete")),
+	    	new GuiButton(18, widthRender+120, heightRender-75, 40, 20, I18n.format("gui.typesetting.delete")),
+	    	new GuiButton(19, widthRender+120, heightRender-50, 40, 20, I18n.format("gui.typesetting.delete")),
+	    	new GuiButton(20, widthRender+120, heightRender-25, 40, 20, I18n.format("gui.typesetting.delete")),
+	    	new GuiButton(21, widthRender+120, heightRender, 40, 20, I18n.format("gui.typesetting.delete")),
+	    	new GuiButton(22, widthRender+120, heightRender+25, 40, 20, I18n.format("gui.typesetting.delete")),
+	    	new GuiButton(23, widthRender+120, heightRender+50, 40, 20, I18n.format("gui.typesetting.delete")),
+	    	new GuiButton(24, widthRender+120, heightRender+75, 40, 20, I18n.format("gui.typesetting.delete"))
 			};
-    	this.nextPage = new GuiButton(25, widthRender+10, heightRender+100, 60, 20, I18n.translateToLocal("gui.typesetting.nextPage")); 
-    	this.prevPage = new GuiButton(26, widthRender-115, heightRender+100, 60, 20, I18n.translateToLocal("gui.typesetting.prevPage"));
-    	this.exit = new GuiButton(0, widthRender+95, heightRender+100, 40, 20, I18n.translateToLocal("gui.typesetting.exit"));
-    	this.deleteToggle = new GuiButton(27, widthRender+114, heightRender-120, 46, 20, I18n.translateToLocal("gui.typesetting.enableDiscard")); 
+    	this.nextPage = new GuiButton(25, widthRender+10, heightRender+100, 60, 20, I18n.format("gui.typesetting.nextPage"));
+    	this.prevPage = new GuiButton(26, widthRender-115, heightRender+100, 60, 20, I18n.format("gui.typesetting.prevPage"));
+    	this.exit = new GuiButton(0, widthRender+95, heightRender+100, 40, 20, I18n.format("gui.typesetting.exit"));
+    	this.deleteToggle = new GuiButton(27, widthRender+114, heightRender-120, 46, 20, I18n.format("gui.typesetting.enableDiscard"));
 
     	for (int i = 0; i < 8; i++)
     	{
@@ -133,7 +132,7 @@ public class GuiTypesetting extends GuiScreen //GuiContainer
     	buttonList.add(prevPage);
     	buttonList.add(exit);
     	buttonList.add(deleteToggle);
-    	
+
 		boolean issp = this.mc.isSingleplayer();
 		FileUtil util = new FileUtil();
 		if (!issp)
@@ -145,7 +144,7 @@ public class GuiTypesetting extends GuiScreen //GuiContainer
 				authorList = typetile.getAuthorList();//util.getAuthorList(booklist, false);
 				isPublic = typetile.getPublicList();//util.getPublistList(booklist, false);
 			}
-			
+
 		}
 		else
 		{
@@ -172,7 +171,7 @@ public class GuiTypesetting extends GuiScreen //GuiContainer
 			setBookListEnds();
 		}
 	}
-	
+
 	@Override
 	public void drawScreen(int x, int y, float f)
 	{
@@ -183,9 +182,9 @@ public class GuiTypesetting extends GuiScreen //GuiContainer
 		this.drawTexturedModalRect(widthRender-170, heightRender-128, 0, 0, 256, 256);
 		this. mc.getTextureManager().bindTexture(CommonProxy.TYPEMACHINEGUI_R_PNG);
 		this.drawTexturedModalRect(widthRender+86, heightRender-128, 172, 0, 84, 256);
-		fontRenderer.drawString(title, widthRender-(title.length()*3), heightRender-119, 0x404040);
-		String pages = pageCurr+" "+I18n.translateToLocal("gui.typesetting.pageOfpages")+" "+pageTotal;
-		fontRenderer.drawString(pages, widthRender-19-(pages.length()*3), heightRender+106, 0x404040);
+		fontRendererObj.drawString(title, widthRender-(title.length()*3), heightRender-119, 0x404040);
+		String pages = pageCurr+" "+I18n.format("gui.typesetting.pageOfpages")+" "+pageTotal;
+		fontRendererObj.drawString(pages, widthRender-19-(pages.length()*3), heightRender+106, 0x404040);
 		//fontRenderer.drawString("Enable Deleting:", widthRender+30, heightRender-119, 0x404040);
 		if (booklist != null)
 		{
@@ -205,14 +204,14 @@ public class GuiTypesetting extends GuiScreen //GuiContainer
 			}
 			for (int b = this.listStart, h = 0; b < this.listEnd; b++, h++)
 			{
-				fontRenderer.drawString(TextFormatting.RESET + booklist[b], widthRender-115, heights[h], 0x404040);
+				fontRendererObj.drawString(ChatFormatting.RESET + booklist[b], widthRender-115, heights[h], 0x404040);
 				if (isPublic[b])
 				{
-					publicToggle[h].displayString = I18n.translateToLocal("gui.typesetting.public");
+					publicToggle[h].displayString = I18n.format("gui.typesetting.public");
 				}
 				else
 				{
-					publicToggle[h].displayString = I18n.translateToLocal("gui.typesetting.private");
+					publicToggle[h].displayString = I18n.format("gui.typesetting.private");
 				}
 				if (this.creativeMode || this.authorList[b].contains(this.playerName))
 				{
@@ -264,7 +263,7 @@ public class GuiTypesetting extends GuiScreen //GuiContainer
 		}
 		super.drawScreen(x, y, f);
 	}
-	
+
 	private void setBookListEnds()
 	{
 		this.listStart = pageCurr*8-8;
@@ -285,7 +284,7 @@ public class GuiTypesetting extends GuiScreen //GuiContainer
 			this.bookButtonRender[i] = true;
 		}
 	}
-	
+
     @Override
 	protected void actionPerformed(GuiButton click)
     {
@@ -345,15 +344,15 @@ public class GuiTypesetting extends GuiScreen //GuiContainer
 
     	if (click.id >= 1 && click.id <= 8)
     	{
-			BiblioNetworking.INSTANCE.sendToServer(new BiblioType(bookName, new BlockPos(i, j, k)));
+			BiblioNetworking.INSTANCE.sendToServer(new BiblioType(bookName, i, j, k));
     		// ByteBuf buffer = Unpooled.buffer();
 		    // ByteBufUtils.writeUTF8String(buffer, bookName);
 		    // buffer.writeInt(i);
 		    // buffer.writeInt(j);
 		    // buffer.writeInt(k);
-		    // BiblioCraft.ch_BiblioType.sendToServer(new FMLProxyPacket(new PacketBuffer(buffer), "BiblioType")); 
+		    // BiblioCraft.ch_BiblioType.sendToServer(new FMLProxyPacket(new PacketBuffer(buffer), "BiblioType"));
     	}
-    	
+
     	if (setFlagUpdate)
     	{
     		if (authorList[flag].contains(playerName) || creativeMode)
@@ -371,7 +370,7 @@ public class GuiTypesetting extends GuiScreen //GuiContainer
     		    isPublic[flag] = !isPublic[flag];
     		}
     	}
-    	
+
     	if (setDelete)
     	{
 			BiblioNetworking.INSTANCE.sendToServer(new BiblioTypeDelete(deleteBookTitle));
@@ -382,13 +381,13 @@ public class GuiTypesetting extends GuiScreen //GuiContainer
 		    // BiblioCraft.ch_BiblioTypeDelete.sendToServer(new FMLProxyPacket(new PacketBuffer(buffer), "BiblioTypeDelete"));
 		    deleteBookFromLists(flag);
     	}
-    	
+
     	if (setExit)
     	{
-    		this.mc.player.closeScreen();
+    		this.mc.thePlayer.closeScreen();
     	}
     }
-    
+
     private void deleteBookFromLists(int flag)
     {
     	String[] nBooks = new String[booklist.length - 1];
@@ -416,44 +415,37 @@ public class GuiTypesetting extends GuiScreen //GuiContainer
 		//System.out.println(pageTotal);
 		setBookListEnds();
     }
-    
+
 	@Override
     protected void mouseClicked(int left, int top, int par3)
     {
 		//System.out.println(left);
 		//System.out.println(top);
-		try
-		{
-			super.mouseClicked(left, top, par3);
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-		//System.out.println(par3);
+        super.mouseClicked(left, top, par3);
+        //System.out.println(par3);
 		/*
 		if (top > 30 && left > 120 && left < 330)
 		{
-			//this.mc.thePlayer.closeScreen();   
+			//this.mc.thePlayer.closeScreen();
 		}
 		*/
     }
-	
+
 	@Override
 	protected void keyTyped(char par1, int par2)
 	{
 	         if (par2 == 1 || par2 == this.mc.gameSettings.keyBindInventory.getKeyCode())
 	         {
-	                 this.mc.player.closeScreen();
+	                 this.mc.thePlayer.closeScreen();
 	         }
 	}
-	
+
     @Override
     public void onGuiClosed()
     {
     	if (isServerSide)
     	{
-			BiblioNetworking.INSTANCE.sendToServer(new BiblioTypeUpdate(new BlockPos(this.i, this.j, this.k)));
+			BiblioNetworking.INSTANCE.sendToServer(new BiblioTypeUpdate(this.i, this.j, this.k));
 			// ByteBuf buffer = Unpooled.buffer();
 			// buffer.writeInt(this.i);
 			// buffer.writeInt(this.j);
@@ -461,12 +453,12 @@ public class GuiTypesetting extends GuiScreen //GuiContainer
 		    // BiblioCraft.ch_BiblioTypeUpdate.sendToServer(new FMLProxyPacket(new PacketBuffer(buffer), "BiblioTypeUpdate"));
     	}
     }
-	
+
 	public void setBookList(String[] books)
 	{
 		booklist = books;
 	}
-	
+
 	private void removePrivatesFromList()
 	{
 
@@ -490,7 +482,7 @@ public class GuiTypesetting extends GuiScreen //GuiContainer
 					{
 						publics.add(0);
 					}
-					
+
 				}
 			}
 			//System.out.println("test2");
@@ -522,5 +514,5 @@ public class GuiTypesetting extends GuiScreen //GuiContainer
 			}
 		}
 	}
-	
+
 }

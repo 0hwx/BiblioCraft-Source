@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import com.mojang.realmsclient.gui.ChatFormatting;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
@@ -17,7 +18,6 @@ import jds.bibliocraft.network.packet.server.BiblioUpdateInv;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.InventoryBasic;
@@ -27,11 +27,10 @@ import net.minecraft.nbt.NBTTagFloat;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.translation.I18n;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
+import cpw.mods.fml.common.network.ByteBufUtils;
 
 public class GuiAtlasMap extends GuiScreen
 {
@@ -39,7 +38,7 @@ public class GuiAtlasMap extends GuiScreen
 	private static int guiHeight = 256;
 	private ItemStack atlasStack;
 	ScaledResolution scaledresolution;// = new ScaledResolution(this.mc, this.mc.displayWidth, this.mc.displayHeight);
-	
+
 	private GuiButtonAtlasControls bSelect;
 	private GuiButtonAtlasControls bEdit;
 	private GuiButtonAtlasControls bAdd;
@@ -49,48 +48,48 @@ public class GuiAtlasMap extends GuiScreen
 	private GuiButtonAtlasControls bAddToCompass4;
 	private GuiButtonAtlasControls bAddToCompass5;
 	private GuiButtonAtlasControls bAddToCompass6;
-	
+
 	private GuiButtonAtlasControls bAtlasMode;
 	private GuiButtonAtlasControls bInventoryMode;
-	
+
 	private GuiButtonAtlasControls bModeSelect;
 	private GuiButtonAtlasControls bModeCopyTo;
 	private GuiButtonAtlasControls bModeCopyFrom;
 	private GuiButtonAtlasControls bModeCopyPinsTo;
 	private GuiButtonAtlasControls bModeCopyPinsFrom;
-	
 
-	
+
+
 
 	//private String selectedPinName;
-	
+
 	private ArrayList xPin;
 	private ArrayList zPin;
 	private ArrayList pinStrings;
 	private ArrayList pinColors;
-	
+
 	private int mapXCenter;
 	private int mapZCenter;
 	private int mapScale;
-	
+
 	private int mouseMode = 1;
 	private int compassMode = 1;
-	
+
 	private EntityPlayer player;
 	private World world;
 	private InventoryBasic inventory = null;
-	private ItemStack currentMapStack = ItemStack.EMPTY;
-	
+	private ItemStack currentMapStack = null;
+
 	private boolean hasSelectedPin = false;
 	private float selectedPinX = -1.0f;
 	private float selectedPinY = -1.0f;
 	private float selectedCompasX = -1.0f;
 	private float selectedCompasY = -1.0f;
-	
+
 	private int clickedPin = -1;
 	private int currentPin = -1;
 	private boolean hoveringPin = false;
-	
+
 	private Random rando;
 
 	private ArrayList compasses;
@@ -103,15 +102,14 @@ public class GuiAtlasMap extends GuiScreen
 	private int editColor = 0;
 	private GuiButtonAddSubtract editColorPos;
 	private GuiButtonAddSubtract editColorNeg;
-	
+
 	private boolean swapGUI = false;
-	
+
 	private int animationTracker = 0;
 	private int currentSelectedCompass = -1;
-	
+
 	public Tessellator tessellator;
-	public BufferBuilder worldRenderer;
-	
+
 	public GuiAtlasMap(World worldy, EntityPlayer playa, ItemStack map)
 	{
 		//System.out.println("Constructor");
@@ -144,7 +142,7 @@ public class GuiAtlasMap extends GuiScreen
 				byte slot = tag.getByte("Slot");
 				if (slot >= 0 && slot < atlasInventory.getSizeInventory())
 				{
-					ItemStack invStack = new ItemStack(tag);
+					ItemStack invStack = ItemStack.loadItemStackFromNBT(tag);
 					atlasInventory.setInventorySlotContents(slot, invStack);
 				}
 			}
@@ -153,7 +151,7 @@ public class GuiAtlasMap extends GuiScreen
 			{
 				//System.out.println("test"+i);
 				ItemStack compTest = atlasInventory.getStackInSlot(i);
-				if (compTest != ItemStack.EMPTY && compTest.getItem() instanceof ItemWaypointCompass)
+				if (compTest != null && compTest.getItem() instanceof ItemWaypointCompass)
 				{
 					this.compasses.add(compTest);
 					this.compassSlots[i] = 1;
@@ -161,19 +159,19 @@ public class GuiAtlasMap extends GuiScreen
 			}
 			//System.out.println("testo");
 			this.compassStacks = new ItemStack[0];
-			
+
 			if (this.compasses.size() > 0)
 			{
 				//System.out.println("testenta");
 				this.compassStacks = new ItemStack[this.compasses.size()];
-				
+
 				for (int i = 0; i<this.compasses.size(); i++)
 				{
 					//System.out.println("testuna"+i);
 					this.compassStacks[i] = (ItemStack)this.compasses.get(i);
 				}
 			}
-			
+
 			if (tags.hasKey("savedCompass"))
 			{
 				boolean matchedCompass = false;
@@ -183,7 +181,7 @@ public class GuiAtlasMap extends GuiScreen
 				for (int i = 0; i<this.compassStacks.length; i++)
 				{
 					ItemStack testCompass = this.compassStacks[i];
-					if (testCompass != ItemStack.EMPTY)
+					if (testCompass != null)
 					{
 						NBTTagCompound compassTags = testCompass.getTagCompound();
 						if (compassTags != null)
@@ -199,10 +197,10 @@ public class GuiAtlasMap extends GuiScreen
 			if (mapSlot >= 0)
 			{
 				ItemStack invStack = atlasInventory.getStackInSlot(mapSlot);
-				if (invStack != ItemStack.EMPTY)
+				if (invStack != null)
 				{
 					this.currentMapStack = invStack;
-					
+
 					if (tags.hasKey("maps"))
 					{
 						NBTTagList mapTags = tags.getTagList("maps", Constants.NBT.TAG_COMPOUND);
@@ -220,18 +218,18 @@ public class GuiAtlasMap extends GuiScreen
 									this.xPin.clear();
 									for (int n = 0; n < mapXPins.tagCount(); n++)
 									{
-										float xpindata = mapXPins.getFloatAt(n);
+										float xpindata = mapXPins.func_150308_e(n);
 										this.xPin.add(xpindata);
 									}
-									
+
 									NBTTagList mapYPins = newTags.getTagList("yMapWaypoints", Constants.NBT.TAG_FLOAT);
 									this.zPin.clear();
 									for (int n = 0; n < mapYPins.tagCount(); n++)
 									{
-										float ypindata = mapYPins.getFloatAt(n);
+										float ypindata = mapYPins.func_150308_e(n);
 										this.zPin.add(ypindata);
 									}
-									
+
 									NBTTagList mapPinNames = newTags.getTagList("MapWaypointNames", Constants.NBT.TAG_STRING);
 									this.pinStrings.clear();
 									for (int n = 0; n < mapPinNames.tagCount(); n++)
@@ -239,12 +237,12 @@ public class GuiAtlasMap extends GuiScreen
 										String name = mapPinNames.getStringTagAt(n);
 										this.pinStrings.add(name);
 									}
-									
-									NBTTagList mapPinColors = newTags.getTagList("MapWaypointColors", Constants.NBT.TAG_FLOAT); 
+
+									NBTTagList mapPinColors = newTags.getTagList("MapWaypointColors", Constants.NBT.TAG_FLOAT);
 									this.pinColors.clear();
 									for (int n = 0; n < mapPinColors.tagCount(); n++)
 									{
-										float color = mapPinColors.getFloatAt(n);
+										float color = mapPinColors.func_150308_e(n);
 										this.pinColors.add(color);
 									}
 								}
@@ -256,7 +254,7 @@ public class GuiAtlasMap extends GuiScreen
 			}
 		}
 	}
-	
+
 	private void updateCompassInventory()
 	{
 		for (int n = 0, m = 0; n < 6; n++)
@@ -264,7 +262,7 @@ public class GuiAtlasMap extends GuiScreen
 			if (this.compassSlots[n] == 1)
 			{
 				ItemStack invStack = this.inventory.getStackInSlot(n);
-				if (invStack != ItemStack.EMPTY && invStack.getItem() instanceof ItemWaypointCompass)
+				if (invStack != null && invStack.getItem() instanceof ItemWaypointCompass)
 				{
 					if (m < this.compassStacks.length)
 					{
@@ -274,7 +272,7 @@ public class GuiAtlasMap extends GuiScreen
 				}
 			}
 		}
-		
+
 		NBTTagCompound tags = atlasStack.getTagCompound();
     	if (tags == null)
     	{
@@ -284,7 +282,7 @@ public class GuiAtlasMap extends GuiScreen
     	for (int i = 0; i < inventory.getSizeInventory(); i++)
     	{
     		ItemStack stack = inventory.getStackInSlot(i);
-    		if (stack != ItemStack.EMPTY)
+    		if (stack != null)
     		{
     			NBTTagCompound tag = new NBTTagCompound();
     			tag.setByte("Slot", (byte) i);
@@ -295,13 +293,13 @@ public class GuiAtlasMap extends GuiScreen
     	tags.setTag("Inventory", itemList);
     	this.atlasStack.setTagCompound(tags);
 	}
-	
+
 	private void updateCompassCoords(boolean writeString, int compassNumber, float mapposx, float mapposz)
 	{
 		if (compassNumber < this.compassStacks.length)
 		{
 			NBTTagCompound tags = this.compassStacks[compassNumber].getTagCompound();
-			
+
 			if (tags == null)
 			{
 				tags = new NBTTagCompound();
@@ -310,10 +308,10 @@ public class GuiAtlasMap extends GuiScreen
 			if (tags != null)
 			{
 				int mapSize = 128*(int)Math.pow(2, (this.mapScale-1));
-				
+
 				float fx = 0.0f;
 				float fz = 0.0f;
-				
+
 				if (writeString)
 				{
 					fx = (Float)this.xPin.get(this.clickedPin);
@@ -324,7 +322,7 @@ public class GuiAtlasMap extends GuiScreen
 					fx = mapposx;
 					fz = mapposz;
 				}
-				
+
 				int xpos = (this.mapXCenter - (mapSize/2))+(int)(fx*mapSize);
 				int ypos = (this.mapZCenter - (mapSize/2))+(int)(fz*mapSize);
 
@@ -341,22 +339,21 @@ public class GuiAtlasMap extends GuiScreen
 			}
 		}
 	}
-	
+
     @Override
     public void initGui()
     {
     	super.initGui();
-    	this.tessellator = Tessellator.getInstance();
-    	this.worldRenderer = tessellator.getBuffer();
+    	this.tessellator = Tessellator.instance;
     	Keyboard.enableRepeatEvents(true);
 		int w = (width - this.guiWidth) / 2;
 		int h = (height - this.guiHeight) / 2;
-		double heighAdjust = ((8.0/89.0)*(this.height-20)); 
+		double heighAdjust = ((8.0/89.0)*(this.height-20));
 		double widthAdjust = (0.5)*(-0.75 + width)-(0.375*height);
 		double scaler = 0.0058976*(this.mc.displayHeight);
 		//double antiScaler = 1.0 / scaler;
-		scaledresolution = new ScaledResolution(this.mc);
-		
+		scaledresolution = new ScaledResolution(this.mc,w,h);
+
         int scale = scaledresolution.getScaleFactor(); // so this totally works.
 		if (scale == 3)
 		{
@@ -397,11 +394,11 @@ public class GuiAtlasMap extends GuiScreen
     	buttonList.add(editColorPos = new GuiButtonAddSubtract(21, (this.width/2)+8, (this.height/2)+4, 0, 1.0f));
     	buttonList.add(editAccept = new GuiButton(22, (this.width/2)+30, (this.height/2)+4, 40, 20, "Ok"));
     	buttonList.add(editDelete = new GuiButton(23, (this.width/2)-70, (this.height/2)+4, 40, 20, "Delete"));
-    	this.editPinName = new GuiBiblioTextField(this.fontRenderer, (this.width/2)-84, (this.height/2)-16, 222, 12);
+    	this.editPinName = new GuiBiblioTextField(this.fontRendererObj, (this.width/2)-84, (this.height/2)-16, 222, 12);
     	this.editPinName.setEnableBackgroundDrawing(false);
     	this.editPinName.setTextColor(0x404040);
     	this.editPinName.setMaxStringLength(42);
-    	heighAdjust = ((8.0/89.0)*(this.height-600)); 
+    	heighAdjust = ((8.0/89.0)*(this.height-600));
 		widthAdjust = (0.5)*(-0.75 + width)-(0.375*height);
 		widthAdjust2 = widthAdjust+scaledMapWidth;
 		heightAdjust2 = heighAdjust+scaledMapWidth;
@@ -411,7 +408,7 @@ public class GuiAtlasMap extends GuiScreen
     	bSelect.mouseMode = 1;
     	bAtlasMode.enabled = false;
     }
-    
+
     @Override
     protected void actionPerformed(GuiButton click)
     {
@@ -421,7 +418,7 @@ public class GuiAtlasMap extends GuiScreen
 			bSelect.mouseMode = this.mouseMode;
 			bEdit.mouseMode = this.mouseMode;
 			bAdd.mouseMode = this.mouseMode;
-    	
+
 	    	if (click.id >= 4 && click.id <= 9)
 	    	{
 	    		setCompassHighlight(click.id-4);
@@ -457,7 +454,7 @@ public class GuiAtlasMap extends GuiScreen
         		bAddToCompass6.mouseMode = this.mouseMode;
         	}
     	}
-    	
+
     	switch (click.id)
     	{
     		case 4:
@@ -523,7 +520,7 @@ public class GuiAtlasMap extends GuiScreen
     		}
     	}
     }
-    
+
     private void setCompassHighlight(int compNum)
     {
     	if (compNum < this.compassStacks.length)
@@ -543,7 +540,7 @@ public class GuiAtlasMap extends GuiScreen
     			for (int i = 0; i<6; i++)
     			{
     				ItemStack compTester = this.inventory.getStackInSlot(i);
-    				if (compTester != ItemStack.EMPTY && compTester.getItem() instanceof ItemWaypointCompass)
+    				if (compTester != null && compTester.getItem() instanceof ItemWaypointCompass)
     				{
     					NBTTagCompound tagTest = compTester.getTagCompound();
     					if (tagTest != null && tagTest.getInteger("XCoord") == this.selectedCompasX && tagTest.getInteger("ZCoord") == this.selectedCompasY)
@@ -559,13 +556,13 @@ public class GuiAtlasMap extends GuiScreen
     			{
     				atlasTags.setInteger("compassX", (int)this.selectedCompasX);
     				atlasTags.setInteger("compassZ", (int)this.selectedCompasY);
-    				atlasTags.setInteger("savedCompass", invNum); 
+    				atlasTags.setInteger("savedCompass", invNum);
     				this.atlasStack.setTagCompound(atlasTags);
     			}
     		}
     	}
     }
-    
+
     @Override
     public void onGuiClosed()
     {
@@ -575,7 +572,7 @@ public class GuiAtlasMap extends GuiScreen
     		sendPacket();
     	}
     }
-    
+
     private void sendPacket()
     {
     	ByteBuf buffer = Unpooled.buffer();
@@ -591,18 +588,18 @@ public class GuiAtlasMap extends GuiScreen
 	    	//BiblioCraft.ch_BiblioInvStack.sendToServer(new FMLProxyPacket(new PacketBuffer(buffer), "BiblioUpdateInv"));
     	}
     }
-    
+
     @Override
     protected void mouseClicked(int mousex, int mousey, int click)
     {
     	//System.out.println(mousex+"    "+mousey+"     "+click);
  		int w = (width - this.guiWidth) / 2;
  		int h = (height - this.guiHeight) / 2;
-		double heighAdjust = ((8.0/89.0)*(this.height-20)); 
+		double heighAdjust = ((8.0/89.0)*(this.height-20));
 		double widthAdjust = (0.5)*(-0.75 + width)-(0.375*height);
 		double scaler = 0.0058976*(this.mc.displayHeight);
 		//double antiScaler = 1.0 / scaler;
-		scaledresolution = new ScaledResolution(this.mc);
+		scaledresolution = new ScaledResolution(this.mc,w,h);
         int scale = scaledresolution.getScaleFactor(); // so this totally works.
 		if (scale == 3)
 		{
@@ -615,13 +612,13 @@ public class GuiAtlasMap extends GuiScreen
 		float mapPosZ = (float)((mousey - heighAdjust)*(1.0/scaledMapWidth));
 		int mapSize = 128*(int)Math.pow(2, (this.mapScale-1));
 		int halfMapSize = mapSize / 2;
-		//  mapPosX and mapPosZ are the actual mouse locations on the map that I need to save for the waypoint. 
+		//  mapPosX and mapPosZ are the actual mouse locations on the map that I need to save for the waypoint.
 		// It is the value between 0 and 1 that where 1x1 is the size of the map. Also render is done from these values
 
 		boolean iswithinmap = mousex >= widthAdjust && mousex <= widthAdjust2 && mousey >= heighAdjust && mousey <= heightAdjust2;
 		if (iswithinmap)
 		{
-			
+
 			if (this.editMenuToggle)
 			{
 				// so do I need any mouse clicks here?, I guess not
@@ -653,7 +650,7 @@ public class GuiAtlasMap extends GuiScreen
 						}
 						else
 						{
-							
+
 							this.selectedPinX = this.mapXCenter-halfMapSize+(mapPosX*mapSize);
 							this.selectedPinY = this.mapZCenter-halfMapSize+(mapPosZ*mapSize);
 						}
@@ -666,8 +663,8 @@ public class GuiAtlasMap extends GuiScreen
 					//this.mc.gameSettings.isKeyDown(p_100015_0_)
 					int randomColor = rando.nextInt(16);
 					String newName = "Waypoint "+(this.xPin.size());
-					
-					
+
+
 					//if (this.isShiftKeyDown())
 					//{
 						//System.out.println("Add pin with random color and name @ "+mapPosX+"     "+mapPosZ);
@@ -687,7 +684,7 @@ public class GuiAtlasMap extends GuiScreen
 						//System.out.println("Add pin with popup for color and name @ "+mapPosX+"     "+mapPosZ);
 						this.editMenuToggle = true;
 					}
-					
+
 				}
 				if (mouseMode == 3)
 				{
@@ -709,7 +706,7 @@ public class GuiAtlasMap extends GuiScreen
 							this.editMenuToggle = true;
 							// open the edit dialog box
 							///(options include)
-							
+
 							//Name, Color
 							//Delete, Cancel, Ok
 						}
@@ -730,24 +727,17 @@ public class GuiAtlasMap extends GuiScreen
 						setCompassHighlight(this.mouseMode-4);
 					}
 				}
-				
+
 			}
 			//System.out.println("on the map "+mapPosX+"    "+mapPosZ);
 		}
- 		try 
- 		{
-			super.mouseClicked(mousex, mousey, click);
-		} 
- 		catch (IOException e) 
- 		{
-			e.printStackTrace();
-		}
- 		if (this.editMenuToggle)
+        super.mouseClicked(mousex, mousey, click);
+        if (this.editMenuToggle)
  		{
  			this.editPinName.mouseClicked(mousex, mousey, click);
  		}
     }
-    
+
     private void updateSelectedPinData()
     {
     	NBTTagCompound tags = this.atlasStack.getTagCompound();
@@ -758,11 +748,11 @@ public class GuiAtlasMap extends GuiScreen
     		this.atlasStack.setTagCompound(tags);
     	}
     }
-    
+
     public void updateNBTPinData()
     {
     	NBTTagCompound tags = this.atlasStack.getTagCompound();
-    	if (tags != null && this.currentMapStack != ItemStack.EMPTY)
+    	if (tags != null && this.currentMapStack != null)
     	{
     		if (tags.hasKey("maps"))
     		{
@@ -782,7 +772,7 @@ public class GuiAtlasMap extends GuiScreen
     			    		//System.out.println(mapXPins.tagCount());
     			    	}
     			    	map.setTag("xMapWaypoints", mapXPins);
-    			    	
+
     			    	NBTTagList mapYPins = new NBTTagList();
     			    	for (int n = 0; n < this.zPin.size(); n++)
     			    	{
@@ -790,14 +780,14 @@ public class GuiAtlasMap extends GuiScreen
     			    		//System.out.prnntln(mapYPins.tagCount());
     			    	}
     			    	map.setTag("yMapWaypoints", mapYPins);
-    			    	
+
     			    	NBTTagList mapPinNames = new NBTTagList();
     			    	for (int n = 0; n < this.pinStrings.size(); n++)
     			    	{
     			    		mapPinNames.appendTag(new NBTTagString((String)this.pinStrings.get(n)));
     			    	}
     			    	map.setTag("MapWaypointNames", mapPinNames);
-    			    	
+
     			    	NBTTagList mapPinColors = new NBTTagList();
     			    	//int[] colours = new int[this.pinColors.size()];
     			    	for (int n = 0; n < this.pinColors.size(); n++)
@@ -811,33 +801,33 @@ public class GuiAtlasMap extends GuiScreen
     			}
     			tags.setTag("maps", newTags);
     			this.atlasStack.setTagCompound(tags);
-    			
+
     			player.inventory.setInventorySlotContents(player.inventory.currentItem, atlasStack);
     			// get the inventory here?
     		}
     	}
     }
-    
-    @Override	
+
+    @Override
 	public void updateScreen()
     {
-    	
+
         super.updateScreen();
        // System.out.println(bSelect.hovered);
     }
-    
+
     @Override
     public void drawDefaultBackground()
     {
         //this.drawWorldBackground(0);
     }
-    
+
     @Override
     public boolean doesGuiPauseGame()
     {
         return false;
     }
-    
+
     @Override
     protected void keyTyped(char par1, int par2)
     {
@@ -846,70 +836,56 @@ public class GuiAtlasMap extends GuiScreen
 	    	if (this.editPinName.textboxKeyTyped(par1, par2)){}
 	    	else
 	    	{
-	    		try 
-	    		{
-					super.keyTyped(par1, par2);
-				} 
-	    		catch (IOException e) 
-	    		{
-					e.printStackTrace();
-				}
-	    	}
+                super.keyTyped(par1, par2);
+            }
     	}
     	else
     	{
-    		try 
-    		{
-				super.keyTyped(par1, par2);
-			} 
-    		catch (IOException e) 
-    		{
-				e.printStackTrace();
-			}
-    	}
+            super.keyTyped(par1, par2);
+        }
     }
-    
+
 	@Override
 	public void drawScreen(int mousex, int mousey, float f)
 	{
 		//System.out.println(bSelect.hovered);
-		
+
 		int w = (this.width - this.guiWidth) / 2;
 		int h = (this.height - this.guiHeight) / 2;
-		bSelect.drawButton(this.mc, 0, 0, 0f);
-		bEdit.drawButton(this.mc, 0, 0, 0f);
-		bAdd.drawButton(this.mc, 0, 0, 0f);
+		bSelect.drawButton(this.mc, 0, 0);
+		bEdit.drawButton(this.mc, 0, 0);
+		bAdd.drawButton(this.mc, 0, 0);
  		if (this.compassStacks.length > 0)
     	{
- 			bAddToCompass1.drawButton(this.mc, 0, 0, 0f);
+ 			bAddToCompass1.drawButton(this.mc, 0, 0);
     	}
     	if (this.compassStacks.length > 1)
     	{
-    		bAddToCompass2.drawButton(this.mc, 0, 0, 0f);
+    		bAddToCompass2.drawButton(this.mc, 0, 0);
     	}
     	if (this.compassStacks.length > 2)
     	{
-    		bAddToCompass3.drawButton(this.mc, 0, 0, 0f);
+    		bAddToCompass3.drawButton(this.mc, 0, 0);
     	}
     	if (this.compassStacks.length > 3)
     	{
-    		bAddToCompass4.drawButton(this.mc, 0, 0, 0f);
-    	}	
+    		bAddToCompass4.drawButton(this.mc, 0, 0);
+    	}
     	if (this.compassStacks.length > 4)
     	{
-    		bAddToCompass5.drawButton(this.mc, 0, 0, 0f);
+    		bAddToCompass5.drawButton(this.mc, 0, 0);
     	}
     	if (this.compassStacks.length > 5)
     	{
-    		bAddToCompass6.drawButton(this.mc, 0, 0, 0f);
+    		bAddToCompass6.drawButton(this.mc, 0, 0);
     	}
 
-		bAtlasMode.drawButton(this.mc, 0, 0, 0f);
-		bInventoryMode.drawButton(this.mc, 0, 0, 0f);
-		scaledresolution = new ScaledResolution(this.mc);
+		bAtlasMode.drawButton(this.mc, 0, 0);
+		bInventoryMode.drawButton(this.mc, 0, 0);
+		scaledresolution = new ScaledResolution(this.mc,w,h);
         int scale = scaledresolution.getScaleFactor(); // so this totally works.
 		double heighAdjust = ((8.0/89.0)*(this.height-20)); // width has a very slight adjustment on height (goddamnit jeb)
-		double widthAdjust = (0.5)*(-0.75 + width)-(0.375*height);//0.0;	
+		double widthAdjust = (0.5)*(-0.75 + width)-(0.375*height);//0.0;
 		double scaler = 0.0058976*(this.mc.displayHeight);//0.00604833*(this.mc.displayHeight-8.106); // seems like the scaled height might be better
 		if (scale == 3)
 		{
@@ -921,12 +897,12 @@ public class GuiAtlasMap extends GuiScreen
 		double heightAdjust2 = heighAdjust+scaledMapWidth;
 		int mapSize = 128*(int)Math.pow(2, (this.mapScale-1));
 		int halfMapSize = mapSize / 2;
-		
+
 		if (this.editMenuToggle)
 		{
-			this.mc.getTextureManager().bindTexture(CommonProxy.ATLASGUIBUTTONS); 
+			this.mc.getTextureManager().bindTexture(CommonProxy.ATLASGUIBUTTONS);
 			this.drawTexturedModalRect((this.width/2)-100, (this.height/2)+-42, 0, 100, 200, 71);
-			this.mc.getTextureManager().bindTexture(getColorTexture(this.editColor)); 
+			this.mc.getTextureManager().bindTexture(getColorTexture(this.editColor));
 			this.drawTexturedModalRect((this.width/2)-6, (this.height/2)+3, 0, 0, 12, 13);
 			editAccept.enabled = true;
 			editAccept.visible = true;
@@ -936,12 +912,12 @@ public class GuiAtlasMap extends GuiScreen
 			editColorNeg.enabled = true;
 			editDelete.enabled = true;
 			editDelete.visible = true;
-			editAccept.drawButton(this.mc, 0, 0, 0f);
-			editColorPos.drawButton(this.mc, 0, 0, 0f);
-			editColorNeg.drawButton(this.mc, 0, 0, 0f);
-			editDelete.drawButton(this.mc, 0, 0, 0f);
+			editAccept.drawButton(this.mc, 0, 0);
+			editColorPos.drawButton(this.mc, 0, 0);
+			editColorNeg.drawButton(this.mc, 0, 0);
+			editDelete.drawButton(this.mc, 0, 0);
 			editPinName.drawTextBox();
-			
+
 			this.bInventoryMode.enabled = false;
 			this.bAdd.enabled = false;
 			this.bSelect.enabled = false;
@@ -958,14 +934,14 @@ public class GuiAtlasMap extends GuiScreen
 			editColorPos.enabled = false;
 			editColorNeg.visible = false;
 			editColorNeg.enabled = false;
-			
+
 			this.bInventoryMode.enabled = true;
 			this.bAdd.enabled = true;
 			this.bSelect.enabled = true;
 			this.bEdit.enabled = true;
 		}
 		super.drawScreen(mousex, mousey, f);
-		this.mc.getTextureManager().bindTexture(CommonProxy.ATLASGUIBUTTONS); 
+		this.mc.getTextureManager().bindTexture(CommonProxy.ATLASGUIBUTTONS);
 		/*
 		// drawing all the map pins with colored X's in 2D since I can't render stuff with the map.
 		for (int n = 0; n < xPin.size(); n++)
@@ -984,12 +960,12 @@ public class GuiAtlasMap extends GuiScreen
 			int uvy = 80;
 			GL11.glPushMatrix();
 			GL11.glTranslated(pinX - 0.6, pinZ, 0.0);
-			this.drawTexturedModalRect(-4, -4, uvx, uvy, 9, 8); 
+			this.drawTexturedModalRect(-4, -4, uvx, uvy, 9, 8);
 			GL11.glPopMatrix();
 		}
 		*/
-		
-		
+
+
 		if (animationTracker >= 180)
 		{
 			this.animationTracker = 0;
@@ -998,7 +974,7 @@ public class GuiAtlasMap extends GuiScreen
 		{
 			this.animationTracker++;
 		}
-		
+
 		//System.out.println("ymm");
 		if (this.selectedPinX != -1.0f && this.selectedPinY != -1.0f)
 		{
@@ -1031,10 +1007,10 @@ public class GuiAtlasMap extends GuiScreen
 			GL11.glPushMatrix();
 			GL11.glTranslated(pinHighlightX, pinHighlightY, 0.0);
 			GL11.glRotatef(2*this.animationTracker, 0.0f, 0.0f, 1.0f);
-			this.drawTexturedModalRect(-4, -4, 10, 80, 8, 8); 
+			this.drawTexturedModalRect(-4, -4, 10, 80, 8, 8);
 			GL11.glPopMatrix();
 		}
-		
+
 		if (this.selectedCompasX != -1.0f && this.selectedCompasY != -1.0f)
 		{
 			double pinHighlightX = (this.selectedCompasX-this.mapXCenter)+(mapSize/2.0);
@@ -1060,45 +1036,45 @@ public class GuiAtlasMap extends GuiScreen
 			{
 				pinHighlightX = widthAdjust;
 			}
-			
+
 			GL11.glPushMatrix();
 			GL11.glTranslated(pinHighlightX, pinHighlightY, 0.0);
 			GL11.glRotatef(2*this.animationTracker, 0.0f, 0.0f, 1.0f);
-			this.drawTexturedModalRect(-4, -4, 0, 80, 8, 8); 
+			this.drawTexturedModalRect(-4, -4, 0, 80, 8, 8);
 			GL11.glPopMatrix();
 
 		}
-		
+
 		if (this.currentSelectedCompass < this.compassStacks.length && this.currentSelectedCompass >= 0)
 		{
 			// render the green checkmark on selected compass. the height will be multiplied by the current selected compas int
-			this.drawTexturedModalRect((int)widthAdjust-10, (int)heighAdjust+82+20*(this.currentSelectedCompass), 20, 80, 10, 8); 
+			this.drawTexturedModalRect((int)widthAdjust-10, (int)heighAdjust+82+20*(this.currentSelectedCompass), 20, 80, 10, 8);
 		}
 ////////////////
 		if (!this.editMenuToggle)
 		{
 			this.currentPin = -1;
 		}
-		
+
 		this.hoveringPin = false;
 		if (mousex >= widthAdjust && mousex <= widthAdjust2 && mousey >= heighAdjust && mousey <= heightAdjust2 && !editMenuToggle)
 		{
-			
+
 			switch (this.mouseMode)
 			{
 				case 2:{this.drawTexturedModalRect(mousex-4, mousey-12, 20, 60, 18, 18); break;} // add pin
 				case 3:{this.drawTexturedModalRect(mousex-1, mousey-15, 40, 60, 18, 18); break;} // edit pin
-				//case 4:{this.drawTexturedModalRect(mousex, mousey, 60, 60, 18, 18); break;} // compass mode 
+				//case 4:{this.drawTexturedModalRect(mousex, mousey, 60, 60, 18, 18); break;} // compass mode
 			}
 			if (this.mouseMode >= 4 && this.mouseMode <= 9)
 			{
-				this.drawTexturedModalRect(mousex, mousey, 60, 60, 18, 18); 
+				this.drawTexturedModalRect(mousex, mousey, 60, 60, 18, 18);
 			}
-			
+
 			boolean foundPin = false;
 			float mapPosX = (float)((mousex - widthAdjust)*(1.0/scaledMapWidth));//*(128*(1.0/scale));
 			float mapPosZ = (float)((mousey - heighAdjust)*(1.0/scaledMapWidth));
-			
+
 			for (int n = 0; n < xPin.size(); n++)
 			{
 				float pinx = (Float)xPin.get(n);
@@ -1108,87 +1084,87 @@ public class GuiAtlasMap extends GuiScreen
 					//System.out.println("test");
 					foundPin = true;
 					String mapName = (String)pinStrings.get(n);
-					//this.fontRenderer.drawString(mapName, mousex+10, mousey, 0x000000, false);
-					
+					//this.fontRendererObj.drawString(mapName, mousex+10, mousey, 0x000000, false);
+
 					int xpos = (this.mapXCenter - (mapSize/2))+(int)(pinx*mapSize);
 					int ypos = (this.mapZCenter - (mapSize/2))+(int)(pinz*mapSize);
 					List lst = new ArrayList();
 					lst.add(mapName);
 					lst.add("X = "+xpos);
 					lst.add("Z = "+ypos);
-					this.drawHoveringText(lst, mousex, mousey+15, this.fontRenderer);
+					this.drawHoveringText(lst, mousex, mousey+15, this.fontRendererObj);
 					this.currentPin = n;
 					this.hoveringPin = true;
 				}
 			}
 			if (!foundPin && this.isCtrlKeyDown())
 			{
-				
+
 				int xpos = (this.mapXCenter - (mapSize/2))+(int)(mapPosX*mapSize);
 				int ypos = (this.mapZCenter - (mapSize/2))+(int)(mapPosZ*mapSize);
 				List lst = new ArrayList();
 				lst.add("X = "+xpos);
 				lst.add("Z = "+ypos);
-				this.drawHoveringText(lst, mousex, mousey+15, this.fontRenderer);
+				this.drawHoveringText(lst, mousex, mousey+15, this.fontRendererObj);
 			}
-			
+
 
 		}
 		//System.out.println(bSelect.hovered);
 		if (isCtrlKeyDown())
 		{
-			if (mousex >= this.bSelect.x && mousex < (this.bSelect.x+this.bSelect.width) && mousey >= this.bSelect.y && mousey < (this.bSelect.y+this.bSelect.height))
+			if (mousex >= this.bSelect.xPosition && mousex < (this.bSelect.xPosition+this.bSelect.width) && mousey >= this.bSelect.yPosition && mousey < (this.bSelect.yPosition+this.bSelect.height))
 			{
 				List lst = new ArrayList();
-				lst.add(TextFormatting.AQUA+""+TextFormatting.BOLD+I18n.translateToLocal("gui.atlas.select.tt1")); 
-				lst.add(I18n.translateToLocal("gui.atlas.select.tt2")); 
-				lst.add(I18n.translateToLocal("gui.atlas.select.tt3"));
-				lst.add(I18n.translateToLocal("gui.atlas.select.tt4"));
+				lst.add(ChatFormatting.AQUA+""+ChatFormatting.BOLD+I18n.format("gui.atlas.select.tt1"));
+				lst.add(I18n.format("gui.atlas.select.tt2"));
+				lst.add(I18n.format("gui.atlas.select.tt3"));
+				lst.add(I18n.format("gui.atlas.select.tt4"));
 				lst.add(" ");
-				lst.add(I18n.translateToLocal("gui.atlas.select.tt5"));
-				lst.add(I18n.translateToLocal("gui.atlas.select.tt6"));
-				lst.add(I18n.translateToLocal("gui.atlas.select.tt7"));
-				lst.add(I18n.translateToLocal("gui.atlas.select.tt8"));
-				this.drawHoveringText(lst, mousex, mousey+15, this.fontRenderer);
+				lst.add(I18n.format("gui.atlas.select.tt5"));
+				lst.add(I18n.format("gui.atlas.select.tt6"));
+				lst.add(I18n.format("gui.atlas.select.tt7"));
+				lst.add(I18n.format("gui.atlas.select.tt8"));
+				this.drawHoveringText(lst, mousex, mousey+15, this.fontRendererObj);
 			}
-			if (mousex >= this.bAdd.x && mousex < (this.bAdd.x+this.bAdd.width) && mousey >= this.bAdd.y && mousey < (this.bAdd.y+this.bAdd.height))
+			if (mousex >= this.bAdd.xPosition && mousex < (this.bAdd.xPosition+this.bAdd.width) && mousey >= this.bAdd.yPosition && mousey < (this.bAdd.yPosition+this.bAdd.height))
 			{
 				List lst = new ArrayList();
-				lst.add(TextFormatting.AQUA+""+TextFormatting.BOLD+I18n.translateToLocal("gui.atlas.edit.tt1"));
-				lst.add(I18n.translateToLocal("gui.atlas.edit.tt2"));
-				lst.add(I18n.translateToLocal("gui.atlas.edit.tt3"));
-				lst.add(I18n.translateToLocal("gui.atlas.edit.tt4"));
+				lst.add(ChatFormatting.AQUA+""+ChatFormatting.BOLD+I18n.format("gui.atlas.edit.tt1"));
+				lst.add(I18n.format("gui.atlas.edit.tt2"));
+				lst.add(I18n.format("gui.atlas.edit.tt3"));
+				lst.add(I18n.format("gui.atlas.edit.tt4"));
 				lst.add(" ");
-				lst.add(I18n.translateToLocal("gui.atlas.edit.tt5"));
-				lst.add(I18n.translateToLocal("gui.atlas.edit.tt6"));
-				
-				this.drawHoveringText(lst, mousex, mousey+15, this.fontRenderer);
+				lst.add(I18n.format("gui.atlas.edit.tt5"));
+				lst.add(I18n.format("gui.atlas.edit.tt6"));
+
+				this.drawHoveringText(lst, mousex, mousey+15, this.fontRendererObj);
 			}
-			if (mousex >= this.bEdit.x && mousex < (this.bEdit.x+this.bEdit.width) && mousey >= this.bEdit.y && mousey < (this.bEdit.y+this.bEdit.height))
+			if (mousex >= this.bEdit.xPosition && mousex < (this.bEdit.xPosition+this.bEdit.width) && mousey >= this.bEdit.yPosition && mousey < (this.bEdit.yPosition+this.bEdit.height))
 			{
 
-				
+
 				List lst = new ArrayList();
-				lst.add(TextFormatting.AQUA+""+TextFormatting.BOLD+I18n.translateToLocal("gui.atlas.add.tt1"));
-				lst.add(I18n.translateToLocal("gui.atlas.add.tt2"));
-				lst.add(I18n.translateToLocal("gui.atlas.add.tt3"));
-				lst.add(I18n.translateToLocal("gui.atlas.add.tt4"));
-				lst.add(I18n.translateToLocal("gui.atlas.add.tt5"));
+				lst.add(ChatFormatting.AQUA+""+ChatFormatting.BOLD+I18n.format("gui.atlas.add.tt1"));
+				lst.add(I18n.format("gui.atlas.add.tt2"));
+				lst.add(I18n.format("gui.atlas.add.tt3"));
+				lst.add(I18n.format("gui.atlas.add.tt4"));
+				lst.add(I18n.format("gui.atlas.add.tt5"));
 				lst.add(" ");
-				lst.add(I18n.translateToLocal("gui.atlas.add.tt6"));
-				lst.add(I18n.translateToLocal("gui.atlas.add.tt7"));
-				lst.add(I18n.translateToLocal("gui.atlas.add.tt8"));
-				this.drawHoveringText(lst, mousex, mousey+15, this.fontRenderer);
+				lst.add(I18n.format("gui.atlas.add.tt6"));
+				lst.add(I18n.format("gui.atlas.add.tt7"));
+				lst.add(I18n.format("gui.atlas.add.tt8"));
+				this.drawHoveringText(lst, mousex, mousey+15, this.fontRendererObj);
 			}
-			
-			if (mousex >= this.bInventoryMode.x && mousex < (this.bInventoryMode.x+this.bInventoryMode.width) && mousey >= this.bInventoryMode.y && mousey < (this.bInventoryMode.y+this.bInventoryMode.height))
+
+			if (mousex >= this.bInventoryMode.xPosition && mousex < (this.bInventoryMode.xPosition+this.bInventoryMode.width) && mousey >= this.bInventoryMode.yPosition && mousey < (this.bInventoryMode.yPosition+this.bInventoryMode.height))
 			{
 				List lst = new ArrayList();
-				lst.add(I18n.translateToLocal("gui.atlas.switchtoinv"));
-				this.drawHoveringText(lst, mousex, mousey+15, this.fontRenderer);
+				lst.add(I18n.format("gui.atlas.switchtoinv"));
+				this.drawHoveringText(lst, mousex, mousey+15, this.fontRendererObj);
 			}
 		}
-		
+
 		if (this.compassStacks.length > 0)
     	{
 			showCompassData(mousex, mousey, bAddToCompass1, 0);
@@ -1214,13 +1190,13 @@ public class GuiAtlasMap extends GuiScreen
     		showCompassData(mousex, mousey, bAddToCompass6, 5);
     	}
 	}
-	
+
 	private boolean isPositionOnCurrentMap(int mapSize, int mapCenterX, int mapCenterZ)
 	{
-		
+
 		return false;
 	}
-	
+
 	private void showCompassData(int mousex, int mousey, GuiButtonAtlasControls control, int stacknum)
 	{
 		if (this.editMenuToggle)
@@ -1230,7 +1206,7 @@ public class GuiAtlasMap extends GuiScreen
 		else
 		{
 			control.enabled = true;
-			if (mousex >= control.x && mousex < (control.x+control.width) && mousey >= control.y && mousey < (control.y+control.height))
+			if (mousex >= control.xPosition && mousex < (control.xPosition+control.width) && mousey >= control.yPosition && mousey < (control.yPosition+control.height))
 			{
 				NBTTagCompound cTags = this.compassStacks[stacknum].getTagCompound();
 				if (cTags != null)
@@ -1239,14 +1215,14 @@ public class GuiAtlasMap extends GuiScreen
 					lst.add(""+cTags.getString("WaypointName"));
 					lst.add("X = "+cTags.getInteger("XCoord"));
 					lst.add("Z = "+cTags.getInteger("ZCoord"));
-					this.drawHoveringText(lst, mousex, mousey+15, this.fontRenderer);
+					this.drawHoveringText(lst, mousex, mousey+15, this.fontRendererObj);
 				}
-				
+
 			}
 		}
 	}
-	
-    
+
+
 	public ResourceLocation getColorTexture(float color)
 	{
 		int colorint = (int)color;

@@ -38,24 +38,22 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
 
 public class TileEntityFurniturePaneler extends BiblioTileEntity
 {
 	public EntityPlayer playerFromBlock = null;
 	public ContainerFurniturePaneler eventHandler;
-	
+
 	public String customCraftingTex = "none";
-	
+
 	public TileEntityFurniturePaneler()
 	{
 		super(3, true);
 	}
-	
+
 	public boolean checkIfFramedBiblioCraftBlock(ItemStack block)
 	{
-		if (block != ItemStack.EMPTY && block.getItemDamage() == EnumWoodType.FRAME.getID())
+		if (block != null && block.getItemDamage() == EnumWoodType.FRAME.getID())
 		{
 			if (block.getItem() instanceof BiblioWoodBlockItem ||
 					block.getItem() instanceof ItemSeatBack ||
@@ -67,14 +65,14 @@ public class TileEntityFurniturePaneler extends BiblioTileEntity
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	public boolean addItemsToBlock(ItemStack stack, int slot, EntityPlayer player)
 	{
 		ItemStack currStack = getStackInSlot(slot);
-		if (currStack == ItemStack.EMPTY)
+		if (currStack == null)
 		{
 			setInventorySlotContents(slot, stack);
 			updateRecipeManager();
@@ -82,7 +80,7 @@ public class TileEntityFurniturePaneler extends BiblioTileEntity
 		}
 		return false;
 	}
-	
+
 	public void updateCraftingTexture()
 	{
 		// ByteBuf buffer = Unpooled.buffer();
@@ -93,17 +91,17 @@ public class TileEntityFurniturePaneler extends BiblioTileEntity
     	// buffer.writeInt(this.pos.getZ());
 		if (this.playerFromBlock != null)
 		{
-			BiblioNetworking.INSTANCE.sendTo(new BiblioPanelerClient(getStackInSlot(0), this.pos), (EntityPlayerMP) this.playerFromBlock);
+			BiblioNetworking.INSTANCE.sendTo(new BiblioPanelerClient(getStackInSlot(0), this.xCoord, this.yCoord, this.zCoord), (EntityPlayerMP) this.playerFromBlock);
 			// BiblioCraft.ch_BiblioPaneler.sendTo(new FMLProxyPacket(new PacketBuffer(buffer), "BiblioPaneler"), (EntityPlayerMP) this.playerFromBlock);
 		}
 	}
-	
+
 	public void updateRecipeManager()
 	{
 		ItemStack input = getStackInSlot(1);
 		ItemStack panels = getStackInSlot(0);
-		ItemStack output = ItemStack.EMPTY;
-		if (input != ItemStack.EMPTY && panels != ItemStack.EMPTY && !this.customCraftingTex.equals("none"))
+		ItemStack output = null;
+		if (input != null && panels != null && !this.customCraftingTex.equals("none"))
 		{
 			output = input.copy();
 			NBTTagCompound tags = output.getTagCompound();
@@ -111,74 +109,99 @@ public class TileEntityFurniturePaneler extends BiblioTileEntity
 			{
 				tags = new NBTTagCompound();
 			}
-			tags.setString("renderTexture", this.customCraftingTex); 
+			tags.setString("renderTexture", this.customCraftingTex);
 			output.setTagCompound(tags);
-			output.setCount(1);
+			output.stackSize =(1);
 		}
 		setInventorySlotContents(2, output);
 	}
-	
+
 	public void updateRecipeManagerFromServer(ItemStack stack)
 	{
 		setInventorySlotContents(2, stack);
 	}
-	
+
 	public void executeRecipe()
 	{
 		ItemStack input = getStackInSlot(1);
 		ItemStack panel = getStackInSlot(0);
-		if (input.getCount() > 1)
+		if (input.stackSize > 1)
 		{
-			input.setCount(input.getCount() - 1);
+			input.stackSize =(input.stackSize - 1);
 			setInventorySlotContents(1, input);
 		}
 		else
 		{
-			setInventorySlotContents(1, ItemStack.EMPTY);
+			setInventorySlotContents(1, null);
 		}
-		if (panel.getCount() > 1)
+		if (panel.stackSize > 1)
 		{
-			panel.setCount(panel.getCount() - 1);
+			panel.stackSize = (panel.stackSize - 1);
 			setInventorySlotContents(0, panel);
 		}
 		else
 		{
-			setInventorySlotContents(0, ItemStack.EMPTY);
+			setInventorySlotContents(0, null);
 		}
 	}
-	
+
 	public void setCustomCraftingTex(String tex)
 	{
 		this.customCraftingTex = tex;
 		updateRecipeManager();
-		getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+        getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
-	
+
 	public String getCustomCraftingTex()
 	{
 		return this.customCraftingTex;
 	}
-	
-	@Override
+
+    @Override
+    public ItemStack getStackInSlotOnClosing(int index) {
+        return null;
+    }
+
+    @Override
+    public String getInventoryName() {
+        return "";
+    }
+
+    @Override
+    public boolean hasCustomInventoryName() {
+        return false;
+    }
+
+    @Override
 	public int getInventoryStackLimit()
 	{
 		return 64;
 	}
-	
-	@Override
+
+    @Override
+    public void openInventory() {
+
+    }
+
+    @Override
+    public void closeInventory() {
+
+    }
+
+    @Override
 	public boolean isItemValidForSlot(int slot, ItemStack itemstack)
 	{
 		return false;
 	}
 
-	@Override
-	public String getName() 
-	{
-		return BlockFurniturePaneler.name;
-	}
+//	@Override
+//	public String getName()
+//	{
+//		return BlockFurniturePaneler.name;
+//	}
 
 	@Override
-	public void setInventorySlotContentsAdditionalCommands(int slot, ItemStack stack) 
+	public void setInventorySlotContentsAdditionalCommands(int slot, ItemStack stack)
 	{
 		if (slot != 2)
 		{
@@ -193,23 +216,27 @@ public class TileEntityFurniturePaneler extends BiblioTileEntity
 
 	@Override
 	public void loadCustomNBTData(NBTTagCompound nbt) {
-		
+
 		this.customCraftingTex = nbt.getString("customCraftingTexture");
 	}
 
 	@Override
-	public NBTTagCompound writeCustomNBTData(NBTTagCompound nbt) 
+	public NBTTagCompound writeCustomNBTData(NBTTagCompound nbt)
 	{
 		nbt.setString("customCraftingTexture", this.customCraftingTex);
 		return nbt;
 	}
 
-	@Override
-	public ITextComponent getDisplayName() 
-	{
-		ITextComponent chat = new TextComponentString(getName());
-		return chat;
-	}
+//	@Override
+//	public ITextComponent getDisplayName()
+//	{
+//		ITextComponent chat = new ChatComponentText(getName());
+//		return chat;
+//	}
 
 
+    @Override
+    public int[] getAccessibleSlotsFromSide(int p_94128_1_) {
+        return new int[0];
+    }
 }

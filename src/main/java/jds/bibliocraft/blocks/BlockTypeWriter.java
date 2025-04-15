@@ -8,76 +8,70 @@ import javax.vecmath.Vector3f;
 
 import jds.bibliocraft.tileentities.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityTypewriter;
-import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
-import net.minecraftforge.common.model.TRSRTransformation;
+import net.minecraftforge.common.util.ForgeDirection;
 
 public class BlockTypeWriter extends BiblioColorBlock
 {
 	public static final String name = "Typewriter";
 	public static final BlockTypeWriter instance = new BlockTypeWriter();
-	
+
 	public BlockTypeWriter()
 	{
-		super(Material.IRON, SoundType.METAL, name);
+		super(Material.iron, soundTypeMetal, name);
 	}
 
 	@Override
-	public boolean onBlockActivatedCustomCommands(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ)
+	public boolean onBlockActivatedCustomCommands(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ)
 	{
-		TileEntity tile = world.getTileEntity(pos);
+		TileEntity tile = world.getTileEntity(x, y, z);
 		if (!world.isRemote && tile != null && tile instanceof TileEntityTypewriter)
 		{
 			TileEntityTypewriter typewriter = (TileEntityTypewriter)tile;
-			ItemStack playerhand = player.getHeldItem(EnumHand.MAIN_HAND);
-			EnumFacing typeAngle = typewriter.getAngle();
-
+			ItemStack playerhand = player.getHeldItem();
+			ForgeDirection typeAngle = typewriter.getAngle();
+            ForgeDirection sides = ForgeDirection.getOrientation(side);
 			if (player.isSneaking())
 			{
-				if (typewriter.getStackInSlot(0) != ItemStack.EMPTY)
+				if (typewriter.getStackInSlot(0) != null)
 				{
 					typewriter.removeStackFromInventoryFromWorld(0, player, this);
 				}
 			}
 			else
 			{
-				if (playerhand != ItemStack.EMPTY)
+				if (playerhand != null)
 				{
-					if (playerhand.getItem() == Items.PAPER)
+					if (playerhand.getItem() == Items.paper)
 					{
-						int returnsize = typewriter.addPaper(playerhand); 
+						int returnsize = typewriter.addPaper(playerhand);
 						if (returnsize > 0)
 						{
-							playerhand.setCount(returnsize);
+							playerhand.stackSize = (returnsize);
 							player.inventory.setInventorySlotContents(player.inventory.currentItem, playerhand);
 						}
 						else if (returnsize == 0)
 						{
-							player.inventory.setInventorySlotContents(player.inventory.currentItem, ItemStack.EMPTY);
+							player.inventory.setInventorySlotContents(player.inventory.currentItem, null);
 						}
 					}
 					return true;
 				}
-				
-				if (isFrontFace(typeAngle, side) && typewriter.getStackInSlot(1) == ItemStack.EMPTY)
+
+				if (isFrontFace(typeAngle, sides) && typewriter.getStackInSlot(1) == null)
 				{
 					if (typewriter.getHasEnoughPaper())
 					{
-						
+
 						if (typewriter.getBookWriteCount() < 15)
 						{
-							typewriter.entityName = player.getName();
+							typewriter.entityName = player.getCommandSenderName();
 							typewriter.entityType = 0;
 							typewriter.setBookWriteCount(typewriter.getBookWriteCount()+1, true);
 						}
@@ -86,7 +80,7 @@ public class BlockTypeWriter extends BiblioColorBlock
 							if (typewriter.removePaperForBook())
 							{
 								typewriter.foundValidEntity = true;
-								typewriter.entityName = player.getName();
+								typewriter.entityName = player.getCommandSenderName();
 								typewriter.entityType = 0;
 								typewriter.writeCustomBook();
 							}
@@ -94,8 +88,8 @@ public class BlockTypeWriter extends BiblioColorBlock
 					}
 					return true;
 				}
-				
-				if (typewriter.getStackInSlot(1) != ItemStack.EMPTY)
+
+				if (typewriter.getStackInSlot(1) != null)
 				{
 					typewriter.foundValidEntity = false;
 					typewriter.entityName = "";
@@ -107,15 +101,15 @@ public class BlockTypeWriter extends BiblioColorBlock
 		}
 		return true;
 	}
-	
-	public boolean isFrontFace(EnumFacing typeAngle, EnumFacing face)
+
+	public boolean isFrontFace(ForgeDirection typeAngle, ForgeDirection face)
 	{
 		switch (typeAngle)
 		{
-			case SOUTH:{if (face == EnumFacing.WEST){return true;}break;}
-			case WEST:{if (face == EnumFacing.NORTH){return true;}break;}
-			case NORTH:{if (face == EnumFacing.EAST){return true;}break;}
-			case EAST:{if (face == EnumFacing.SOUTH){return true;}break;}
+			case SOUTH:{if (face == ForgeDirection.WEST){return true;}break;}
+			case WEST:{if (face == ForgeDirection.NORTH){return true;}break;}
+			case NORTH:{if (face == ForgeDirection.EAST){return true;}break;}
+			case EAST:{if (face == ForgeDirection.SOUTH){return true;}break;}
 			default: break;
 		}
 		return false;
@@ -127,29 +121,29 @@ public class BlockTypeWriter extends BiblioColorBlock
 		return new TileEntityTypewriter();
 	}
 
-	@Override
-	public List<String> getModelParts(BiblioTileEntity tile)
-	{
-		List<String> modelParts = new ArrayList<String>();
-		modelParts.add("base");
-		return modelParts;
-	}
-	
-	@Override
-	public TRSRTransformation getAdditionalTransforms(TRSRTransformation transform, BiblioTileEntity tile)
-	{
-		transform = transform.compose(new TRSRTransformation(new Vector3f(0.09f, 0.0f, 0.0f), 
-				   new Quat4f(0.0f, 1.0f, 0.0f, 1.0f), 
-				   new Vector3f(1.0f, 1.0f, 1.0f), 
-				   new Quat4f(0.0f, 1.0f, 0.0f, 1.0f)));
-		return transform;
-	}
-	
+//	@Override
+//	public List<String> getModelParts(BiblioTileEntity tile)
+//	{
+//		List<String> modelParts = new ArrayList<String>();
+//		modelParts.add("base");
+//		return modelParts;
+//	}
+
+//	@Override
+//	public TRSRTransformation getAdditionalTransforms(TRSRTransformation transform, BiblioTileEntity tile)
+//	{
+//		transform = transform.compose(new TRSRTransformation(new Vector3f(0.09f, 0.0f, 0.0f),
+//				   new Quat4f(0.0f, 1.0f, 0.0f, 1.0f),
+//				   new Vector3f(1.0f, 1.0f, 1.0f),
+//				   new Quat4f(0.0f, 1.0f, 0.0f, 1.0f)));
+//		return transform;
+//	}
+
     @Override
-	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess blockAccess, BlockPos pos)
+	public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z)
 	{
 		AxisAlignedBB output = this.getBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
-		TileEntity tile = blockAccess.getTileEntity(pos);
+		TileEntity tile = world.getTileEntity(x, y, z);
 		if (tile != null && tile instanceof BiblioTileEntity)
 		{
 			BiblioTileEntity biblioTile = (BiblioTileEntity)tile;

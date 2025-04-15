@@ -17,12 +17,14 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemBook;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
-import net.minecraft.util.NonNullList;
 import net.minecraft.world.World;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ContainerFancyWorkbench extends Container
 {
-	
+
     public InventoryCrafting playerCraftMatrix = new InventoryCrafting(this, 3, 3);
    // public InventoryCrafting bookCraftMatrix = new InventoryCrafting(this, 3, 3);
     public IInventory craftResult = new InventoryCraftResult();
@@ -35,24 +37,24 @@ public class ContainerFancyWorkbench extends Container
     private InventoryPlayer playerInventory;
 	private int[] ingredientCounts = new int[9];
 	private String[] ingredientNames = new String[9];
-	private NonNullList<ItemStack> newlyAddedMatrix = NonNullList.<ItemStack>withSize(9, ItemStack.EMPTY);//new ItemStack[9];
+	private ItemStack[] newlyAddedMatrix = new ItemStack[9];
 	private int playerID = 0;
-	
+
 	private int numExtraBookcases = 0;
-    
+
     public ContainerFancyWorkbench(InventoryPlayer inventoryPlayer, World worldObj, TileEntityFancyWorkbench tile, int playerid, TileEntityBookcase leftBookcase, TileEntityBookcase rightBookcase)
     {
     	world = worldObj;
     	tileEntity = tile;
-    	posX = tile.getPos().getX();
-    	posY = tile.getPos().getY();
-    	posZ = tile.getPos().getZ();
+    	posX = tile.xCoord;
+    	posY = tile.yCoord;
+    	posZ = tile.zCoord;
     	tileEntity.setContainer(this, playerid); // I bet anything, this is where the problem is at with multipleyer
     	playerInventory = inventoryPlayer;
     	playerID = playerid;
 
     	this.addSlotToContainer(this.slot = new SlotFancyWorkbench(this, tileEntity, 0, 8+60, 35, true));  // recipe book slot
-		for (int i = 0; i < 8; i++) 
+		for (int i = 0; i < 8; i++)
 		{
 			this.addSlotToContainer(this.slot = new SlotFancyWorkbench(this, tileEntity, i+1, 17+60+i*18, 83, false));
 		}
@@ -66,7 +68,7 @@ public class ContainerFancyWorkbench extends Container
         }
 		this.onCraftMatrixChanged(this.playerCraftMatrix);
 		//this.onCraftMatrixChanged(this.bookCraftMatrix);
-		
+
 		if (leftBookcase != null)
 		{
 			for (int m = 0; m < 2; m++)
@@ -89,60 +91,60 @@ public class ContainerFancyWorkbench extends Container
 			}
 			numExtraBookcases++;
 		}
-		
+
     	bindPlayerInventory(inventoryPlayer);
     }
-    
-    
+
+
     @Override
     public void onCraftMatrixChanged(IInventory par1IInventory)
     {
-		this.craftResult.setInventorySlotContents(0, CraftingManager.findMatchingResult(this.playerCraftMatrix, this.world));
-		NonNullList<ItemStack> grid = NonNullList.<ItemStack>withSize(9, ItemStack.EMPTY);//new ItemStack[9];
+		this.craftResult.setInventorySlotContents(0, CraftingManager.getInstance().findMatchingRecipe(this.playerCraftMatrix, this.world));
+        ItemStack[] grid = new ItemStack[9];
 		for (int n=0; n<9; n++)
 		{
-			grid.set(n, this.playerCraftMatrix.getStackInSlot(n));
+			grid[n] = this.playerCraftMatrix.getStackInSlot(n);
 		}
 		tileEntity.setPlayerGrid(grid);
     }
-    
+
     /**
      * Looks at the players inventory and adds matching ItemStacks to the crafting grid intended for the recipe book
      * @param grid
      */
-    public void loadPlayerInventorytoRecipeBookGrid(NonNullList<ItemStack> grid, int id)
+    public void loadPlayerInventorytoRecipeBookGrid(ItemStack[] grid, int id)
     {
     	if (playerInventory.player.getEntityId() != id)
     	{
     		return;
     	}
-    	ItemStack slotStack = ItemStack.EMPTY;
-    	ItemStack invStack = ItemStack.EMPTY;
-    	ItemStack matrixStack = ItemStack.EMPTY;
+    	ItemStack slotStack = null;
+    	ItemStack invStack = null;
+    	ItemStack matrixStack = null;
     	int[] matrixSizes = new int[9];
-    	NonNullList<ItemStack> newMatrix = NonNullList.<ItemStack>withSize(9, ItemStack.EMPTY);
+        ItemStack[] newMatrix = new ItemStack[9];
     	int stackcount;
     	int newStackCount = 0;
     	int totalStackCount;
     	int maxStackSize = 64;
     	compareingredients(grid);
-    	
+
     	for (int n = 0; n < 9; n++)
     	{
-    		slotStack = grid.get(n);
-    		if (slotStack != ItemStack.EMPTY)
+    		slotStack = grid[n];
+    		if (slotStack != null)
     		{
     			maxStackSize = slotStack.getMaxStackSize();
     			stackcount = 0;
-    			for (int m = 0; m < playerInventory.mainInventory.size(); m++)
+    			for (int m = 0; m < playerInventory.mainInventory.length; m++)
     			{
-    				
-    				invStack = playerInventory.mainInventory.get(m);	
-    				if (invStack != ItemStack.EMPTY)
+
+    				invStack = playerInventory.mainInventory[m];
+    				if (invStack != null)
 					{
     					if (slotStack.getUnlocalizedName().matches(invStack.getUnlocalizedName()))
     					{
-    						stackcount += invStack.getCount();
+    						stackcount += invStack.stackSize;
     						slotStack = invStack.copy();
     					}
 					}
@@ -160,11 +162,11 @@ public class ContainerFancyWorkbench extends Container
     							stackcount = maxStackSize;
     						}
     						matrixStack = this.playerCraftMatrix.getStackInSlot(n);
-    						
+
     						newStackCount = stackcount;
-    						if (matrixStack != ItemStack.EMPTY)
+    						if (matrixStack != null)
     						{
-    							matrixSizes[n] = matrixStack.getCount();
+    							matrixSizes[n] = matrixStack.stackSize;
     							if (matrixStack.getUnlocalizedName().matches(slotStack.getUnlocalizedName()))
     							{
     								if (matrixSizes[n] + stackcount >= maxStackSize)
@@ -185,11 +187,11 @@ public class ContainerFancyWorkbench extends Container
     						}
     						if (stackcount != 0)
     						{
-    							slotStack.setCount(stackcount);
+    							slotStack.stackSize = (stackcount);
     							this.playerCraftMatrix.setInventorySlotContents(n, slotStack);
     							ItemStack stackcopy = slotStack.copy();
-    							stackcopy.setCount(newStackCount);
-    							newMatrix.set(n, stackcopy);// = stackcopy;
+    							stackcopy.stackSize =(newStackCount);
+    							newMatrix[n] = stackcopy;
     						}
     					}
     					break;
@@ -197,60 +199,60 @@ public class ContainerFancyWorkbench extends Container
     			}
     		}
     	}
-    	
-    	slotStack = ItemStack.EMPTY;
-    	invStack = ItemStack.EMPTY;
+
+    	slotStack = null;
+    	invStack = null;
     	for (int n = 0; n<9; n++)
     	{
-    		slotStack = newMatrix.get(n);
-    		if (slotStack != ItemStack.EMPTY)
+    		slotStack = newMatrix[n];
+    		if (slotStack != null)
     		{
-    			stackcount = slotStack.getCount();
+    			stackcount = slotStack.stackSize;
     			if (stackcount > 0)
     			{
-		    		for (int m = 0; m < this.playerInventory.mainInventory.size(); m++)
+		    		for (int m = 0; m < this.playerInventory.mainInventory.length; m++)
 		    		{
-		    			invStack = this.playerInventory.mainInventory.get(m);
-		    			if (invStack != ItemStack.EMPTY)
+		    			invStack = this.playerInventory.mainInventory[m];
+		    			if (invStack != null)
 		    			{
 		    				if (invStack.getUnlocalizedName().matches(slotStack.getUnlocalizedName()))
 		    				{
 		    					// so I have a matching item in the player inventory as I added to my player crafting matrix.
-		    					if (invStack.getCount() > stackcount)
+		    					if (invStack.stackSize > stackcount)
 		    					{
-		    						this.playerInventory.mainInventory.get(m).setCount(this.playerInventory.mainInventory.get(m).getCount() - stackcount);// -= stackcount;
+		    						this.playerInventory.mainInventory[m].stackSize = (this.playerInventory.mainInventory[m].stackSize - stackcount);// -= stackcount;
 		    						stackcount = 0;
 		    						break;
 		    					}
-		    					else if (invStack.getCount() == stackcount)
+		    					else if (invStack.stackSize == stackcount)
 		    					{
-		    						this.playerInventory.mainInventory.set(m, ItemStack.EMPTY);
+		    						this.playerInventory.mainInventory[m] = null;
 		    						stackcount = 0;
 		    						break;
 		    					}
-		    					else // if invStack.getCount() < stackcount
+		    					else // if invStack.stackSize < stackcount
 		    					{
-		    						stackcount -= this.playerInventory.mainInventory.get(m).getCount();
-		    						this.playerInventory.mainInventory.set(m, ItemStack.EMPTY);
+		    						stackcount -= this.playerInventory.mainInventory[m].stackSize;
+		    						this.playerInventory.mainInventory[m] = null;
 		    					}
-		    					
+
 		    				}
 		    			}
 		    		}
     			}
     		}
     	}
-    	
+
     }
-    
-    public void compareingredients(NonNullList<ItemStack> stacks)
+
+    public void compareingredients(ItemStack[] stacks)
 	{
 		ingredientCounts = new int[9];
 		ingredientNames = new String[9];
 		for (int i = 0; i < 9; i++)
 		{
-			ItemStack nbtStack = stacks.get(i);//[i];
-			if (nbtStack != ItemStack.EMPTY && nbtStack != null)
+			ItemStack nbtStack = stacks[i];
+			if (nbtStack != null && nbtStack.stackSize <= 0)
 			{
 				int n = 0;
 				boolean complete = false;
@@ -266,7 +268,7 @@ public class ContainerFancyWorkbench extends Container
 						}
 					}
 				}
-				
+
 				if (havematch)
 				{
 					this.ingredientCounts[n] += 1;
@@ -290,23 +292,23 @@ public class ContainerFancyWorkbench extends Container
 							}
 					}
 				}
-			}	
+			}
 		}
 	}
-    
+
     // this will test the players crafting slots and return true if there is any items in the crafting grid
     private boolean testPlayerCraftSlots()
     {
     	for (int n = 0; n < 9; n++)
     	{
-    		if (this.playerCraftMatrix.getStackInSlot(n) != ItemStack.EMPTY)
+    		if (this.playerCraftMatrix.getStackInSlot(n) != null)
     		{
     			return true;
     		}
     	}
     	return false;
     }
-    
+
     @Override
     public void onContainerClosed(EntityPlayer par1EntityPlayer)
     {
@@ -317,22 +319,22 @@ public class ContainerFancyWorkbench extends Container
             for (int i = 0; i < 9; ++i)
             {
                 ItemStack itemstack = this.playerCraftMatrix.getStackInSlot(i);
-                if (itemstack != ItemStack.EMPTY)
+                if (itemstack != null)
                 {
-                    par1EntityPlayer.dropItem(itemstack, false);
+                    par1EntityPlayer.dropPlayerItemWithRandomChoice(itemstack, false);
                 }
             }
         }
-        tileEntity.setPlayerGrid(NonNullList.<ItemStack>withSize(9, ItemStack.EMPTY));
+        tileEntity.setPlayerGrid(new ItemStack[9]);
         tileEntity.clearContainer(playerID);
     }
-    
+
 	@Override
 	public boolean canInteractWith(EntityPlayer player)
 	{
-		return tileEntity.isUsableByPlayer(player);
+		return tileEntity.isUseableByPlayer(player);
 	}
-	
+
 	protected void bindPlayerInventory(InventoryPlayer inventoryPlayer)
 	{
 		for (int i = 0; i < 3; i++)
@@ -342,17 +344,17 @@ public class ContainerFancyWorkbench extends Container
 				addSlotToContainer(new Slot(inventoryPlayer, j+i*9+9, 8+60+j*18, 110+i*18));
 			}
 		}
-		for (int i = 0; i < 9; i++) 
+		for (int i = 0; i < 9; i++)
 		{
 			addSlotToContainer(new Slot(inventoryPlayer, i, 8+60+i*18,168));
 		}
 	}
-	
+
 	@Override
 	public ItemStack transferStackInSlot(EntityPlayer player, int slot)
 	{
 		//System.out.println("teszer "+slot);
-		ItemStack stack = ItemStack.EMPTY;
+		ItemStack stack = null;
 		Slot slotObject = (Slot) inventorySlots.get(slot);
 		if (slotObject != null && slotObject.getHasStack())
 		{
@@ -380,34 +382,34 @@ public class ContainerFancyWorkbench extends Container
 					{
 						if (!this.mergeItemStack(stackInSlot, 19+(this.numExtraBookcases*16), 55+(this.numExtraBookcases*16), false)) // 51, 87
 						{
-							return ItemStack.EMPTY;
+							return null;
 						}
 					}
 					else
 					{
-						if (!this.mergeItemStack(stackInSlot, 19, 55+(this.numExtraBookcases*16), false)) 
+						if (!this.mergeItemStack(stackInSlot, 19, 55+(this.numExtraBookcases*16), false))
 						{
-							return ItemStack.EMPTY;
+							return null;
 						}
 					}
 				}
 				else
 				{
-					if (!this.mergeItemStack(stackInSlot, 1, 9, false)) 
+					if (!this.mergeItemStack(stackInSlot, 1, 9, false))
 					{
-						return ItemStack.EMPTY;
+						return null;
 					}
 				}
 
 
-					
+
 			}
 			else if (slot > 8 && slot < 19 ) // craft grid and craft result is shift clickable
 			{
 				// craft result || craft grid
 				if (!this.mergeItemStack(stackInSlot, 19+(this.numExtraBookcases*16), 55+(this.numExtraBookcases*16), false))
 				{
-					return ItemStack.EMPTY;
+					return null;
 				}
 			}
 			else if (slot > 0 && slot < 9) // book slots are done
@@ -417,31 +419,31 @@ public class ContainerFancyWorkbench extends Container
 				{
 					if (toolTest instanceof ItemBook)
 					{
-						if (!this.mergeItemStack(stackInSlot, 19+(this.numExtraBookcases*16), 55+(this.numExtraBookcases*16), false)) 
+						if (!this.mergeItemStack(stackInSlot, 19+(this.numExtraBookcases*16), 55+(this.numExtraBookcases*16), false))
 						{
-							return ItemStack.EMPTY;
+							return null;
 						}
 					}
 					else
 					{
-						if (!this.mergeItemStack(stackInSlot, 19, 55+(this.numExtraBookcases*16), false)) 
+						if (!this.mergeItemStack(stackInSlot, 19, 55+(this.numExtraBookcases*16), false))
 						{
-							return ItemStack.EMPTY;
+							return null;
 						}
 					}
 				}
 				else
 				{
-					if (stackInSlot.getCount() > 1)
+					if (stackInSlot.stackSize > 1)
 					{
 						if (stackInSlot.getItem() instanceof ItemBook)
 						{
 							ItemStack stackCopy = stackInSlot.copy();
-							stackCopy.setCount(1);
-							stackInSlot.setCount(stackInSlot.getCount() - 1);
+							stackCopy.stackSize = (1);
+							stackInSlot.stackSize = (stackInSlot.stackSize - 1);
 							if (!this.mergeItemStack(stackCopy, 0, 1, false) && !this.mergeItemStack(stackInSlot, 1, 9, false));
 							{
-								return ItemStack.EMPTY;
+								return null;
 							}
 						}
 					}
@@ -449,7 +451,7 @@ public class ContainerFancyWorkbench extends Container
 					{
 						if (!this.mergeItemStack(stackInSlot, 0, 1, false))
 						{
-							return ItemStack.EMPTY;
+							return null;
 						}
 					}
 				}
@@ -463,14 +465,14 @@ public class ContainerFancyWorkbench extends Container
 					{
 						if (!this.mergeItemStack(stackInSlot, 1, 9, false))
 						{
-							return ItemStack.EMPTY;
+							return null;
 						}
 					}
 					else
 					{
 						if (!this.mergeItemStack(stackInSlot, 0, 9, false))
 						{
-							return ItemStack.EMPTY;
+							return null;
 						}
 					}
 				}
@@ -480,32 +482,32 @@ public class ContainerFancyWorkbench extends Container
 					{
 						if (!this.mergeItemStack(stackInSlot, 19+(this.numExtraBookcases*16), 46+(this.numExtraBookcases*16), false))
 						{
-							return ItemStack.EMPTY;
+							return null;
 						}
 					}
 					else
 					{
 						if (!this.mergeItemStack(stackInSlot, 46+(this.numExtraBookcases*16), 55+(this.numExtraBookcases*16), false))
 						{
-							return ItemStack.EMPTY;
+							return null;
 						}
 					}
 				}
 			}
-			
-			if (stackInSlot.getCount() == 0)
+
+			if (stackInSlot.stackSize == 0)
 			{
-				slotObject.putStack(ItemStack.EMPTY);
-			} else 
+				slotObject.putStack(null);
+			} else
 			{
 				slotObject.onSlotChanged();
 			}
-			
-			if (stackInSlot.getCount() == stack.getCount())
+
+			if (stackInSlot.stackSize == stack.stackSize)
 			{
-				return ItemStack.EMPTY;
+				return null;
 			}
-			slotObject.onTake(player, stackInSlot);
+			slotObject.onPickupFromSlot(player, stackInSlot);
 		}
 		return stack;
 	}

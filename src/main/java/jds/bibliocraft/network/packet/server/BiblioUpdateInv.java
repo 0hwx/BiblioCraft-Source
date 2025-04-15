@@ -12,19 +12,17 @@ import net.minecraft.item.ItemMap;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumHand;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import cpw.mods.fml.common.network.ByteBufUtils;
+import cpw.mods.fml.common.network.simpleimpl.IMessage;
+import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 
 public class BiblioUpdateInv implements IMessage {
     ItemStack stackostuff;
     boolean isSWP;
     public BiblioUpdateInv() {
-        
+
     }
     public BiblioUpdateInv(ItemStack stackostuff, boolean isSWP) {
         this.stackostuff = stackostuff;
@@ -41,79 +39,76 @@ public class BiblioUpdateInv implements IMessage {
         ByteBufUtils.writeItemStack(buf, this.stackostuff);
         buf.writeBoolean(this.isSWP);
     }
-    public static class Handler implements IMessageHandler<BiblioUpdateInv, IMessage> 
+    public static class Handler implements IMessageHandler<BiblioUpdateInv, IMessage>
     {
 
         @Override
-        public IMessage onMessage(BiblioUpdateInv message, MessageContext ctx) 
+        public IMessage onMessage(BiblioUpdateInv message, MessageContext ctx)
         {
-            ctx.getServerHandler().player.getServerWorld().addScheduledTask(() -> 
-            {
-                EntityPlayer player = ctx.getServerHandler().player;
+                EntityPlayer player = ctx.getServerHandler().playerEntity;
                 ItemStack stackostuff = message.stackostuff;
-                if (stackostuff != ItemStack.EMPTY) 
+                if (stackostuff != null)
                 {
                     boolean safe = true;
                     // Attempted fix for exploit based on what the GT:NH developers did
                     // Fixed the fix so it works with bigbook, clipboard, reecipe book, redstone book, slotted book, and compass and accepts empty maps and compasses into the atlas.
-                    try 
+                    try
                     {
                         NBTTagList list = stackostuff.getTagCompound().getTagList("Inventory", 10);
                         if (list.tagCount() > 0 && stackostuff.getItem() instanceof ItemAtlas)
                         {
-                            for (int i = 0; i <= list.tagCount(); i++) 
+                            for (int i = 0; i <= list.tagCount(); i++)
                             {
-                            	ItemStack testStack = new ItemStack(list.getCompoundTagAt(i));
+                            	ItemStack testStack = ItemStack.loadItemStackFromNBT(list.getCompoundTagAt(i));
                             	Item testItem =  testStack.getItem();
                             	System.out.println(testItem.getUnlocalizedName());
-                            	if (!testStack.isEmpty() && !(testItem instanceof ItemEmptyMap || testItem instanceof ItemMap || testItem instanceof ItemWaypointCompass))
+                            	if (testStack != null && !(testItem instanceof ItemEmptyMap || testItem instanceof ItemMap || testItem instanceof ItemWaypointCompass))
                             	{
                             		safe = false;
                             	}
-                            	
+
                             }
                         }
-                        
-                    } 
-                    catch (NullPointerException e) 
+
+                    }
+                    catch (NullPointerException e)
                     {
                         // lazy :D
                     }
-                    if (safe) 
+                    if (safe)
                     {
-                        ItemStack currentPlayerSlot = player.getHeldItem(EnumHand.MAIN_HAND);
-                        if (currentPlayerSlot != ItemStack.EMPTY) 
+                        ItemStack currentPlayerSlot = player.getHeldItem();
+                        if (currentPlayerSlot != null)
                         {
-                            if (currentPlayerSlot.getUnlocalizedName().equals(stackostuff.getUnlocalizedName()) && Utils.checkIfValidPacketItem(currentPlayerSlot.getUnlocalizedName())) 
+                            if (currentPlayerSlot.getUnlocalizedName().equals(stackostuff.getUnlocalizedName()) && Utils.checkIfValidPacketItem(currentPlayerSlot.getUnlocalizedName()))
                             {
                                 NBTTagCompound currentTags = currentPlayerSlot.getTagCompound();
                                 NBTTagCompound newTags = stackostuff.getTagCompound();
-                                if (!currentPlayerSlot.getUnlocalizedName().contains("item.AtlasBook")) 
+                                if (!currentPlayerSlot.getUnlocalizedName().contains("item.AtlasBook"))
                                 {
-                                    if (currentTags != null && currentTags.hasKey("Inventory") && newTags != null) 
+                                    if (currentTags != null && currentTags.hasKey("Inventory") && newTags != null)
                                     {
                                         NBTTagList tagList = currentTags.getTagList("Inventory", Constants.NBT.TAG_COMPOUND);
                                         newTags.setTag("Inventory", tagList);
                                         stackostuff.setTagCompound(newTags);
                                     }
                                 }
-                                else if (currentTags.hasKey("atlasID") && newTags.hasKey("atlasID") && currentTags.getInteger("atlasID") != newTags.getInteger("atlasID")) 
+                                else if (currentTags.hasKey("atlasID") && newTags.hasKey("atlasID") && currentTags.getInteger("atlasID") != newTags.getInteger("atlasID"))
                                 {
-                                    return;
+                                    return message;
                                 }
                                 player.inventory.setInventorySlotContents(player.inventory.currentItem, stackostuff);
                             }
                         }
                     }
                 }
-                if (message.isSWP) 
+                if (message.isSWP)
                 {
                     player.closeScreen();
-                    player.openGui(BiblioCraft.instance, 100, player.world, (int) player.posX, (int) player.posY, (int) player.posZ);
+                    player.openGui(BiblioCraft.instance, 100, player.worldObj, (int) player.posX, (int) player.posY, (int) player.posZ);
                 }
-            });
             return null;
         }
-        
+
     }
 }

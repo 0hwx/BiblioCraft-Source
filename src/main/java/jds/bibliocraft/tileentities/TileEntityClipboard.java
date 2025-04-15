@@ -3,8 +3,10 @@ package jds.bibliocraft.tileentities;
 import jds.bibliocraft.blocks.BlockClipboard;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.Packet;
+import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 
 public class TileEntityClipboard extends BiblioTileEntity
 {
@@ -17,7 +19,7 @@ public class TileEntityClipboard extends BiblioTileEntity
 	public int button6state = 0;
 	public int button7state = 0;
 	public int button8state = 0;
-    
+
 	public String button0text = " ";
 	public String button1text = " ";
 	public String button2text = " ";
@@ -28,15 +30,15 @@ public class TileEntityClipboard extends BiblioTileEntity
     public String button7text = " ";
     public String button8text = " ";
     public String titletext = " ";
-    
+
     public int currentPage = 1;
     public int totalPages = 1;
-	
+
 	public TileEntityClipboard()
 	{
 		super(1, false);
 	}
-	
+
 	public void updateClipboardFromPlayerSelection(int selection)
 	{
 		if (selection >= 0 && selection <= 8)
@@ -53,9 +55,9 @@ public class TileEntityClipboard extends BiblioTileEntity
 			// next page
 			changePage(true);
 		}
-		this.getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+		this.getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
-	
+
 	public void checkCheckBox(int box)
 	{
 		switch (box)
@@ -70,9 +72,9 @@ public class TileEntityClipboard extends BiblioTileEntity
 			case 7:{if (this.button7state >= 2){this.button7state = 0;}else{this.button7state++;} break;}
 			case 8:{if (this.button8state >= 2){this.button8state = 0;}else{this.button8state++;} break;}
 		}
-		
+
 		ItemStack clipStack = getStackInSlot(0);
-		if (clipStack != ItemStack.EMPTY)
+		if (clipStack != null)
 		{
 			NBTTagCompound cliptags = clipStack.getTagCompound();
 	    	if (cliptags != null)
@@ -82,7 +84,7 @@ public class TileEntityClipboard extends BiblioTileEntity
 	    		if (pagetag != null)
 	    		{
 	    			int[] taskstat = pagetag.getIntArray("taskStates");
-	    			
+
 	    			taskstat[0] = this.button0state;
 	    			taskstat[1] = this.button1state;
 	    			taskstat[2] = this.button2state;
@@ -92,17 +94,17 @@ public class TileEntityClipboard extends BiblioTileEntity
 	    			taskstat[6] = this.button6state;
 	    			taskstat[7] = this.button7state;
 	    			taskstat[8] = this.button8state;
-	    			
+
 	    			pagetag.setIntArray("taskStates", taskstat);
 	    			clipStack.setTagCompound(cliptags);
 	    			setInventorySlotContents(0, clipStack);
 	    			getNBTData();
-	    			getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+                    getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 	    		}
 	    	}
 		}
 	}
-	
+
 	public void changePage(boolean nextPage)
 	{
 		if (nextPage)
@@ -119,9 +121,9 @@ public class TileEntityClipboard extends BiblioTileEntity
 				this.currentPage--;
 			}
 		}
-		
+
 		ItemStack clipStack = getStackInSlot(0);
-		if (clipStack != ItemStack.EMPTY)
+		if (clipStack != null)
 		{
 	    	NBTTagCompound cliptags = clipStack.getTagCompound();
 	    	if (cliptags != null)
@@ -134,16 +136,16 @@ public class TileEntityClipboard extends BiblioTileEntity
 	    			clipStack.setTagCompound(cliptags);
 	    			setInventorySlotContents(0, clipStack);
 	    			getNBTData();
-	    			getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+                    getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 	    		}
 	    	}
 		}
 	}
-	
+
 	public void getNBTData()
     {
 		ItemStack clipStack = getStackInSlot(0);
-		if (clipStack != ItemStack.EMPTY)
+		if (clipStack != null)
 		{
 	    	NBTTagCompound cliptags = clipStack.getTagCompound();
 	    	if (cliptags != null)
@@ -183,32 +185,57 @@ public class TileEntityClipboard extends BiblioTileEntity
 		}
     }
 
-	@Override
+    @Override
+    public ItemStack getStackInSlotOnClosing(int index) {
+        return null;
+    }
+
+    @Override
+    public String getInventoryName() {
+        return "";
+    }
+
+    @Override
+    public boolean hasCustomInventoryName() {
+        return false;
+    }
+
+    @Override
 	public int getInventoryStackLimit()
 	{
 		return 1;
 	}
-    
-	@Override
+
+    @Override
+    public void openInventory() {
+
+    }
+
+    @Override
+    public void closeInventory() {
+
+    }
+
+    @Override
 	public boolean isItemValidForSlot(int slot, ItemStack itemstack)
 	{
 		return false;
 	}
 
+//	@Override
+//	public String getName()
+//	{
+//		return BlockClipboard.name;
+//	}
+
 	@Override
-	public String getName() 
+	public void setInventorySlotContentsAdditionalCommands(int slot, ItemStack stack)
 	{
-		return BlockClipboard.name;
+
 	}
 
 	@Override
-	public void setInventorySlotContentsAdditionalCommands(int slot, ItemStack stack) 
-	{
-
-	}
-
-	@Override
-	public void loadCustomNBTData(NBTTagCompound nbt) 
+	public void loadCustomNBTData(NBTTagCompound nbt)
 	{
 		this.button0state = nbt.getInteger("button0state");
 		this.button1state = nbt.getInteger("button1state");
@@ -234,7 +261,7 @@ public class TileEntityClipboard extends BiblioTileEntity
 	}
 
 	@Override
-	public NBTTagCompound writeCustomNBTData(NBTTagCompound nbt) 
+	public NBTTagCompound writeCustomNBTData(NBTTagCompound nbt)
 	{
 		nbt.setInteger("button0state", this.button0state);
     	nbt.setInteger("button1state", this.button1state);
@@ -259,11 +286,16 @@ public class TileEntityClipboard extends BiblioTileEntity
     	nbt.setString("titletext", this.titletext);
 		return nbt;
 	}
-	
-	@Override
-	public ITextComponent getDisplayName() 
-	{
-		ITextComponent chat = new TextComponentString(getName());
-		return chat;
-	}
+
+    @Override
+    public int[] getAccessibleSlotsFromSide(int p_94128_1_) {
+        return new int[0];
+    }
+
+//	@Override
+//	public ITextComponent getDisplayName()
+//	{
+//		ITextComponent chat = new ChatComponentText(getName());
+//		return chat;
+//	}
 }

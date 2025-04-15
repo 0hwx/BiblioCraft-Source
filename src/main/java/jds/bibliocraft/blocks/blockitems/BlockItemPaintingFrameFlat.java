@@ -4,25 +4,25 @@ import java.util.List;
 
 import jds.bibliocraft.blocks.BlockPaintingFrameFlat;
 import net.minecraft.block.Block;
-import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.translation.I18n;
-import net.minecraft.world.World;
+import net.minecraft.util.StatCollector;
+
 
 public class BlockItemPaintingFrameFlat extends BiblioWoodBlockItem
 {
 	public static final BlockItemPaintingFrameFlat instance = new BlockItemPaintingFrameFlat(BlockPaintingFrameFlat.instance);
-	
+
 	public BlockItemPaintingFrameFlat(Block block)
 	{
 		super(block, BlockPaintingFrameFlat.name);
-		setRegistryName(BlockPaintingFrameFlat.name);
+		setUnlocalizedName(BlockPaintingFrameFlat.name);
 	}
-	
+
 	@Override
-    public void addInformation(ItemStack stack, World playerIn, List<String> tooltip, ITooltipFlag advanced) 
+    public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced)
 	{
-		tooltip.add(I18n.translateToLocal("paintingFrame.1tier"));
+		tooltip.add(StatCollector.translateToLocal("paintingFrame.1tier"));
 		super.addInformation(stack, playerIn, tooltip, advanced);
 	}
 }

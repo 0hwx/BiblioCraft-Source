@@ -33,6 +33,7 @@ import jds.bibliocraft.tileentities.TileEntityToolRack;
 import jds.bibliocraft.tileentities.TileEntityTypeMachine;
 import jds.bibliocraft.tileentities.TileEntityTypewriter;
 import net.minecraft.block.Block;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -47,86 +48,84 @@ import net.minecraft.tileentity.TileEntityComparator;
 import net.minecraft.tileentity.TileEntityDispenser;
 import net.minecraft.tileentity.TileEntityEnderChest;
 import net.minecraft.tileentity.TileEntityFurnace;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.translation.I18n;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
 
 public class ItemDrill extends Item
 {
 	public static final String name = "BiblioDrill";
 	public static final ItemDrill instance = new ItemDrill(name);
-	
+
 	public int useMode = 0;
 	private TileEntity tile1;
 	private TileEntity tile2;
-	
-	private static String sSelectedPainting1 = I18n.translateToLocal("screwgun.selected.painting1");
-	private static String sSelectedPainting2 = I18n.translateToLocal("screwgun.selected.painting2");
-	
-	private static String sSelectedClock1 = I18n.translateToLocal("screwgun.selected.clock1");
-	private static String sSelectedClock2 = I18n.translateToLocal("screwgun.selected.clock2");
-	
-	private static String sSelectedSeat1 = I18n.translateToLocal("screwgun.firstSeat");
-	private static String sSelectedSeat2 = I18n.translateToLocal("screwgun.secondSeat");
-	
-	private static String sSelectedDesk1 = I18n.translateToLocal("screwgun.selected.desk1");
-	private static String sSelectedDesk2 = I18n.translateToLocal("screwgun.selected.desk2");
-	
-	private static String sSelectedChest1 = I18n.translateToLocal("screwgun.selected.chest1");
-	private static String sSelectedChest2 = I18n.translateToLocal("screwgun.selected.chest2");
-	
-	//private static String sConnected = I18n.translateToLocal("drill.connected");
-	private static String sFailed = I18n.translateToLocal("drill.failed");
-	
+
+	private static String sSelectedPainting1 = I18n.format("screwgun.selected.painting1");
+	private static String sSelectedPainting2 = I18n.format("screwgun.selected.painting2");
+
+	private static String sSelectedClock1 = I18n.format("screwgun.selected.clock1");
+	private static String sSelectedClock2 = I18n.format("screwgun.selected.clock2");
+
+	private static String sSelectedSeat1 = I18n.format("screwgun.firstSeat");
+	private static String sSelectedSeat2 = I18n.format("screwgun.secondSeat");
+
+	private static String sSelectedDesk1 = I18n.format("screwgun.selected.desk1");
+	private static String sSelectedDesk2 = I18n.format("screwgun.selected.desk2");
+
+	private static String sSelectedChest1 = I18n.format("screwgun.selected.chest1");
+	private static String sSelectedChest2 = I18n.format("screwgun.selected.chest2");
+
+	//private static String sConnected = I18n.format("drill.connected");
+	private static String sFailed = I18n.format("drill.failed");
+
 	public boolean showText = false;
 	public boolean showTextChanged = false;
 	public String showTextString = "";
-	
+
 	public ItemDrill(String regName)
 	{
 		super();
 		setCreativeTab(BlockLoader.biblioTab);
 		setUnlocalizedName(name);
 		maxStackSize = 1;
-		setRegistryName(regName);
+		setUnlocalizedName(regName);
 	}
 
 	@Override
-	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing face, float hitX, float hitY, float hitZ)
+	public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
 	{
 		if (world.isRemote)
 		{
 			playSound(player);
 		}
 		boolean returnValue = false;
+        ForgeDirection face = ForgeDirection.getOrientation(side);
 		if (!world.isRemote)
 		{
 			if (player.isSneaking())
 			{
 				// These all rotate vanilla blocks
-				if (world.getBlockState(pos).getBlock() == Blocks.PISTON || 
-					world.getBlockState(pos).getBlock() == Blocks.STICKY_PISTON ||
-					world.getBlockState(pos).getBlock() == Blocks.LEVER ||
-					world.getBlockState(pos).getBlock() == Blocks.UNPOWERED_REPEATER ||
-					world.getBlockState(pos).getBlock() == Blocks.ANVIL ||
-					world.getBlockState(pos).getBlock() == Blocks.IRON_DOOR ||
-					world.getBlockState(pos).getBlock() == Blocks.ACACIA_DOOR ||
-					world.getBlockState(pos).getBlock() == Blocks.DARK_OAK_DOOR ||
-					world.getBlockState(pos).getBlock() == Blocks.OAK_DOOR ||
-					world.getBlockState(pos).getBlock() == Blocks.BIRCH_DOOR ||
-					world.getBlockState(pos).getBlock() == Blocks.JUNGLE_DOOR ||
-					world.getBlockState(pos).getBlock() == Blocks.SPRUCE_DOOR ||
-					world.getBlockState(pos).getBlock() == Blocks.TRAPDOOR || 
-					world.getBlockState(pos).getBlock() == Blocks.IRON_TRAPDOOR)
+				if (world.getBlock(x, y, z) == Blocks.piston ||
+					world.getBlock(x, y, z) == Blocks.sticky_piston ||
+					world.getBlock(x, y, z) == Blocks.lever ||
+					world.getBlock(x, y, z) == Blocks.unpowered_repeater ||
+					world.getBlock(x, y, z) == Blocks.anvil ||
+					world.getBlock(x, y, z) == Blocks.iron_door ||
+					world.getBlock(x, y, z) == Blocks.wooden_door ||
+//					world.getBlock(x, y, z) == Blocks.ACACIA_DOOR ||
+//					world.getBlock(x, y, z) == Blocks.DARK_OAK_DOOR ||
+//					world.getBlock(x, y, z) == Blocks.OAK_DOOR ||
+//					world.getBlock(x, y, z) == Blocks.BIRCH_DOOR ||
+//					world.getBlock(x, y, z) == Blocks.JUNGLE_DOOR ||
+//					world.getBlock(x, y, z) == Blocks.SPRUCE_DOOR ||
+					world.getBlock(x, y, z) == Blocks.trapdoor) // ||
+//					world.getBlock(x, y, z) == Blocks.IRON_TRAPDOOR)
 				{
-					returnValue = rotateBlockState(world, pos);
+					returnValue = rotateBlockState(world, x, y, z);
 				}
 			}
-			TileEntity tile = world.getTileEntity(pos);
+			TileEntity tile = world.getTileEntity(x, y, z);
 			if (tile != null)
 			{
 				if (tile instanceof TileEntityDispenser ||
@@ -135,11 +134,11 @@ public class ItemDrill extends Item
 					tile instanceof TileEntityFurnace ||
 					tile instanceof TileEntityEnderChest)
 				{
-					returnValue = rotateBlockState(world, pos);
+					returnValue = rotateBlockState(world, x, y, z);
 				}
-				
 
-				
+
+
 				if (player.isSneaking())
 				{
 					// GOES in sneaking on top
@@ -162,12 +161,12 @@ public class ItemDrill extends Item
 					{
 						returnValue = rotateBiblioBlock(world, (BiblioTileEntity)tile);
 					}
-					
+
 					if (!returnValue && tile instanceof TileEntitySeat)
 					{
-						if (face == EnumFacing.UP)
+						if (face == ForgeDirection.UP)
 						{
-							returnValue = connectChairs(player, world, pos);
+							returnValue = connectChairs(player, world, x, y, z);
 						}
 						else
 						{
@@ -180,11 +179,11 @@ public class ItemDrill extends Item
 					}
 					if (!returnValue && tile instanceof TileEntityArmorStand)
 					{
-						returnValue = rotateArmorStand(world, (BiblioTileEntity)tile); 
+						returnValue = rotateArmorStand(world, (BiblioTileEntity)tile);
 					}
 					if (!returnValue && tile instanceof TileEntityTable)
 					{
-						returnValue = removeTableCarpet(world, tile, pos);
+						returnValue = removeTableCarpet(world, tile, x, y, z);
 					}
 					if (!returnValue && tile instanceof TileEntityClock)
 					{
@@ -196,7 +195,7 @@ public class ItemDrill extends Item
 					}
 					if (!returnValue && tile instanceof TileEntityFramedChest)
 					{
-						returnValue = connectTwoChests(world, tile, player); 
+						returnValue = connectTwoChests(world, tile, player);
 					}
 					// do the rotations for blocks here and do the vert/shifts in the lower bit
 				}
@@ -223,17 +222,17 @@ public class ItemDrill extends Item
 					{
 						returnValue = setClockShift(world, (TileEntityClock)tile);
 					}
-					
+
 					if (!returnValue && tile instanceof TileEntityFramedChest)
 					{
 						returnValue = rotateBiblioBlock(world, (BiblioTileEntity)tile);
 					}
-					
+
 					if (!returnValue && tile instanceof TileEntityDiscRack)
 					{
 						returnValue = rotateDiscRackOnWall((TileEntityDiscRack)tile);
 					}
-					
+
 					if (!returnValue && tile instanceof TileEntityPainting)
 					{
 						returnValue = rotatePaintingCanvas((TileEntityPainting)tile);
@@ -249,48 +248,48 @@ public class ItemDrill extends Item
 				}
 			}
 		}
-		EnumActionResult result = EnumActionResult.FAIL;
+		boolean result = false;
 		if (returnValue)
 		{
-			result = EnumActionResult.SUCCESS;
+			result = true;
 		}
-		return result; 
+		return result;
 	}
-	
-	private boolean rotateBlockState(World world, BlockPos pos)
+
+	private boolean rotateBlockState(World world, int x, int y, int z)
 	{
 		boolean output = false;
-		Block block = world.getBlockState(pos).getBlock();
+		Block block = world.getBlock(x, y, z);
 		if (block != null)
 		{
-			block.rotateBlock(world, pos, EnumFacing.UP);
+			block.rotateBlock(world, x, y, z, ForgeDirection.UP);
 			output = true;
 		}
-		//if (state != null && state.getValue(EnumFacing.))
+		//if (state != null && state.getValue(ForgeDirection.))
 		return output;
 	}
-	
-	private boolean removeStuffFromSeat(TileEntitySeat tile, EntityPlayer player, EnumFacing face)
+
+	private boolean removeStuffFromSeat(TileEntitySeat tile, EntityPlayer player, ForgeDirection face)
 	{
 		boolean output = false;
-		if (face == EnumFacing.UP)
+		if (face == ForgeDirection.UP)
 		{
-			if (tile.getStackInSlot(0) != ItemStack.EMPTY)
+			if (tile.getStackInSlot(0) != null)
 			{
 				tile.removeStackFromInventoryFromWorld(0, player, BlockSeat.instance);
 				tile.removeCover();
 				output = true;
 			}
 		}
-		
+
 		if (!output && tile.hasBack > 0)
 		{
 			tile.removeStackFromInventoryFromWorld(1, player, BlockSeat.instance);
 			tile.removeBack();
 			output = true;
 		}
-		
-		if (!output && face != EnumFacing.UP)
+
+		if (!output && face != ForgeDirection.UP)
 		{
 			if (tile.isCarpetFull())
 			{
@@ -301,7 +300,7 @@ public class ItemDrill extends Item
 		}
 		return output;
 	}
-	
+
 	private boolean rotateBiblioBlock(World world, BiblioTileEntity tile)
 	{
 		if (tile != null)
@@ -310,22 +309,22 @@ public class ItemDrill extends Item
 			{
 				case SOUTH:
 				{
-					tile.setAngle(EnumFacing.WEST);
+					tile.setAngle(ForgeDirection.WEST);
 					break;
 				}
 				case WEST:
 				{
-					tile.setAngle(EnumFacing.NORTH);
+					tile.setAngle(ForgeDirection.NORTH);
 					break;
 				}
 				case NORTH:
 				{
-					tile.setAngle(EnumFacing.EAST);
+					tile.setAngle(ForgeDirection.EAST);
 					break;
 				}
 				case EAST:
 				{
-					tile.setAngle(EnumFacing.SOUTH);
+					tile.setAngle(ForgeDirection.SOUTH);
 					break;
 				}
 				default: break;
@@ -334,7 +333,7 @@ public class ItemDrill extends Item
 		}
 		return false;
 	}
-	
+
 	private boolean setVertPosition(BiblioTileEntity tile, boolean canWall, boolean canCeiling, boolean canFloor)
 	{
 		if (tile != null)
@@ -383,7 +382,7 @@ public class ItemDrill extends Item
 		}
 		return false;
 	}
-	
+
 	private boolean setShiftPosition(BiblioTileEntity tile, boolean canHalfShift)
 	{
 		if (tile != null)
@@ -417,7 +416,7 @@ public class ItemDrill extends Item
 		}
 		return false;
 	}
-	
+
 	private boolean rotatePaintingCanvas(TileEntityPainting painting)
 	{
 		if (painting.getPaintingRotation() < 3)
@@ -430,7 +429,7 @@ public class ItemDrill extends Item
 		}
 		return true;
 	}
-	
+
 	private boolean rotateDiscRackOnWall(TileEntityDiscRack tile)
 	{
 		if (tile != null)
@@ -440,7 +439,7 @@ public class ItemDrill extends Item
 		}
 		return false;
 	}
-	
+
 	private boolean rotateArmorStand(World world, BiblioTileEntity tile)
 	{
 		if (tile != null)
@@ -448,11 +447,11 @@ public class ItemDrill extends Item
 			TileEntity otherStand = null;
 			if (tile.getVertPosition() == EnumVertPosition.FLOOR)
 			{
-				otherStand = world.getTileEntity(new BlockPos(tile.getPos().getX(), tile.getPos().getY() + 1, tile.getPos().getZ()));
+				otherStand = world.getTileEntity(tile.xCoord, tile.yCoord + 1, tile.zCoord);
 			}
 			else if (tile.getVertPosition() == EnumVertPosition.CEILING)
 			{
-				otherStand = world.getTileEntity(new BlockPos(tile.getPos().getX(), tile.getPos().getY() - 1, tile.getPos().getZ()));
+				otherStand = world.getTileEntity(tile.xCoord, tile.yCoord - 1, tile.zCoord);
 			}
 			if (otherStand != null && otherStand instanceof TileEntityArmorStand)
 			{
@@ -464,7 +463,7 @@ public class ItemDrill extends Item
 		}
 		return false;
 	}
-	
+
 	private boolean connectTwoChests(World world, TileEntity tile, EntityPlayer player)
 	{
 		if (tile1 == null || !(tile1 instanceof TileEntityFramedChest))
@@ -479,14 +478,14 @@ public class ItemDrill extends Item
 			tile2 = tile;
 			this.sendPacketToClient(this.sSelectedChest2, (EntityPlayerMP)player);
 		}
-		
+
 		if (tile1 != null && tile1 instanceof TileEntityFramedChest && tile2 != null && tile2 instanceof TileEntityFramedChest)
 		{
 			TileEntityFramedChest chest1 = (TileEntityFramedChest)tile1;
 			TileEntityFramedChest chest2 = (TileEntityFramedChest)tile2;
 			if (chest1.getAngle() == chest2.getAngle())
 			{
-				int test = isValidChestConnect(chest1.getAngle(), chest1.getPos().getX(), chest1.getPos().getY(), chest1.getPos().getZ(), chest2.getPos().getX(), chest2.getPos().getY(), chest2.getPos().getZ());
+				int test = isValidChestConnect(chest1.getAngle(), chest1.xCoord, chest1.yCoord, chest1.zCoord, chest2.xCoord, chest2.yCoord, chest2.zCoord);
 				if (test == 1)
 				{
 					if (chest1.getIsDouble() && chest1.getIsLeft() && chest2.getIsDouble() && !chest2.getIsLeft())
@@ -541,12 +540,12 @@ public class ItemDrill extends Item
 			tile2 = null;
 			return true;
 		}
-		
+
 		return false;
 	}
-	
+
 	// 1 is left, 2 is right
-	private int isValidChestConnect(EnumFacing angle, int x1, int y1, int z1, int x2, int y2, int z2)
+	private int isValidChestConnect(ForgeDirection angle, int x1, int y1, int z1, int x2, int y2, int z2)
 	{
 		if (y1 == y2)
 		{
@@ -601,7 +600,7 @@ public class ItemDrill extends Item
 		}
 		return 0;
 	}
-	
+
 	private boolean setClockShift(World world, BiblioTileEntity tile)
 	{
 		if (tile != null)
@@ -611,15 +610,15 @@ public class ItemDrill extends Item
 			if (tile.getVertPosition() == EnumVertPosition.CEILING)
 			{
 				//setShiftPosition(tile, true);
-				otherClock = world.getTileEntity(new BlockPos(tile.getPos().getX(), tile.getPos().getY() - 1, tile.getPos().getZ()));
-	
+				otherClock = world.getTileEntity(tile.xCoord, tile.yCoord - 1, tile.zCoord);
+
 			}
 			else if (tile.getVertPosition() == EnumVertPosition.FLOOR)
 			{
-				
-				otherClock = world.getTileEntity(new BlockPos(tile.getPos().getX(), tile.getPos().getY() + 1, tile.getPos().getZ()));
+
+				otherClock = world.getTileEntity(tile.xCoord, tile.yCoord + 1, tile.zCoord);
 			}
-			
+
 			if (otherClock != null && otherClock instanceof TileEntityClock)
 			{
 				BiblioTileEntity otherTile = (BiblioTileEntity)otherClock;
@@ -629,7 +628,7 @@ public class ItemDrill extends Item
 		}
 		return false;
 	}
-	
+
 
 	private boolean connectTwoDesks(World world, TileEntity tile, EntityPlayer player)
 	{
@@ -645,7 +644,7 @@ public class ItemDrill extends Item
 			tile2 = tile;
 			this.sendPacketToClient(this.sSelectedDesk2, (EntityPlayerMP)player);
 		}
-		
+
 		if (tile1 != null && tile1 instanceof TileEntityDesk && tile2 != null && tile2 instanceof TileEntityDesk)
 		{
 			TileEntityDesk desk1 = (TileEntityDesk)tile1;
@@ -676,10 +675,10 @@ public class ItemDrill extends Item
 			tile2 = null;
 			return true;
 		}
-		
+
 		return false;
 	}
-	
+
 	private void connectDeskToRight(TileEntityDesk desk)
 	{
 		switch (desk.getSingleLeftRightCenter())
@@ -707,7 +706,7 @@ public class ItemDrill extends Item
 			default: break;
 		}
 	}
-	
+
 	private void connectDeskToLeft(TileEntityDesk desk)
 	{
 		switch (desk.getSingleLeftRightCenter())
@@ -735,14 +734,14 @@ public class ItemDrill extends Item
 			default: break;
 		}
 	}
-	
+
 	private boolean isDeskOnRight(TileEntityDesk desk1, TileEntityDesk desk2)
 	{
 		switch (desk1.getAngle())
 		{
 			case SOUTH:
 			{
-				if (desk1.getPos().getZ() == (desk2.getPos().getZ()-1) && desk1.getPos().getX() == desk2.getPos().getX() && desk1.getPos().getY() == desk2.getPos().getY())
+				if (desk1.zCoord == (desk2.zCoord-1) && desk1.xCoord == desk2.xCoord && desk1.yCoord == desk2.yCoord)
 				{
 					return true;
 				}
@@ -750,7 +749,7 @@ public class ItemDrill extends Item
 			}
 			case WEST:
 			{
-				if (desk1.getPos().getX() == (desk2.getPos().getX()+1) && desk1.getPos().getZ() == desk2.getPos().getZ() && desk1.getPos().getY() == desk2.getPos().getY())
+				if (desk1.xCoord == (desk2.xCoord+1) && desk1.zCoord == desk2.zCoord && desk1.yCoord == desk2.yCoord)
 				{
 					return true;
 				}
@@ -758,7 +757,7 @@ public class ItemDrill extends Item
 			}
 			case NORTH:
 			{
-				if (desk1.getPos().getZ() == (desk2.getPos().getZ()+1) && desk1.getPos().getX() == desk2.getPos().getX() && desk1.getPos().getY() == desk2.getPos().getY())
+				if (desk1.zCoord == (desk2.zCoord+1) && desk1.xCoord == desk2.xCoord && desk1.yCoord == desk2.yCoord)
 				{
 					return true;
 				}
@@ -766,7 +765,7 @@ public class ItemDrill extends Item
 			}
 			case EAST:
 			{
-				if (desk1.getPos().getX() == (desk2.getPos().getX()-1) && desk1.getPos().getZ() == desk2.getPos().getZ() && desk1.getPos().getY() == desk2.getPos().getY())
+				if (desk1.xCoord == (desk2.xCoord-1) && desk1.zCoord == desk2.zCoord && desk1.yCoord == desk2.yCoord)
 				{
 					return true;
 				}
@@ -776,7 +775,7 @@ public class ItemDrill extends Item
 		}
 		return false;
 	}
-	
+
 	private boolean isDeskOnLeft(TileEntityDesk desk1, TileEntityDesk desk2)
 	{
 		//System.out.println(desk1.getAngle());
@@ -784,7 +783,7 @@ public class ItemDrill extends Item
 		{
 			case SOUTH:
 			{
-				if (desk1.getPos().getZ() == (desk2.getPos().getZ()+1) && desk1.getPos().getX() == desk2.getPos().getX() && desk1.getPos().getY() == desk2.getPos().getY())
+				if (desk1.zCoord == (desk2.zCoord+1) && desk1.xCoord == desk2.xCoord && desk1.yCoord == desk2.yCoord)
 				{
 					return true;
 				}
@@ -792,7 +791,7 @@ public class ItemDrill extends Item
 			}
 			case WEST:
 			{
-				if (desk1.getPos().getX() == (desk2.getPos().getX()-1) && desk1.getPos().getZ() == desk2.getPos().getZ() && desk1.getPos().getY() == desk2.getPos().getY())
+				if (desk1.xCoord == (desk2.xCoord-1) && desk1.zCoord == desk2.zCoord && desk1.yCoord == desk2.yCoord)
 				{
 					return true;
 				}
@@ -800,7 +799,7 @@ public class ItemDrill extends Item
 			}
 			case NORTH:
 			{
-				if (desk1.getPos().getZ() == (desk2.getPos().getZ()-1) && desk1.getPos().getX() == desk2.getPos().getX() && desk1.getPos().getY() == desk2.getPos().getY())
+				if (desk1.zCoord == (desk2.zCoord-1) && desk1.xCoord == desk2.xCoord && desk1.yCoord == desk2.yCoord)
 				{
 					return true;
 				}
@@ -808,7 +807,7 @@ public class ItemDrill extends Item
 			}
 			case EAST:
 			{
-				if (desk1.getPos().getX() == (desk2.getPos().getX()+1) && desk1.getPos().getZ() == desk2.getPos().getZ() && desk1.getPos().getY() == desk2.getPos().getY())
+				if (desk1.xCoord == (desk2.xCoord+1) && desk1.zCoord == desk2.zCoord && desk1.yCoord == desk2.yCoord)
 				{
 					return true;
 				}
@@ -818,7 +817,7 @@ public class ItemDrill extends Item
 		}
 		return false;
 	}
-	
+
 	private boolean connectTwoPaintings(World world, TileEntity tile, EntityPlayer player)
 	{
 		if (tile1 == null || !(tile1 instanceof TileEntityPainting))
@@ -832,14 +831,14 @@ public class ItemDrill extends Item
 			tile2 = tile;
 			this.sendPacketToClient(this.sSelectedPainting2, (EntityPlayerMP)player);
 		}
-		
+
 		if (tile1 != null && tile1 instanceof TileEntityPainting && tile2 != null && tile2 instanceof TileEntityPainting)
 		{
 			TileEntityPainting painting1 = (TileEntityPainting)tile1;
 			TileEntityPainting painting2 = (TileEntityPainting)tile2;
 			if (painting1.getAngle() == painting2.getAngle())
 			{
-				if (tile1.getPos().getY() == (tile2.getPos().getY()+1))
+				if (tile1.yCoord == (tile2.yCoord+1))
 				{
 					// check for painting below tile1 painting
 					if (painting1.getConnectBottom() && painting2.getConnectTop())
@@ -854,7 +853,7 @@ public class ItemDrill extends Item
 					}
 					completedPaintingConnect(player);
 				}
-				else if (tile1.getPos().getY() == (tile2.getPos().getY()-1))
+				else if (tile1.yCoord == (tile2.yCoord-1))
 				{
 					//check for painting above tile1 painting
 					if (painting1.getConnectTop() && painting2.getConnectBottom())
@@ -913,22 +912,22 @@ public class ItemDrill extends Item
 		}
 		return false;
 	}
-	
+
 	private void completedPaintingConnect(EntityPlayer player)
 	{
-		//player.sendMessage(new TextComponentString("Painting Connection Successful.")); 
+		//player.addChatMessage(new ChatComponentText("Painting Connection Successful."));
 		//this.sendPacketToClient(this.sConnected, (EntityPlayerMP)player);
 		tile1 = null;
 		tile2 = null;
 	}
-	
+
 	private boolean checkLeftSidePainting(TileEntityPainting centerPainting, TileEntityPainting otherPainting)
 	{
 		switch (centerPainting.getAngle())
 		{
 			case SOUTH:
 			{
-				if (centerPainting.getPos().getZ() == otherPainting.getPos().getZ() + 1)
+				if (centerPainting.zCoord == otherPainting.zCoord + 1)
 				{
 					return true;
 				}
@@ -936,7 +935,7 @@ public class ItemDrill extends Item
 			}
 			case WEST:
 			{
-				if (centerPainting.getPos().getX() == otherPainting.getPos().getX() - 1)
+				if (centerPainting.xCoord == otherPainting.xCoord - 1)
 				{
 					return true;
 				}
@@ -944,7 +943,7 @@ public class ItemDrill extends Item
 			}
 			case NORTH:
 			{
-				if (centerPainting.getPos().getZ() == otherPainting.getPos().getZ() - 1)
+				if (centerPainting.zCoord == otherPainting.zCoord - 1)
 				{
 					return true;
 				}
@@ -952,8 +951,8 @@ public class ItemDrill extends Item
 			}
 			case EAST:
 			{
-				
-				if (centerPainting.getPos().getX() == otherPainting.getPos().getX() + 1)
+
+				if (centerPainting.xCoord == otherPainting.xCoord + 1)
 				{
 					return true;
 				}
@@ -961,17 +960,17 @@ public class ItemDrill extends Item
 			}
 			default: break;
 		}
-	
+
 		return false;
 	}
-	
+
 	private boolean checkRightSidePainting(TileEntityPainting centerPainting, TileEntityPainting otherPainting)
 	{
 		switch (centerPainting.getAngle())
 		{
 			case SOUTH:
 			{
-				if (centerPainting.getPos().getZ() == otherPainting.getPos().getZ() - 1)
+				if (centerPainting.zCoord == otherPainting.zCoord - 1)
 				{
 					return true;
 				}
@@ -979,7 +978,7 @@ public class ItemDrill extends Item
 			}
 			case WEST:
 			{
-				if (centerPainting.getPos().getX() == otherPainting.getPos().getX() + 1)
+				if (centerPainting.xCoord == otherPainting.xCoord + 1)
 				{
 					return true;
 				}
@@ -987,7 +986,7 @@ public class ItemDrill extends Item
 			}
 			case NORTH:
 			{
-				if (centerPainting.getPos().getZ() == otherPainting.getPos().getZ() + 1)
+				if (centerPainting.zCoord == otherPainting.zCoord + 1)
 				{
 					return true;
 				}
@@ -995,7 +994,7 @@ public class ItemDrill extends Item
 			}
 			case EAST:
 			{
-				if (centerPainting.getPos().getX() == otherPainting.getPos().getX() - 1)
+				if (centerPainting.xCoord == otherPainting.xCoord - 1)
 				{
 					return true;
 				}
@@ -1005,7 +1004,7 @@ public class ItemDrill extends Item
 		}
 		return false;
 	}
-	
+
 	private boolean connectTwoClocks(World world, TileEntity tile, EntityPlayer player)
 	{
 		if (tile1 == null || !(tile1 instanceof TileEntityClock))
@@ -1019,11 +1018,11 @@ public class ItemDrill extends Item
 			tile2 = tile;
 			this.sendPacketToClient(this.sSelectedClock2, (EntityPlayerMP)player);
 		}
-		
+
 		if (tile1 != null && tile1 instanceof TileEntityClock && tile2 != null && tile2 instanceof TileEntityClock)
 		{
 			// we have 2 clock tiles, time to try to connect and reset to null after attempt.
-			if (tile1.getPos().getY() == (tile2.getPos().getY()+1))
+			if (tile1.yCoord == (tile2.yCoord+1))
 			{
 				// tile 1 is on top
 				TileEntityClock clockTop = (TileEntityClock)tile1;
@@ -1040,7 +1039,7 @@ public class ItemDrill extends Item
 				tile2 = null;
 				return true;
 			}
-			else if (tile1.getPos().getY() == (tile2.getPos().getY()-1))
+			else if (tile1.yCoord == (tile2.yCoord-1))
 			{
 				// tile 1 is on bottom
 				TileEntityClock clockTop = (TileEntityClock)tile2;
@@ -1060,7 +1059,7 @@ public class ItemDrill extends Item
 			else
 			{
 				// failed the connect
-				//player.sendMessage(new TextComponentString("Failed to connect"));
+				//player.addChatMessage(new ChatComponentText("Failed to connect"));
 				this.sendPacketToClient(this.sFailed, (EntityPlayerMP)player);
 				tile1 = null;
 				tile2 = null;
@@ -1096,9 +1095,9 @@ public class ItemDrill extends Item
 	{
 		player.playSound(CommonProxy.SOUND_ITEM_SCREWGUN, 0.7F, 1.0F);
 	}
-	
+
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
+	public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
     {
 		if (!player.isSneaking())
 		{
@@ -1108,31 +1107,31 @@ public class ItemDrill extends Item
 				tile2 = null;
 			}
 		}
-        return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, player.getHeldItem(hand));
+        return stack;
     }
-	
-	public boolean removeTableCarpet(World world, TileEntity tile, BlockPos pos)
+
+	public boolean removeTableCarpet(World world, TileEntity tile, int x, int y, int z)
 	{
-		TileEntityTable tableTile = (TileEntityTable)world.getTileEntity(pos);
+		TileEntityTable tableTile = (TileEntityTable)world.getTileEntity(x, y, z);
 		if (tableTile != null)
 		{
 			EntityPlayer nullPlayer = null;
-			tableTile.removeStackFromInventoryFromWorld(2, null, (BiblioBlock)world.getBlockState(pos).getBlock());
+			tableTile.removeStackFromInventoryFromWorld(2, null, (BiblioBlock)world.getBlock(x, y, z));
 			//dropCarpet(world, i, j, k, 2);
 			//tableTile.setCarpet(null);
 			return true;
 		}
 		return false;
 	}
-	
-	private void dropCarpet(World world, BlockPos pos, int slot)
+
+	private void dropCarpet(World world, int x, int y, int z, int slot)
 	{
-		TileEntity tileEntity = world.getTileEntity(pos);
+		TileEntity tileEntity = world.getTileEntity(x, y, z);
 		if(!(tileEntity instanceof IInventory))
 		{
 			return;
 		}
-		
+
 		IInventory inventory = (IInventory) tileEntity;
 		TileEntityTable tableTile = (TileEntityTable) tileEntity;
 		ItemStack stuff;
@@ -1150,37 +1149,37 @@ public class ItemDrill extends Item
 		}
 		else
 		{
-			stuff = ItemStack.EMPTY;
+			stuff = null;
 		}
-		
-		if (stuff != ItemStack.EMPTY && stuff.getCount() > 0)
+
+		if (stuff != null && stuff.stackSize > 0)
 		{
 			float iAdjust = 0;
 			float kAdjust;
 			//System.out.println(caseTile.getAngle());
 
-			EntityItem entityItem = new EntityItem(world, pos.getX() + 0.5F, pos.getY() + 1.4F, pos.getZ() + 0.5F, new ItemStack(stuff.getItem(), stuff.getCount(), stuff.getItemDamage()));
-			
+			EntityItem entityItem = new EntityItem(world, x + 0.5F, y + 1.4F, z + 0.5F, new ItemStack(stuff.getItem(), stuff.stackSize, stuff.getItemDamage()));
+
 			if (stuff.hasTagCompound())
 			{
-				entityItem.getItem().setTagCompound((NBTTagCompound) stuff.getTagCompound().copy());
+				entityItem.getEntityItem().setTagCompound((NBTTagCompound) stuff.getTagCompound().copy());
 			}
 			entityItem.motionX = 0;
 			entityItem.motionY = 0;
 			entityItem.motionZ = 0;
-			world.spawnEntity(entityItem);
-			stuff.setCount(0);
+			world.spawnEntityInWorld(entityItem);
+			stuff.stackSize = 0; // (0);
 		}
 	}
-	
-	public boolean connectChairs(EntityPlayer player, World world, BlockPos pos)
+
+	public boolean connectChairs(EntityPlayer player, World world, int x, int y, int z)
 	{
 		if (player.isSneaking())
 		{
 			if (tile1 == null)
 			{
-				
-				tile1 = world.getTileEntity(pos);
+
+				tile1 = world.getTileEntity(x, y, z);
 				if (tile1 != null)
 				{
 					if (tile1 instanceof TileEntitySeat)
@@ -1200,23 +1199,23 @@ public class ItemDrill extends Item
 			if (tile1 != null && tile1 instanceof TileEntitySeat)
 			{
 				//System.out.println("First tile test passed!");
-				if (tile1.getPos().getX() != pos.getX() || tile1.getPos().getY() != pos.getY() || tile1.getPos().getZ() != pos.getZ())
+				if (tile1.xCoord != x || tile1.yCoord != y || tile1.zCoord != z)
 				{
-					
-					tile2 = world.getTileEntity(pos);
+
+					tile2 = world.getTileEntity(x, y, z);
 					if (tile2 != null)
 					{
 						if (tile2 instanceof TileEntitySeat)
 						{
 							// should do this in the packet handler
 							// send a packet here
-							//player.sendMessage(new TextComponentString(I18n.translateToLocal("screwgun.secondSeat"))); 
+							//player.addChatMessage(new ChatComponentText(I18n.format("screwgun.secondSeat")));
 							//this.showTextString = this.sSelectedSeat2;
 							this.sendPacketToClient(this.sSelectedSeat2, (EntityPlayerMP)player);
 							//System.out.println("we got the Second tile");
-							int diffX = tile1.getPos().getX() - tile2.getPos().getX();
-							int diffY = tile1.getPos().getY() - tile2.getPos().getY();
-							int diffZ = tile1.getPos().getZ() - tile2.getPos().getZ();
+							int diffX = tile1.xCoord - tile2.xCoord;
+							int diffY = tile1.yCoord - tile2.yCoord;
+							int diffZ = tile1.zCoord - tile2.zCoord;
 							setChairConnects((TileEntitySeat)tile1, (TileEntitySeat)tile2, diffX, diffY, diffZ);
 							tile1 = null;
 							tile2 = null;
@@ -1231,7 +1230,7 @@ public class ItemDrill extends Item
 						}
 					}
 				}
-				
+
 			}
 			else
 			{
@@ -1242,7 +1241,7 @@ public class ItemDrill extends Item
 		return false;
 	}
 
-	
+
 	public void setChairConnects(TileEntitySeat seatTile1, TileEntitySeat seatTile2, int diffX, int diffY, int diffZ)
 	{
 		if (diffY != 0)
@@ -1335,7 +1334,7 @@ public class ItemDrill extends Item
 			}
 		}
 	}
-	
+
 	public void setMode()
 	{
 		if (useMode >= 2)
@@ -1347,7 +1346,7 @@ public class ItemDrill extends Item
 			useMode++;
 		}
 	}
-	
+
 	private void sendPacketToClient(String displayString, EntityPlayerMP player)
 	{
 		BiblioNetworking.INSTANCE.sendTo(new BiblioDrillText(displayString), player);
@@ -1355,12 +1354,15 @@ public class ItemDrill extends Item
 		// ByteBufUtils.writeUTF8String(buffer, displayString);
 		// BiblioCraft.ch_BiblioDrillText.sendTo(new FMLProxyPacket(new PacketBuffer(buffer), "BiblioDrillText"), player);
 	}
-	
+
 	public void updateFromPacket(String displayString)
 	{
 		this.showText = true;
 		this.showTextChanged = true;
 		this.showTextString = displayString;
 	}
-	
+    @Override
+    public void registerIcons(IIconRegister register) {
+        this.itemIcon = register.registerIcon("bibliocraft:screwgun");
+    }
 }

@@ -13,16 +13,16 @@ public class ContainerPainting extends Container
 {
 	protected TileEntityPainting painting;
 	protected SlotPainting canvasSlot;
-	
+
 	private boolean hasStack = false;
 	//private String[] stringSizes = {"1x1","1x2"};
-	
+
 	public ContainerPainting(InventoryPlayer inventoryPlayer, TileEntityPainting tile)
 	{
 		this.painting = tile;
 		addSlotToContainer(this.canvasSlot = new SlotPainting(this, this.painting, 0, 80, 89));
 		bindPlayerInventory(inventoryPlayer);
-		if (this.painting.getStackInSlot(0) != ItemStack.EMPTY)
+		if (this.painting.getStackInSlot(0) != null)
 		{
 			this.hasStack = true;
 		}
@@ -31,12 +31,12 @@ public class ContainerPainting extends Container
 			this.hasStack = false;
 		}
 	}
-	
+
 	@Override
 	public void detectAndSendChanges()
 	{
 		//System.out.println("container update");
-		if (this.painting.getStackInSlot(0) != ItemStack.EMPTY)
+		if (this.painting.getStackInSlot(0) != null)
 		{
 			if (!hasStack)
 			{
@@ -55,7 +55,7 @@ public class ContainerPainting extends Container
 			}
 		}
 	}
-	
+
 	protected void bindPlayerInventory(InventoryPlayer inventoryPlayer)
 	{
 		for (int i = 0; i < 3; i++)
@@ -65,22 +65,22 @@ public class ContainerPainting extends Container
 				addSlotToContainer(new Slot(inventoryPlayer, j+i*9+9, 8+j*18, 110+i*18));
 			}
 		}
-		for (int i = 0; i < 9; i++) 
+		for (int i = 0; i < 9; i++)
 		{
 			addSlotToContainer(new Slot(inventoryPlayer, i, 8+i*18,168));
 		}
 	}
-	
+
 	@Override
 	public boolean canInteractWith(EntityPlayer player)
 	{
-		return painting.isUsableByPlayer(player);
+		return painting.isUseableByPlayer(player);
 	}
-	
+
 	@Override
 	public ItemStack transferStackInSlot(EntityPlayer player, int slot)
 	{
-		ItemStack stack = ItemStack.EMPTY;
+		ItemStack stack = null;
 		Slot slotObject = (Slot) inventorySlots.get(slot);
 		//this.painting.setContainterUpdate(true);
 		//System.out.println("container update");
@@ -92,51 +92,51 @@ public class ContainerPainting extends Container
 			{
 				if (!this.mergeItemStack(stackInSlot, 1, 37, true))  // changing 9 to 6
 				{
-					return ItemStack.EMPTY;
+					return null;
 				}
 			}
-			else 
+			else
 			{
-				if ((!canvasCheck(stack) || this.painting.getStackInSlot(0) != ItemStack.EMPTY))
+				if ((!canvasCheck(stack) || this.painting.getStackInSlot(0) != null))
 				{
-					return ItemStack.EMPTY;
+					return null;
 				}
-				
-				if (stack.getCount() == 1)
+
+				if (stack.stackSize == 1)
 				{
 					if (!this.mergeItemStack(stackInSlot, 0, 1, false))
 					{
-						return ItemStack.EMPTY;
+						return null;
 					}
-					
+
 				}
 				else
-				{	
-					stack.setCount(1);
+				{
+					stack.stackSize = (1);
 					this.mergeItemStack(stack, 0, 1, false);
-					stackInSlot.setCount(stackInSlot.getCount() - 1);
-                    return ItemStack.EMPTY;
+					stackInSlot.stackSize = (stackInSlot.stackSize - 1);
+                    return null;
 				}
 			}
 
-			
-			if (stackInSlot.getCount() == 0)
+
+			if (stackInSlot.stackSize == 0)
 			{
-				slotObject.putStack(ItemStack.EMPTY);
-			} else 
+				slotObject.putStack(null);
+			} else
 			{
 				slotObject.onSlotChanged();
 			}
-			
-			if (stackInSlot.getCount() == stack.getCount())
+
+			if (stackInSlot.stackSize == stack.stackSize)
 			{
-				return ItemStack.EMPTY;
+				return null;
 			}
-			slotObject.onTake(player, stackInSlot);
+			slotObject.onPickupFromSlot(player, stackInSlot);
 		}
 		return stack;
 	}
-	
+
 	private boolean canvasCheck(ItemStack stack)
 	{
 		if (stack.getItem() instanceof ItemPaintingCanvas)

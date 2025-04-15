@@ -1,5 +1,9 @@
 package jds.bibliowoods.forestry;
 
+import cpw.mods.fml.common.FMLLog;
+import cpw.mods.fml.common.Loader;
+import cpw.mods.fml.common.Mod;
+import cpw.mods.fml.common.event.FMLInitializationEvent;
 import jds.bibliocraft.blocks.BlockBookcase;
 import jds.bibliocraft.helpers.BiblioWoodHelperTab;
 import jds.bibliocraft.helpers.RegisterCustomFramedBlocks;
@@ -8,39 +12,35 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.common.FMLLog;
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 
 @Mod(modid=BiblioWoodsForestry.MODID, name="BiblioWoodForestry", version=BiblioWoodsForestry.VERSION, dependencies="after:bibliocraft; after:foresty")
 
-public class BiblioWoodsForestry 
+public class BiblioWoodsForestry
 {
     public static final String MODID = "bibliowoodsforestry";
     public static final String VERSION = "2.0";
     public static CreativeTabs creativeTab;
-    
+
 	public boolean modloaded = Loader.isModLoaded("forestry");
 	public boolean biblioLoaded = Loader.isModLoaded("bibliocraft");
-	
+
 	@Mod.Instance(MODID)
 	public static BiblioWoodsForestry instance;
-	
-	@Mod.EventHandler 
-	public void load(FMLInitializationEvent event) 
+
+	@Mod.EventHandler
+	public void load(FMLInitializationEvent event)
 	{
 		modloaded = Loader.isModLoaded("forestry");
 		biblioLoaded = Loader.isModLoaded("bibliocraft");
-		
+
 		if (biblioLoaded && modloaded)
 		{
-			Block planks1 = Block.REGISTRY.getObject(new ResourceLocation("forestry:planks.0")); 
-			Block planks2 = Block.REGISTRY.getObject(new ResourceLocation("forestry:planks.1")); 
-			Block slabs1 = Block.REGISTRY.getObject(new ResourceLocation("forestry:slabs.0")); 
-			Block slabs2 = Block.REGISTRY.getObject(new ResourceLocation("forestry:slabs.1"));
-			Block slabs3 = Block.REGISTRY.getObject(new ResourceLocation("forestry:slabs.2"));
-			Block slabs4 = Block.REGISTRY.getObject(new ResourceLocation("forestry:slabs.3"));
+			Block planks1 = Block.getBlockFromName("forestry:planks.0");
+			Block planks2 = Block.getBlockFromName("forestry:planks.1");
+			Block slabs1 = Block.getBlockFromName("forestry:slabs.0");
+			Block slabs2 = Block.getBlockFromName("forestry:slabs.1");
+			Block slabs3 = Block.getBlockFromName("forestry:slabs.2");
+			Block slabs4 = Block.getBlockFromName("forestry:slabs.3");
 			Block[] planks = {planks1, planks1, planks1, planks1, planks1, planks1, planks1, planks1, planks1, planks1, planks1, planks1, planks1, planks1, planks1, planks1,
 							  planks2, planks2, planks2, planks2, planks2, planks2, planks2, planks2, planks2, planks2, planks2, planks2, planks2};
 			int[] plankID = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0,1,2,3,4,5,6,7,8,9,10,11,12};
@@ -83,7 +83,7 @@ public class BiblioWoodsForestry
 			NBTTagCompound tags = new NBTTagCompound();
 			tags.setString("renderTexture", "forestry:blocks/wood/planks.cocobolo");
 			icon.setTagCompound(tags);
-			creativeTab = new BiblioWoodHelperTab("bibliowoodforestrytab", textures, icon);
+			creativeTab = new BiblioWoodHelperTab("bibliowoodforestrytab", textures, icon.getItem());
 			for (int i = 0; i < textures.length; i++)
 			{
 				RegisterCustomFramedBlocks reg = new RegisterCustomFramedBlocks(textures[i]);

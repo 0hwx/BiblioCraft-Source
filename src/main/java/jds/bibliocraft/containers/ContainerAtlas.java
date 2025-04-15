@@ -2,6 +2,7 @@ package jds.bibliocraft.containers;
 
 
 import java.util.ArrayList;
+import java.util.List;
 
 import jds.bibliocraft.items.ItemAtlas;
 import jds.bibliocraft.items.ItemWaypointCompass;
@@ -14,9 +15,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Items;
-import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Container;
-import net.minecraft.inventory.IContainerListener;
+import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
@@ -24,8 +24,6 @@ import net.minecraft.item.ItemMap;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.NonNullList;
 import net.minecraft.world.World;
 import net.minecraft.world.storage.MapData;
 import net.minecraftforge.common.util.Constants;
@@ -42,7 +40,7 @@ public class ContainerAtlas extends Container
 	private boolean initalLoad = false;
 	EntityPlayer player;
 	private int mapsPage = 0;
-	
+
 	public ContainerAtlas(InventoryPlayer inventoryPlayer, World myworld)
 	{
 		atlasInventory = new InventoryBasic("AtlasInventory", true, 48); //  maybe temp, chaged from 48 to 216 to allow 5 pages
@@ -54,16 +52,16 @@ public class ContainerAtlas extends Container
 
 		bindPlayerInventory(inventoryPlayer);
 	}
-	
+
 	private void resetSlots()
 	{
 		this.inventorySlots = new ArrayList();
-		this.inventoryItemStacks = NonNullList.<ItemStack>create();//new ArrayList(); // TODO replaced the arraylist with NonNullList
+		this.inventoryItemStacks = new ArrayList(); // TODO replaced the arraylist with NonNullList
 		for (int i = 0; i<6; i++)
 		{
 			addSlotToContainer(this.atlasSlot = new SlotAtlas(this, atlasInventory, i, 11+(i*18), 123));
 		}
-		
+
 		for (int i = 0; i<7; i++)
 		{
 			for (int j = 0; j<6; j++)
@@ -72,10 +70,10 @@ public class ContainerAtlas extends Container
 			}
 		}
 	}
-	
+
 	public void updateInventory()
 	{
-		if (atlasStack != ItemStack.EMPTY && atlasStack.getItem() instanceof ItemAtlas)
+		if (atlasStack != null && atlasStack.getItem() instanceof ItemAtlas)
 		{
 			NBTTagCompound tags = atlasStack.getTagCompound();
 			if (tags != null)
@@ -84,12 +82,12 @@ public class ContainerAtlas extends Container
 				NBTTagList tagList = tags.getTagList("Inventory", Constants.NBT.TAG_COMPOUND);
 				for (int i = 0; i < tagList.tagCount(); i++)
 				{
-					
+
 					NBTTagCompound tag = (NBTTagCompound) tagList.getCompoundTagAt(i);
 					byte slot = tag.getByte("Slot");
 					if (slot >= 0 && slot < atlasInventory.getSizeInventory())
 					{
-						ItemStack invStack = new ItemStack(tag);
+						ItemStack invStack = ItemStack.loadItemStackFromNBT(tag);
 						this.atlasInventory.setInventorySlotContents(slot, invStack);
 					}
 				}
@@ -97,7 +95,7 @@ public class ContainerAtlas extends Container
 			this.initalLoad = true;
 		}
 	}
-	
+
 	@Override
     public void detectAndSendChanges()
     {
@@ -109,12 +107,12 @@ public class ContainerAtlas extends Container
 
             if (!ItemStack.areItemStacksEqual(itemstack1, itemstack))
             {
-                itemstack1 = itemstack == ItemStack.EMPTY ? ItemStack.EMPTY : itemstack.copy();
+                itemstack1 = itemstack == null ? null : itemstack.copy();
                 this.inventoryItemStacks.set(i, itemstack1);
 
-                for (int j = 0; j < this.listeners.size(); ++j)
+                for (int j = 0; j < this.crafters.size(); ++j)
                 {
-                    ((IContainerListener)this.listeners.get(j)).sendSlotContents(this, i, itemstack1);
+                    ((ICrafting)this.crafters.get(j)).sendSlotContents(this, i, itemstack1);
                     if (i < 48)
                     {
                     	this.updatedSlots = true;
@@ -122,7 +120,7 @@ public class ContainerAtlas extends Container
                 }
             }
         }
-        
+
 		if (this.updatedSlots && this.initalLoad)
 		{
 			// time to update data in the NBT about the compass and maps locations and whatnots
@@ -130,7 +128,7 @@ public class ContainerAtlas extends Container
 			this.updatedSlots = false;
 		}
     }
-	
+
 	private void updateClientInventoryAndData()
 	{
 		NBTTagCompound tags = this.atlasStack.getTagCompound();
@@ -146,7 +144,7 @@ public class ContainerAtlas extends Container
 				for (int n=0; n<6; n++)
 				{
 					ItemStack compStack = (ItemStack)this.inventoryItemStacks.get(n);
-					if (compStack != ItemStack.EMPTY && compStack.getItem() instanceof ItemWaypointCompass)
+					if (compStack != null && compStack.getItem() instanceof ItemWaypointCompass)
 					{
 						NBTTagCompound compassTags = compStack.getTagCompound();
 						if (compassTags != null)
@@ -158,14 +156,14 @@ public class ContainerAtlas extends Container
 								{
 									tags.setInteger("savedCompass", n);
 									//this.atlasStack.setTagCompound(tags);
-									
+
 								}
 								foundCompass = true;
 							}
 						}
 					}
 				}
-				
+
 				if (!foundCompass && comp >= 0)
 				{
 					tags.setInteger("savedCompass", -1);
@@ -173,10 +171,10 @@ public class ContainerAtlas extends Container
 			}
 			tags.setTag("maps", getUpdatedMapTagList(tags));
 			NBTTagList itemList = new NBTTagList();
-	    	for (int i = 0; i < atlasInventory.getSizeInventory(); i++) 
+	    	for (int i = 0; i < atlasInventory.getSizeInventory(); i++)
 	    	{
 	    		ItemStack stack = atlasInventory.getStackInSlot(i);
-	    		if (stack != ItemStack.EMPTY)
+	    		if (stack != null)
 	    		{
 	    			NBTTagCompound tag = new NBTTagCompound();
 	    			tag.setByte("Slot", (byte) i);
@@ -192,34 +190,30 @@ public class ContainerAtlas extends Container
 			{
 				if (player instanceof EntityPlayerMP)
 				{
-					//ystem.out.println("MP player");
 			    	BiblioNetworking.INSTANCE.sendTo(new BiblioAtlasClient(atlasStack), (EntityPlayerMP) player);
-					// ByteBuf buffer = Unpooled.buffer();
-			    	// ByteBufUtils.writeItemStack(buffer, atlasStack);
-			    	// BiblioCraft.ch_BiblioAtlas.sendTo(new FMLProxyPacket(new PacketBuffer(buffer), "BiblioAtlas"), (EntityPlayerMP) player);
 				}
 			}
 			tags.setBoolean("containerUpdate", false);
 			this.atlasStack.setTagCompound(tags);
 		}
 	}
-	   
+
 	@Override
-	public boolean canInteractWith(EntityPlayer entityPlayer) 
+	public boolean canInteractWith(EntityPlayer entityPlayer)
 	{
 		return true;
 	}
-	
+
     @Override
-    public void onContainerClosed(EntityPlayer player) 
+    public void onContainerClosed(EntityPlayer player)
     {
     	updateStackOnPlayer(player);
     }
-    
+
     private void updateStackOnPlayer(EntityPlayer player)
     {
-    	ItemStack atlas = player.getHeldItem(EnumHand.MAIN_HAND);
-    	if (atlas != ItemStack.EMPTY && atlas.getItem() instanceof ItemAtlas)
+    	ItemStack atlas = player.getHeldItem();
+    	if (atlas != null && atlas.getItem() instanceof ItemAtlas)
     	{
 	    	NBTTagCompound tags = atlas.getTagCompound();
 	    	if (tags == null)
@@ -236,7 +230,7 @@ public class ContainerAtlas extends Container
 				for (int n=0; n<6; n++)
 				{
 					ItemStack compStack = (ItemStack)this.inventoryItemStacks.get(n);
-					if (compStack != ItemStack.EMPTY && compStack.getItem() instanceof ItemWaypointCompass)
+					if (compStack != null && compStack.getItem() instanceof ItemWaypointCompass)
 					{
 						NBTTagCompound compassTags = compStack.getTagCompound();
 						if (compassTags != null)
@@ -253,17 +247,17 @@ public class ContainerAtlas extends Container
 						}
 					}
 				}
-			
+
 			if (!foundCompass && comp >= 0)
 			{
 				tags.setInteger("savedCompass", -1);
 			}
 		}
 	    	NBTTagList itemList = new NBTTagList();
-	    	for (int i = 0; i < atlasInventory.getSizeInventory(); i++) 
+	    	for (int i = 0; i < atlasInventory.getSizeInventory(); i++)
 	    	{
 	    		ItemStack stack = atlasInventory.getStackInSlot(i);
-	    		if (stack != ItemStack.EMPTY)
+	    		if (stack != null)
 	    		{
 	    			NBTTagCompound tag = new NBTTagCompound();
 	    			tag.setByte("Slot", (byte) i);
@@ -277,13 +271,13 @@ public class ContainerAtlas extends Container
 	    		//  figure out a solution for this. If this is -1 when the GUI's swap, then the second gui doesn't get to load correct data.
 	    		//tags.setInteger("mapSlot", -1);
 	    	}
-	    	
+
 	    	tags.setTag("maps", getUpdatedMapTagList(tags));
 	    	atlas.setTagCompound(tags);
 	    	player.inventory.setInventorySlotContents(player.inventory.currentItem, atlas);
     	}
     }
-    
+
     private NBTTagList getUpdatedMapTagList(NBTTagCompound tags)
     {
     	NBTTagList maps = null;
@@ -300,12 +294,12 @@ public class ContainerAtlas extends Container
     	for (int i = 6; i < this.atlasInventory.getSizeInventory(); i++)
     	{
     		ItemStack currentMap = this.atlasInventory.getStackInSlot(i);
-    		if (currentMap != ItemStack.EMPTY)
+    		if (currentMap != null)
     		{
     			String mapName = "Map_"+currentMap.getItemDamage();
 	    		boolean foundMap = false;
 	    		NBTTagCompound mapTag = new NBTTagCompound();
-	    		
+
 	    		if (maps != null)
 	    		{
 			    	for (int n = 0; n < maps.tagCount(); n++)
@@ -339,12 +333,12 @@ public class ContainerAtlas extends Container
     	}
     	return newMaps;
     }
-    
+
     private MapData getMapData(ItemStack stack)
 	{
-    	if (stack != ItemStack.EMPTY && stack.getItem() instanceof ItemMap)
+    	if (stack != null && stack.getItem() instanceof ItemMap)
 		{
-			MapData mapdata =Items.FILLED_MAP.getMapData(stack, world);// ((ItemMap)(stack.getItem())).getMapData(stack, Minecraft.getMinecraft().theWorld);//ItemMap.getMapData(invStack, world);
+			MapData mapdata =Items.filled_map.getMapData(stack, world);// ((ItemMap)(stack.getItem())).getMapData(stack, Minecraft.getMinecraft().theWorld);//ItemMap.getMapData(invStack, world);
 			if (mapdata != null)
 			{
 				return mapdata;
@@ -352,7 +346,7 @@ public class ContainerAtlas extends Container
 		}
 		return null;
 	}
-    
+
 	protected void bindPlayerInventory(InventoryPlayer inventoryPlayer)
 	{
 		int heldSlot = inventoryPlayer.currentItem;
@@ -363,7 +357,7 @@ public class ContainerAtlas extends Container
 				addSlotToContainer(new Slot(inventoryPlayer, j+i*9+9, 48+j*18, 159+i*18));
 			}
 		}
-		for (int i = 0; i < 9; i++) 
+		for (int i = 0; i < 9; i++)
 		{
 			if (i == heldSlot)
 			{
@@ -373,14 +367,14 @@ public class ContainerAtlas extends Container
 			{
 				addSlotToContainer(new Slot(inventoryPlayer, i, 48+i*18,217));
 			}
-			
+
 		}
 	}
-	
+
 	@Override
 	public ItemStack transferStackInSlot(EntityPlayer player, int slot)
 	{
-		ItemStack stack = ItemStack.EMPTY;
+		ItemStack stack = null;
 		Slot slotObject = (Slot) inventorySlots.get(slot);
 	//null checks and checks if the item can be stacked (maxStackSize > 1)
 		if (slotObject != null && slotObject.getHasStack())
@@ -393,43 +387,43 @@ public class ContainerAtlas extends Container
 			{
 				if (!this.mergeItemStack(stackInSlot, 48, 84, true))  // changing 9 to 6
 				{
-					return ItemStack.EMPTY;
+					return null;
 				}
 			}
 			else if (atlasSlot.isAtlasItemValid(stackInSlot) && !this.mergeItemStack(stackInSlot, 0, 6, false))
 			{
-				return ItemStack.EMPTY;
+				return null;
 			}
-			else if (stack.getCount() == 1 && atlasMapSlot.isAtlasMapItemValid(stack) && !this.mergeItemStack(stackInSlot, 6, 48, false))
+			else if (stack.stackSize == 1 && atlasMapSlot.isAtlasMapItemValid(stack) && !this.mergeItemStack(stackInSlot, 6, 48, false))
 			{
-				return ItemStack.EMPTY;
+				return null;
 			}
 
-			
-			if (stackInSlot.getCount() == 0)
+
+			if (stackInSlot.stackSize == 0)
 			{
-				slotObject.putStack(ItemStack.EMPTY);
-			} else 
+				slotObject.putStack(null);
+			} else
 			{
 				slotObject.onSlotChanged();
 			}
-			
-			if (stackInSlot.getCount() == stack.getCount())
+
+			if (stackInSlot.stackSize == stack.stackSize)
 			{
-				return ItemStack.EMPTY;
+				return null;
 			}
-			slotObject.onTake(player, stackInSlot);
+			slotObject.onPickupFromSlot(player, stackInSlot);
 		}
 		return stack;
 	}
-	
+
     @Override
-    public ItemStack slotClick(int slot, int dragType, ClickType modifier, EntityPlayer player)
+    public ItemStack slotClick(int slot, int dragType, int mode, EntityPlayer player)
     {
     	if (slot == -999)
     	{
-    		return ItemStack.EMPTY;
+    		return null;
     	}
-    	return super.slotClick(slot, dragType, modifier, player);
+    	return super.slotClick(slot, dragType, mode, player);
     }
 }

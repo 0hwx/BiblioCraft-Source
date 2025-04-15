@@ -43,16 +43,16 @@ import jds.bibliowood.tfcwood.items.ItemSeatBackT3;
 import jds.bibliowood.tfcwood.items.ItemSeatBackT4;
 import jds.bibliowood.tfcwood.items.ItemSeatBackT5;
 */
+import net.minecraft.client.renderer.texture.ITickable;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ITickable;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraftforge.common.util.ForgeDirection;
+
 
 public class TileEntitySeat extends BiblioTileEntity implements ITickable
 {
@@ -66,7 +66,7 @@ public class TileEntitySeat extends BiblioTileEntity implements ITickable
 	public String customBackTex = "none";
 	public boolean hasSitter = false;
 	private int counter = 0;
-	
+
 	public TileEntitySeat()
 	{
 		super(3, true);
@@ -74,13 +74,13 @@ public class TileEntitySeat extends BiblioTileEntity implements ITickable
 		// 1 slot for seat cover item (vanilla carpet)
 		// 1 slot for carpet
 	}
-	
+
 	 @Override
-    public void update()
+    public void tick()
     {
 		if (!hasSitter)
 		{
-	    	if (counter >= 100 && !this.world.isRemote)
+	    	if (counter >= 100 && !this.worldObj.isRemote)
 	    	{
 	    		counter = 0;
 	    		this.scaneForEntityes();
@@ -91,39 +91,39 @@ public class TileEntitySeat extends BiblioTileEntity implements ITickable
 	    	}
 		}
     }
-	    
+
 
     public void scaneForEntityes()
     {
-		AxisAlignedBB bb = new AxisAlignedBB(this.pos.getX()-2.0, this.pos.getY()-1.0, this.pos.getZ()-2.0, this.pos.getX()+3.0, this.pos.getY()+2.0, this.pos.getZ()+3.0);
-		List checkEntities = this.world.getEntitiesWithinAABB(EntityCreature.class, bb);
-		
+		AxisAlignedBB bb = AxisAlignedBB.getBoundingBox(this.xCoord -2.0, this.yCoord-1.0, this.zCoord-2.0, this.xCoord +3.0, this.yCoord+2.0, this.zCoord+3.0);
+		List checkEntities = this.worldObj.getEntitiesWithinAABB(EntityCreature.class, bb);
+
 		for (int x = 0; x<checkEntities.size(); x++)
 		{
 			EntityCreature guy = (EntityCreature)checkEntities.get(x);
 			if (guy.getCustomNameTag().length() > 0)
 			{
-				if (!hasSitter && guy.getRidingEntity() == null)
+				if (!hasSitter && guy.ridingEntity == null)
 				{
 					this.sitDown(guy);
 				}
 			}
 		}
     }
-    
+
     public void dismountEntity()
     {
-		AxisAlignedBB bb = new AxisAlignedBB(this.pos.getX(), this.pos.getY(), this.pos.getZ(), this.pos.getX()+1.0, this.pos.getY()+1.5, this.pos.getZ()+1.0);
-		List checkEntities = this.world.getEntitiesWithinAABB(EntityCreature.class, bb);
+		AxisAlignedBB bb = AxisAlignedBB.getBoundingBox(this.xCoord, this.yCoord, this.zCoord, this.xCoord+1.0, this.yCoord+1.5, this.zCoord+1.0);
+		List checkEntities = this.worldObj.getEntitiesWithinAABB(EntityCreature.class, bb);
 		for (int x = 0; x<checkEntities.size(); x++)
 		{
 			EntityCreature guy = (EntityCreature)checkEntities.get(x);
-			
+
 			if (guy.getCustomNameTag().length() > 0)
 			{
-				if (guy.getRidingEntity() != null)
+				if (guy.ridingEntity != null)
 				{
-					guy.getRidingEntity().setDead();
+					guy.ridingEntity.setDead();
 					this.counter = 0;
 					this.setSitter(false);
 					break;
@@ -131,16 +131,16 @@ public class TileEntitySeat extends BiblioTileEntity implements ITickable
 			}
 		}
     }
-    
+
 	public void sitDown(EntityLiving entity)
 	{
-		EntitySeat seatEntity = new EntitySeat(this.world, pos.getX(), pos.getY()+1.0d, pos.getZ(), this);
-		this.world.spawnEntity(seatEntity);
-		entity.startRiding(seatEntity, true);
+		EntitySeat seatEntity = new EntitySeat(this.worldObj, xCoord, yCoord + 1.0d, zCoord, this);
+		this.worldObj.spawnEntityInWorld(seatEntity);
+		entity.setLeashedToEntity(seatEntity, true);
 		this.setSitter(true);
 	}
-    
-	
+
+
 	public void setSitter(boolean sit)
 	{
 		hasSitter = sit;
@@ -154,25 +154,25 @@ public class TileEntitySeat extends BiblioTileEntity implements ITickable
 	{
 		hasBack = 0;
 		customBackTex = "none";
-		getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+        getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
-	
+
 	public void removeCover()
 	{
 		seatColor = EnumColor.WHITE;
-		getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+        getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
-	
+
 	public EnumWoodType getBackWoodType()
 	{
 		return backWoodType;
 	}
-	
+
 	public int addSeatCover(ItemStack cloth)
 	{
-		if (getStackInSlot(0) == ItemStack.EMPTY)
+		if (getStackInSlot(0) == null)
 		{
-			int clothStackSize = cloth.getCount();
+			int clothStackSize = cloth.stackSize;
 			if (clothStackSize == 1)
 			{
 				setInventorySlotContents(0, cloth);
@@ -181,12 +181,12 @@ public class TileEntitySeat extends BiblioTileEntity implements ITickable
 			else
 			{
 				ItemStack clothCopy = cloth.copy();
-				clothCopy.setCount(1);
+				clothCopy.stackSize = (1);
 				setInventorySlotContents(0, clothCopy);
 				clothStackSize--;
 			}
 			seatColor = EnumColor.getColorFromCarpetOrWool(cloth);
-			getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+            getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 			return clothStackSize;
 		}
 		else
@@ -194,12 +194,12 @@ public class TileEntitySeat extends BiblioTileEntity implements ITickable
 			return -1;
 		}
 	}
-	
+
 	public int addSeatBack(ItemStack back)
 	{
-		if (getStackInSlot(1) == ItemStack.EMPTY)
+		if (getStackInSlot(1) == null)
 		{
-			int backStackSize = back.getCount();
+			int backStackSize = back.stackSize;
 			if (backStackSize == 1)
 			{
 				setInventorySlotContents(1, back);
@@ -208,7 +208,7 @@ public class TileEntitySeat extends BiblioTileEntity implements ITickable
 			else
 			{
 				ItemStack backCopy = back.copy();
-				backCopy.setCount(1);
+				backCopy.stackSize = (1);
 				setInventorySlotContents(1, backCopy);
 				backStackSize--;
 			}
@@ -242,7 +242,7 @@ public class TileEntitySeat extends BiblioTileEntity implements ITickable
 					this.customBackTex = tags.getString("renderTexture");
 				}
 			}
-			getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+            getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 			return backStackSize;
 		}
 		else
@@ -250,21 +250,21 @@ public class TileEntitySeat extends BiblioTileEntity implements ITickable
 			return -1;
 		}
 	}
-	
+
 	public void setCustomBackTex(String tex)
 	{
 		this.customBackTex = tex;
-		getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+        getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
-	
+
 	public String getCustomBackTexture()
 	{
 		return this.customBackTex;
 	}
-	
+
 	public void removeSeatAddon(int slot)
 	{
-		setInventorySlotContents(slot, ItemStack.EMPTY);
+		setInventorySlotContents(slot, null);
 		if (slot == 0)
 		{
 			seatColor = EnumColor.WHITE;
@@ -275,10 +275,10 @@ public class TileEntitySeat extends BiblioTileEntity implements ITickable
 			backWoodType = EnumWoodType.OAK;
 		}
 		setCustomBackTex("none");
-		getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+        getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
-	
-	public void rotateConnections(boolean down, EnumFacing oldAngle)
+
+	public void rotateConnections(boolean down, ForgeDirection oldAngle)
 	{
 		if (this.getAngle() != oldAngle)
 		{
@@ -290,7 +290,7 @@ public class TileEntitySeat extends BiblioTileEntity implements ITickable
 			this.eastConnect = false;
 			this.southConnect = false;
 			this.westConnect = false;
-			
+
 			if (down) // to the left
 			{
 				if (oldN)
@@ -329,27 +329,27 @@ public class TileEntitySeat extends BiblioTileEntity implements ITickable
 					this.northConnect = true;
 				}
 			}
-			getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+            getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 		}
-		
+
 	}
-	
-	
+
+
 	public void setBack(int back)
 	{
 		hasBack = back;
 	}
-	
+
 	public int getHasBack()
 	{
 		return hasBack;
 	}
-	
+
 	public void setSeatColor(EnumColor color)
 	{
 		seatColor = color;
 	}
-	
+
 	public EnumColor getSeatColor()
 	{
 		return seatColor;
@@ -357,22 +357,22 @@ public class TileEntitySeat extends BiblioTileEntity implements ITickable
 	public void setNorthConnect(boolean nCon)
 	{
 		northConnect = nCon;
-		getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+        getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
 	public void setSouthConnect(boolean sCon)
 	{
 		southConnect = sCon;
-		getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+        getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
 	public void setEastConnect(boolean eCon)
 	{
 		eastConnect = eCon;
-		getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+        getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
 	public void setWestConnect(boolean wCon)
 	{
 		westConnect = wCon;
-		getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+        getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
 	public boolean getNorthConnect()
 	{
@@ -394,37 +394,37 @@ public class TileEntitySeat extends BiblioTileEntity implements ITickable
 	public int setCarpet(ItemStack stack)
 	{
 		int stacksize = 0;
-		if (stack == ItemStack.EMPTY)
+		if (stack == null)
 		{
 			if(isCarpetFull())
 			{
-				setInventorySlotContents(2, ItemStack.EMPTY);
+				setInventorySlotContents(2, null);
 			}
 			stacksize = -1;
 			return stacksize;
 		}
-		
+
 		if (!isCarpetFull())
 		{
-			if (stack.getCount() > 1)
+			if (stack.stackSize > 1)
 			{
-				stacksize = stack.getCount() - 1;
+				stacksize = stack.stackSize - 1;
 			}
 			else
 			{
 				stacksize = 0;
 			}
 			ItemStack carpetpiece = stack.copy();
-			carpetpiece.setCount(1);
+			carpetpiece.stackSize = (1);
 			setInventorySlotContents(2, carpetpiece);
 		}
 		else
 		{
-			stacksize = stack.getCount();
+			stacksize = stack.stackSize;
 		}
 		return stacksize;
 	}
-	
+
 	public EnumColor getCarpetColor()
 	{
 		if(isCarpetFull())
@@ -436,10 +436,10 @@ public class TileEntitySeat extends BiblioTileEntity implements ITickable
 			return EnumColor.WHITE;
 		}
 	}
-	
+
 	public boolean isCarpetFull()
 	{
-		if (inventory.get(2) != ItemStack.EMPTY)
+		if (inventory[2] != null)
 		{
 			return true;
 		}
@@ -449,32 +449,57 @@ public class TileEntitySeat extends BiblioTileEntity implements ITickable
 		}
 	}
 
-	@Override
+    @Override
+    public ItemStack getStackInSlotOnClosing(int index) {
+        return null;
+    }
+
+    @Override
+    public String getInventoryName() {
+        return "";
+    }
+
+    @Override
+    public boolean hasCustomInventoryName() {
+        return false;
+    }
+
+    @Override
 	public int getInventoryStackLimit()
 	{
 		return 1;
 	}
 
-	@Override
+    @Override
+    public void openInventory() {
+
+    }
+
+    @Override
+    public void closeInventory() {
+
+    }
+
+    @Override
 	public boolean isItemValidForSlot(int i, ItemStack itemstack)
 	{
 		return false;
 	}
 
+//	@Override
+//	public String getName()
+//	{
+//		return BlockSeat.name;
+//	}
+
 	@Override
-	public String getName() 
+	public void setInventorySlotContentsAdditionalCommands(int slot, ItemStack stack)
 	{
-		return BlockSeat.name;
+
 	}
-	
+
 	@Override
-	public void setInventorySlotContentsAdditionalCommands(int slot, ItemStack stack) 
-	{
-		
-	}
-	
-	@Override
-	public void loadCustomNBTData(NBTTagCompound nbt) 
+	public void loadCustomNBTData(NBTTagCompound nbt)
 	{
 		hasBack = nbt.getInteger("hasBack");
 		northConnect = nbt.getBoolean("northConnect");
@@ -486,9 +511,9 @@ public class TileEntitySeat extends BiblioTileEntity implements ITickable
 		hasSitter = nbt.getBoolean("hasSitter");
 		customBackTex = nbt.getString("customBackTexture");
 	}
-	
+
 	@Override
-	public NBTTagCompound writeCustomNBTData(NBTTagCompound nbt) 
+	public NBTTagCompound writeCustomNBTData(NBTTagCompound nbt)
 	{
 		nbt.setInteger("hasBack", hasBack);
 		nbt.setBoolean("northConnect", northConnect);
@@ -501,11 +526,16 @@ public class TileEntitySeat extends BiblioTileEntity implements ITickable
 		nbt.setString("customBackTexture", this.customBackTex);
 		return nbt;
 	}
-	
-	@Override
-	public ITextComponent getDisplayName() 
-	{
-		ITextComponent chat = new TextComponentString(getName());
-		return chat;
-	}
+
+//	@Override
+//	public ITextComponent getDisplayName()
+//	{
+//		ITextComponent chat = new ChatComponentText(getName());
+//		return chat;
+//	}
+
+    @Override
+    public int[] getAccessibleSlotsFromSide(int p_94128_1_) {
+        return new int[0];
+    }
 }

@@ -4,51 +4,19 @@ import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
 
 import jds.bibliocraft.blocks.BlockArmorStand;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraftforge.common.model.TRSRTransformation;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.model.AdvancedModelLoader;
+import net.minecraftforge.client.model.IModelCustom;
 
-public class ModelArmorStand extends BiblioModelWood
+
+public class ModelArmorStand
 {
-	public static final ModelResourceLocation modelResourceLocation = new ModelResourceLocation("bibliocraft:" + BlockArmorStand.name);
+    private IModelCustom model = AdvancedModelLoader.loadModel(new ResourceLocation("bibliocraft", "models/block/armorstand.obj"));
 
-	public ModelArmorStand()
-	{
-		super("bibliocraft:block/armorstand.obj");
- 	}
 
-	@Override
-	public String getTextureLocation(String resourceLocation, String textureLocation)
-	{
-		return textureLocation;
-	}
-	
-	@Override
-	public TRSRTransformation getTweakedMasterTransform(TRSRTransformation transform)
-	{
-		transform = transform.compose(new TRSRTransformation(new Vector3f(-0.23f, -0.18f, 0.0f), 
-														     new Quat4f(0.0f, 0.0f, 0.0f, 1.0f), 
-														     new Vector3f(0.625f, 0.625f, 0.625f), 
-														     new Quat4f(0.0f, 0.0f, 0.0f, 1.0f)));
-		return transform;
-	}
-	
-	@Override
-	public TRSRTransformation getTweakedGUITransform(TRSRTransformation transform)
-	{
-		transform = transform.compose(new TRSRTransformation(new Vector3f(0.125f, 0.0625f, 0.1f), 
-														     new Quat4f(0.0f, 0.0f, 0.0f, 1.0f), 
-														     new Vector3f(1.0f, 1.0f, 1.0f), 
-														     new Quat4f(0.0f, 0.0f, 0.0f, 1.0f)));
-		return transform;
-	}
-	
-	@Override
-	public TRSRTransformation getTweakedLeftHandTransform(TRSRTransformation transform)
-	{
-		transform = transform.compose(new TRSRTransformation(new Vector3f(0.42f, 0.0f, 0.0f), 
-														     new Quat4f(0.0f, 0.0f, 0.0f, 1.0f), 
-														     new Vector3f(1.0f, 1.0f, 1.0f), 
-														     new Quat4f(0.0f, 0.0f, 0.0f, 1.0f)));
-		return transform;
-	}
+    public ModelArmorStand() {}
+
+    public void renderArmorStand() {
+        this.model.renderAll();
+    }
 }

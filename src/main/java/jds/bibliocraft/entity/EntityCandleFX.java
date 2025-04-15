@@ -1,14 +1,15 @@
 package jds.bibliocraft.entity;
 
-import net.minecraft.client.particle.Particle;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.entity.Entity;
+
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.client.particle.EntityFX;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+
 
 @SideOnly(Side.CLIENT)
-public class EntityCandleFX extends Particle
+public class EntityCandleFX extends EntityFX
 {
 	 /** the scale of the flame FX */
     private float flameScale;
@@ -29,7 +30,7 @@ public class EntityCandleFX extends Particle
     }
 
     @Override
-	public void renderParticle(BufferBuilder renderer, Entity entityIn, float par2, float par3, float par4, float par5, float par6, float par7)
+	public void renderParticle(Tessellator renderer, float par2, float par3, float par4, float par5, float par6, float par7)
     {
         float var8 = (this.particleAge + par2) / this.particleMaxAge;
         this.particleScale = this.flameScale * (0.3F - var8 * var8 * 0.5F);
@@ -37,7 +38,7 @@ public class EntityCandleFX extends Particle
         {
         	this.particleScale = 0.0F;
         }
-        super.renderParticle(renderer, entityIn, par2, par3, par4, par5, par6, par7);
+        super.renderParticle(renderer, par2, par3, par4, par5, par6, par7);
     }
 /*
     @Override
@@ -102,11 +103,10 @@ public class EntityCandleFX extends Particle
 
         if (this.particleAge++ >= this.particleMaxAge)
         {
-            //this.setDead();
-            this.setExpired();
+            this.setDead();
         }
 
-        this.move(this.motionX, this.motionY, this.motionZ);
+        this.moveEntity(this.motionX, this.motionY, this.motionZ);
         this.motionX *= 0.9599999785423279D;
         this.motionY *= 0.9599999785423279D;
         this.motionZ *= 0.9599999785423279D;

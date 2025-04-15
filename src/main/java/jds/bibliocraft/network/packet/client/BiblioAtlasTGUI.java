@@ -1,65 +1,72 @@
 package jds.bibliocraft.network.packet.client;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import io.netty.buffer.ByteBuf;
 import jds.bibliocraft.network.packet.Utils;
 import jds.bibliocraft.tileentities.TileEntityMapFrame;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import cpw.mods.fml.common.network.ByteBufUtils;
+import cpw.mods.fml.common.network.simpleimpl.IMessage;
+import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 
 public class BiblioAtlasTGUI implements IMessage {
     ItemStack atlas;
-    BlockPos pos;
+    int posX;
+    int posY;
+    int posZ;
 
     public BiblioAtlasTGUI() {
 
     }
 
-    public BiblioAtlasTGUI(ItemStack atlas, BlockPos pos) {
+    public BiblioAtlasTGUI(ItemStack atlas, int posX, int posY, int posZ) {
         this.atlas = atlas;
-        this.pos = pos;
+        this.posX = posX;
+        this.posY = posY;
+        this.posZ = posZ;
     }
 
     @Override
     public void fromBytes(ByteBuf buf) {
         this.atlas = ByteBufUtils.readItemStack(buf);
-        this.pos = BlockPos.fromLong(buf.readLong());
+        this.posX = buf.readInt();
+        this.posY = buf.readInt();
+        this.posZ = buf.readInt();
     }
 
     @Override
     public void toBytes(ByteBuf buf) {
         ByteBufUtils.writeItemStack(buf, this.atlas);
-        buf.writeLong(this.pos.toLong());
+        buf.writeInt(this.posX);
+        buf.writeInt(this.posY);
+        buf.writeInt(this.posZ);
     }
 
     public static class Handler implements IMessageHandler<BiblioAtlasTGUI, IMessage> {
 
         @Override
         public IMessage onMessage(BiblioAtlasTGUI message, MessageContext ctx) {
-            Minecraft.getMinecraft().addScheduledTask(() -> 
+            Minecraft.getMinecraft().func_152344_a(() ->
             {
-            	handleAtlas(message.atlas, message.pos);
+            	handleAtlas(message.atlas, message.posX, message.posY, message.posZ);
             });
             return null;
         }
 
     }
-    
+
     @SideOnly(Side.CLIENT)
-    public static void handleAtlas(ItemStack atlas, BlockPos pos)
+    public static void handleAtlas(ItemStack atlas, int posX, int posY, int posZ)
     {
-        EntityPlayerSP player = Minecraft.getMinecraft().player;
-        final TileEntityMapFrame tile = (TileEntityMapFrame) player.world.getTileEntity(pos); 
-        if (tile != null) 
+        EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+        final TileEntityMapFrame tile = (TileEntityMapFrame) player.worldObj.getTileEntity(posX, posY, posZ);
+        if (tile != null)
         {
-            Utils.openWaypointTransferGUI(Minecraft.getMinecraft().world, Minecraft.getMinecraft().player, atlas, tile);
+            Utils.openWaypointTransferGUI(Minecraft.getMinecraft().theWorld, Minecraft.getMinecraft().thePlayer, atlas, tile);
         }
     }
 }

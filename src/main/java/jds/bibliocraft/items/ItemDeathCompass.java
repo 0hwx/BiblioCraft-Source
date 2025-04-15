@@ -2,40 +2,38 @@ package jds.bibliocraft.items;
 
 import java.util.List;
 
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.Entity;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+
 
 public class ItemDeathCompass extends Item
 {
 	public static final String name = "DeathCompass";
 	public static final ItemDeathCompass instance = new ItemDeathCompass();
-	
+
 	public ItemDeathCompass()
 	{
 		super();
 		setUnlocalizedName(name);
 		setMaxDamage(1);
-		setRegistryName(name);
+		setUnlocalizedName(name);
 	}
 
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer playerIn, EnumHand handIn)
+	public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
 	{
 		if (world.isRemote)
 		{
-			NBTTagCompound tags = playerIn.getHeldItem(handIn).getTagCompound();
+			NBTTagCompound tags = player.getHeldItem().getTagCompound();
 			if (tags == null)
 			{
 				//this.createNewNBT(stack);
@@ -46,13 +44,13 @@ public class ItemDeathCompass extends Item
 				int sZ = tags.getInteger("ZCoord");
 				String waypoint = tags.getString("WaypointName");
 				String tooltip = waypoint+"  @  X = "+sX+"   Z = "+sZ;
-				playerIn.sendMessage(new TextComponentString(tooltip));
+                player.addChatMessage(new ChatComponentText(tooltip));
 			}
 		}
-		
-		return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, playerIn.getHeldItem(handIn));
+
+		return stack;
 	}
-	
+
 	public ItemStack writeNBT(ItemStack compass, int xset, int zset, String waypointName)
 	{
 		NBTTagCompound tags = new NBTTagCompound();
@@ -62,9 +60,9 @@ public class ItemDeathCompass extends Item
 		compass.setTagCompound(tags);
 		return compass;
 	}
-	
+
 	@Override
-    public void addInformation(ItemStack stack, World playerIn, List<String> tooltip, ITooltipFlag advanced) 
+    public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced)
 	{
 		NBTTagCompound tags = stack.getTagCompound();
 		if (tags != null)
@@ -81,7 +79,7 @@ public class ItemDeathCompass extends Item
 		}
     	super.addInformation(stack, playerIn, tooltip, advanced);
 	}
-	
+
 	public void updateTheta(float angle, double prevAngle, double time, ItemStack stack)
 	{
 		NBTTagCompound tags = stack.getTagCompound();
@@ -107,10 +105,10 @@ public class ItemDeathCompass extends Item
 		newTags.setDouble("time", 5.25D);
 		newTags.setDouble("prevAngle", 0.0D);
 	}
-	
+
 	@SideOnly(Side.CLIENT)
 	@Override
-	public void onUpdate(ItemStack stack, World world, Entity entity, int par4, boolean par5) 
+	public void onUpdate(ItemStack stack, World world, Entity entity, int par4, boolean par5)
 	{
 		if (entity != null && entity instanceof EntityPlayer)
 		{
@@ -131,7 +129,7 @@ public class ItemDeathCompass extends Item
 				 prevAngle = tags.getDouble("prevAngle");
 			}
 			EntityPlayer player = (EntityPlayer)entity;
-			double yaw = MathHelper.wrapDegrees(player.rotationYaw) + 90.0d;
+			double yaw = MathHelper.wrapAngleTo180_double(player.rotationYaw) + 90.0d;
 			double dx = sX - player.posX;
 			double dz = sZ - player.posZ;
 			double newAngle = yaw - (Math.atan2(dz, dx)*(180.0d/Math.PI));
@@ -175,9 +173,13 @@ public class ItemDeathCompass extends Item
 			updateTheta(theta, prevAngle, time, stack);
 		}
 	}
-	
+
     public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged)
     {
         return false;
+    }
+    @Override
+    public void registerIcons(IIconRegister register) {
+        this.itemIcon = register.registerIcon("bibliocraft:DeathCompass");
     }
 }

@@ -16,12 +16,12 @@ public class ContainerPrintPress  extends Container
 {
 
 	protected TileEntityPrintPress tileEntity;
-	
+
 	protected SlotPrintPlate plateSlot;
 	protected SlotBlankBook bookSlot;
 	protected SlotFinishedBook doneSlot;
 	protected SlotInk inkSlot;
-	
+
 	public ContainerPrintPress(InventoryPlayer inventoryPlayer, TileEntityPrintPress tile)
 	{
 		tileEntity = tile;
@@ -30,16 +30,16 @@ public class ContainerPrintPress  extends Container
 		addSlotToContainer(this.plateSlot = new SlotPrintPlate(this, tileEntity, 1, 80, 29));
 		addSlotToContainer(this.bookSlot = new SlotBlankBook(this, tileEntity, 2, 36, 54));
 		addSlotToContainer(this.doneSlot = new SlotFinishedBook(this, tileEntity, 3, 123, 54));
-		
+
 		bindPlayerInventory(inventoryPlayer);
 	}
-	
+
 	@Override
 	public boolean canInteractWith(EntityPlayer player)
 	{
-		return tileEntity.isUsableByPlayer(player);
+		return tileEntity.isUseableByPlayer(player);
 	}
-	
+
 	protected void bindPlayerInventory(InventoryPlayer inventoryPlayer)
 	{
 		for (int i = 0; i < 3; i++)
@@ -49,16 +49,16 @@ public class ContainerPrintPress  extends Container
 				addSlotToContainer(new Slot(inventoryPlayer, j+i*9+9, 8+j*18, 84+i*18));
 			}
 		}
-		for (int i = 0; i < 9; i++) 
+		for (int i = 0; i < 9; i++)
 		{
 			addSlotToContainer(new Slot(inventoryPlayer, i, 8+i*18,142));
 		}
 	}
-	
+
 	@Override
 	public ItemStack transferStackInSlot(EntityPlayer player, int slot)
 	{
-		ItemStack stack = ItemStack.EMPTY;
+		ItemStack stack = null;
 		Slot slotObject = (Slot) inventorySlots.get(slot);
 	//null checks and checks if the item can be stacked (maxStackSize > 1)
 		if (slotObject != null && slotObject.getHasStack())
@@ -72,7 +72,7 @@ public class ContainerPrintPress  extends Container
 			{
 				if (!this.mergeItemStack(stackInSlot, 4, 40, true))  // changing 9 to 6
 				{
-					return ItemStack.EMPTY;
+					return null;
 				}
 			}
 			//places it into the tileEntity is possible since its in the player inventory
@@ -80,26 +80,26 @@ public class ContainerPrintPress  extends Container
 			// This needs some tweakage to accomadate my needs, but will work genericly for now
 			else if (!this.mergeItemStack(stackInSlot, 0, 4, false)) // use this line to limit what can be shift-clicked into place
 			{
-				return ItemStack.EMPTY;
+				return null;
 			}
 
-			
-			if (stackInSlot.getCount() == 0)
+
+			if (stackInSlot.stackSize == 0)
 			{
-				slotObject.putStack(ItemStack.EMPTY);
-			} else 
+				slotObject.putStack(null);
+			} else
 			{
 				slotObject.onSlotChanged();
 			}
-			
-			if (stackInSlot.getCount() == stack.getCount())
+
+			if (stackInSlot.stackSize == stack.stackSize)
 			{
-				return ItemStack.EMPTY;
+				return null;
 			}
-			slotObject.onTake(player, stackInSlot);
+			slotObject.onPickupFromSlot(player, stackInSlot);
 		}
 		return stack;
 	}
-	
-	
+
+
 }

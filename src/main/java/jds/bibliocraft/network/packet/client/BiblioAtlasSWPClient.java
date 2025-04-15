@@ -5,12 +5,12 @@ import jds.bibliocraft.network.packet.Utils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import cpw.mods.fml.common.network.ByteBufUtils;
+import cpw.mods.fml.common.network.simpleimpl.IMessage;
+import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 public class BiblioAtlasSWPClient implements IMessage {
     ItemStack atlas;
@@ -33,13 +33,13 @@ public class BiblioAtlasSWPClient implements IMessage {
         ByteBufUtils.writeItemStack(buf, this.atlas);
     }
 
-    public static class Handler implements IMessageHandler<BiblioAtlasSWPClient, IMessage> 
+    public static class Handler implements IMessageHandler<BiblioAtlasSWPClient, IMessage>
     {
 
         @Override
-        public IMessage onMessage(BiblioAtlasSWPClient message, MessageContext ctx) 
+        public IMessage onMessage(BiblioAtlasSWPClient message, MessageContext ctx)
         {
-            Minecraft.getMinecraft().addScheduledTask(() -> 
+            Minecraft.getMinecraft().func_152344_a(() ->
             {
             	handleAtlas(message.atlas);
             });
@@ -47,12 +47,12 @@ public class BiblioAtlasSWPClient implements IMessage {
         }
 
     }
-    
+
     @SideOnly(Side.CLIENT)
     public static void handleAtlas(ItemStack atlas)
     {
-        EntityPlayerSP player = Minecraft.getMinecraft().player;
+        EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
         player.rotationPitch = 50.0f;
-        Utils.openMapGUI(Minecraft.getMinecraft().player, atlas);
+        Utils.openMapGUI(Minecraft.getMinecraft().thePlayer, atlas);
     }
 }

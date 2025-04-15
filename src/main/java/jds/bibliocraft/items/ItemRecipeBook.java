@@ -2,58 +2,55 @@ package jds.bibliocraft.items;
 
 import java.util.List;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import jds.bibliocraft.Config;
 import jds.bibliocraft.network.BiblioNetworking;
 import jds.bibliocraft.network.packet.client.BiblioOpenBook;
-import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.text.translation.I18n;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemRecipeBook extends Item
 {
 	public static final String name = "RecipeBook";
 	public static final ItemRecipeBook instance = new ItemRecipeBook();
-	
+
 	private int[] ingredientCounts = new int[9];
 	private String[] ingredientNames = new String[9];
 	private int ingredientsTest;
 	public boolean showText = false;
 	public boolean showTextChanged = false;
 	public String showTextString = "";
-	
+
 	public ItemRecipeBook()
 	{
 		super();
 		setUnlocalizedName(name);
 		setMaxStackSize(1);
-		setRegistryName(name);
+		setUnlocalizedName(name);
 	}
 
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
+	public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
 	{
-		if (!world.isRemote && hand == EnumHand.MAIN_HAND)
+		if (!world.isRemote)
 		{
 			BiblioNetworking.INSTANCE.sendTo(new BiblioOpenBook(Config.enableRecipeBookCrafting), (EntityPlayerMP) player);
 			// ByteBuf buffer = Unpooled.buffer();
 			// buffer.writeBoolean(Config.enableRecipeBookCrafting);
 			// BiblioCraft.ch_BiblioOpenBook.sendTo(new FMLProxyPacket(new PacketBuffer(buffer), "BiblioOpenBook"), (EntityPlayerMP) player);
 		}
-		return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, player.getHeldItem(hand));
+		return stack;
 	}
-	
+
 	@Override
 	public boolean hasEffect(ItemStack stack)
 	{
@@ -68,15 +65,15 @@ public class ItemRecipeBook extends Item
 	@SideOnly(Side.CLIENT)
     public void openRecipeBookGUI(ItemStack stack, int slot)
     {
-		Minecraft.getMinecraft().displayGuiScreen(new GuiRecipeBook(stack, false, 0, 0, 0, slot)); 
+		Minecraft.getMinecraft().displayGuiScreen(new GuiRecipeBook(stack, false, 0, 0, 0, slot));
     }
     */
 	@SideOnly(Side.CLIENT)
 	@Override
-    public void addInformation(ItemStack stack, World playerIn, List<String> tooltip, ITooltipFlag advanced) 
+    public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced)
 	{
 		compareingredients(stack);
-		tooltip.add(I18n.translateToLocal("book.ingredients")); 
+		tooltip.add(I18n.format("book.ingredients"));
 		for (int i = 0; i<this.ingredientCounts.length; i++)
 		{
 			ingredientsTest = this.ingredientCounts[i];
@@ -87,14 +84,14 @@ public class ItemRecipeBook extends Item
 		}
     	super.addInformation(stack, playerIn, tooltip, advanced);
 	}
-	
+
 	public void updateFromPacket(String displayString)
 	{
 		this.showText = true;
 		this.showTextChanged = true;
 		this.showTextString = displayString;
 	}
-	
+
 	public void compareingredients(ItemStack stack)
 	{
 		ingredientCounts = new int[9];
@@ -112,8 +109,8 @@ public class ItemRecipeBook extends Item
 					//System.out.println(slot);
 					if (slot >= 0 && slot < 9)
 					{
-						ItemStack nbtStack = new ItemStack(tag);
-						if (nbtStack != ItemStack.EMPTY)
+						ItemStack nbtStack = ItemStack.loadItemStackFromNBT(tag);
+						if (nbtStack != null)
 						{
 							int n = 0;
 							boolean complete = false;
@@ -129,7 +126,7 @@ public class ItemRecipeBook extends Item
 									}
 								}
 							}
-							
+
 							if (havematch)
 							{
 								this.ingredientCounts[n] += 1;
@@ -159,4 +156,8 @@ public class ItemRecipeBook extends Item
 			}
 		}
 	}
+    @Override
+    public void registerIcons(IIconRegister register) {
+        this.itemIcon = register.registerIcon("bibliocraft:recipebook");
+    }
 }

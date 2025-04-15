@@ -1,22 +1,22 @@
 package jds.bibliocraft.rendering;
 
 import jds.bibliocraft.tileentities.BiblioTileEntity;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
+import org.lwjgl.opengl.GL11;
 
 public class TileEntityDinnerPlateRenderer extends TileEntityBiblioRenderer
 {
 
 	@Override
-	public void render(BiblioTileEntity tile, double x, double y, double z, float tick)
+	public void renderTileEntityAt(BiblioTileEntity tile, double x, double y, double z, float tick)
 	{
 		ItemStack centerStack = tile.getStackInSlot(0);
 		ItemStack leftStack = tile.getStackInSlot(1);
 		ItemStack rightStack = tile.getStackInSlot(2);
-		
-		if (leftStack == ItemStack.EMPTY && rightStack == ItemStack.EMPTY && centerStack != ItemStack.EMPTY)
+
+		if (leftStack == null && rightStack == null && centerStack != null)
 		{
-			int stackSize = centerStack.getCount();
+			int stackSize = centerStack.stackSize;
 			int testValue = (int)(stackSize / 20.0) + 1;
 			//if (tick % 10 == 0)
 			//System.out.println("stackSize = " + stackSize + "       testValue = " + testValue);
@@ -34,11 +34,11 @@ public class TileEntityDinnerPlateRenderer extends TileEntityBiblioRenderer
 		}
 		else
 		{
-			if (centerStack != ItemStack.EMPTY)
+			if (centerStack != null)
 			{
-				int stackSize = centerStack.getCount();
+				int stackSize = centerStack.stackSize;
 				int testValue = (int)(stackSize / 20.0) + 1;
-				
+
 				if (stackSize >= 1)
 				{
 					renderSlotItem(centerStack, 0.5, 0.02, 0.68, 0.5f);
@@ -51,11 +51,11 @@ public class TileEntityDinnerPlateRenderer extends TileEntityBiblioRenderer
 					}
 				}
 			}
-			if (leftStack != ItemStack.EMPTY)
+			if (leftStack != null)
 			{
-				int stackSize = leftStack.getCount();
+				int stackSize = leftStack.stackSize;
 				int testValue = (int)(stackSize / 20.0) + 1;
-				
+
 				if (stackSize >= 1)
 				{
 					renderSlotItem(leftStack, 0.35, 0.018, 0.4, 0.4f);
@@ -68,12 +68,12 @@ public class TileEntityDinnerPlateRenderer extends TileEntityBiblioRenderer
 					}
 				}
 			}
-			if (rightStack != ItemStack.EMPTY)
+			if (rightStack != null)
 			{
-				int stackSize = rightStack.getCount();
+				int stackSize = rightStack.stackSize;
 				int testValue = (int)(stackSize / 20.0) + 1;
-				
-				
+
+
 				if (stackSize >= 1)
 				{
 					renderSlotItem(rightStack, 0.62, 0.016, 0.4, 0.4f);
@@ -92,6 +92,7 @@ public class TileEntityDinnerPlateRenderer extends TileEntityBiblioRenderer
 	@Override
 	public void additionalGLStuffForItemStack()
 	{
-		GlStateManager.rotate(90.0f, 1.0f, 0.0f, 0.0f);
+		GL11.glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
 	}
+
 }

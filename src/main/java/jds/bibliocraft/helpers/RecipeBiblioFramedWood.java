@@ -8,10 +8,8 @@ import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.NonNullList;
 
 public class RecipeBiblioFramedWood extends ShapedRecipes
 {
@@ -20,21 +18,21 @@ public class RecipeBiblioFramedWood extends ShapedRecipes
 	// TODO, maybe I should make a string registry
 	private static ArrayList<WoodRegistryEntry> registry;
 
-	public RecipeBiblioFramedWood(int width, int height, NonNullList<Ingredient> ingredientsIn, ItemStack output) 
+	public RecipeBiblioFramedWood(int width, int height, ItemStack[] ingredientsIn, ItemStack output)
 	{
-		super("", width, height, ingredientsIn, output);
+		super(width, height, ingredientsIn, output);
 		if (registry == null)
 			registry = new ArrayList<WoodRegistryEntry>();
-		
+
 	}
-	
+
 	public static IRecipe addShapedWoodRecipe(ItemStack stack, WoodRegistryEntry entry, Object ... stuff)
 	{
 		if (registry == null)
 			registry = new ArrayList<WoodRegistryEntry>();
-		
+
 		registry.add(entry);
-		
+
 		//textureString = texture;
 		String recipe = "";
 		int i = 0;
@@ -69,7 +67,7 @@ public class RecipeBiblioFramedWood extends ShapedRecipes
         for (hashmap = new HashMap(); i < stuff.length; i += 2)
         {
             Character character = (Character)stuff[i];
-            ItemStack itemstack1 = ItemStack.EMPTY;
+            ItemStack itemstack1 = null;
 
             if (stuff[i + 1] instanceof Item)
             {
@@ -87,8 +85,8 @@ public class RecipeBiblioFramedWood extends ShapedRecipes
             hashmap.put(character, itemstack1);
         }
 
-        NonNullList<Ingredient> stackarray = NonNullList.<Ingredient>create();
-        //ItemStack[] stackarray = new ItemStack[width * height];
+//        NonNullList<Ingredient> stackarray = NonNullList.<Ingredient>create();
+        ItemStack[] stackarray = new ItemStack[width * height];
 
         for (int j = 0; j < width * height; ++j)
         {
@@ -102,7 +100,7 @@ public class RecipeBiblioFramedWood extends ShapedRecipes
             }
             //else
            // {
-           //     stackarray[j] = ItemStack.EMPTY;
+           //     stackarray[j] = null;
            // }
         }
 
@@ -112,7 +110,7 @@ public class RecipeBiblioFramedWood extends ShapedRecipes
 		IRecipe shapedrecipe = new RecipeBiblioFramedWood(width, height, stackarray, stack);
 		return shapedrecipe;
 	}
-	
+
 	@Override
     public ItemStack getCraftingResult(InventoryCrafting inv)
     {
@@ -129,18 +127,18 @@ public class RecipeBiblioFramedWood extends ShapedRecipes
         	}
         }
         // TODO here is where it happens I think, I need to call from the registry.
-        
+
         NBTTagCompound tags = new NBTTagCompound();
         tags.setString("renderTexture", texture);
         itemstack.setTagCompound(tags);
         return itemstack;
     }
-	
+
 	private WoodRegistryEntry foundMatch(ItemStack stack)
 	{
 		//boolean result = false;
 		WoodRegistryEntry result = new WoodRegistryEntry("none", "none", "none", false);
-		
+
 		for (int i = 0; i < registry.size(); i++)
 		{
 			WoodRegistryEntry entry = registry.get(i);
@@ -150,7 +148,7 @@ public class RecipeBiblioFramedWood extends ShapedRecipes
 				break;
 			}
 		}
-		
+
 		return result;
 	}
 }

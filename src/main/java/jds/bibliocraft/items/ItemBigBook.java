@@ -2,56 +2,54 @@ package jds.bibliocraft.items;
 
 import java.util.List;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import jds.bibliocraft.BlockLoader;
 import jds.bibliocraft.gui.GuiBigBook;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.text.translation.I18n;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+
 
 public class ItemBigBook extends Item
 {
 	public String playername;
 	public static final String name = "BigBook";
 	public static final ItemBigBook instance = new ItemBigBook();
-	
+
 	public ItemBigBook()
 	{
 		super();
 		setCreativeTab(BlockLoader.biblioTab);
 		setUnlocalizedName(name);
 		setMaxStackSize(1);
-		setRegistryName(name);
+		setUnlocalizedName(name);
 	}
 
 
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
+	public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
 	{
-		if (world.isRemote && hand == EnumHand.MAIN_HAND)
+		if (world.isRemote)
 		{
-			openGui(player.getHeldItem(hand), player.getDisplayNameString());
+			openGui(player.getHeldItem(), player.getDisplayName());
 		}
-		return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, player.getHeldItem(hand));
+		return stack;
 	}
-    
+
 	@SideOnly(Side.CLIENT)
 	public void openGui(ItemStack book, String author)
 	{
 		Minecraft.getMinecraft().displayGuiScreen(new GuiBigBook(book, true, 0, 0, 0, author));
 	}
-	
+
 	@Override
-    public void addInformation(ItemStack stack, World world, List<String> tooltip, ITooltipFlag advanced) 
+    public void addInformation(ItemStack stack, EntityPlayer player, List<String> tooltip, boolean advanced)
 	{
 		/*// TODO is broken, cant get access to the player and playername in this CLIENT SIDE thing, wtf?
 	    List<EntityPlayer> p = world.playerEntities;
@@ -78,10 +76,11 @@ public class ItemBigBook extends Item
 			stack.setTagCompound(newbooktag);
 		}
 		*/
-		tooltip.add(I18n.translateToLocal("redbook.by")+" "+playername);
-    	super.addInformation(stack, world, tooltip, advanced);
+		tooltip.add(I18n.format("redbook.by")+" "+playername);
+    	super.addInformation(stack, player, tooltip, advanced);
+    	super.addInformation(stack, player, tooltip, advanced);
 	}
-	
+
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean hasEffect(ItemStack stack)
@@ -96,10 +95,15 @@ public class ItemBigBook extends Item
 		}
 		return false;
 	}
-	
+
 	@Override
     public int getItemEnchantability()
     {
         return 1;
+    }
+
+    @Override
+    public void registerIcons(IIconRegister register) {
+        this.itemIcon = register.registerIcon("bibliocraft:bigbook");
     }
 }

@@ -5,7 +5,6 @@ import jds.bibliocraft.slots.SlotLocked;
 import jds.bibliocraft.slots.SlotSlottedBook;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.Slot;
@@ -13,22 +12,21 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.EnumHand;
 import net.minecraftforge.common.util.Constants;
 
 
 public class ContainerSlottedBook extends Container
 {
-	
+
 	private InventoryBasic inventory;
 	public ItemStack bookStack;
 	private SlotSlottedBook bookslot;
-	
+
 	public ContainerSlottedBook(InventoryPlayer inventoryPlayer)
 	{
 		inventory = new InventoryBasic("BookInventory", false, 1);
 		bookStack = inventoryPlayer.getCurrentItem();
-		if (bookStack != ItemStack.EMPTY && bookStack.getItem() instanceof ItemSlottedBook)
+		if (bookStack != null && bookStack.getItem() instanceof ItemSlottedBook)
 		{
 			// LOAD NBT into inventory
 			NBTTagCompound tags = bookStack.getTagCompound();
@@ -37,39 +35,39 @@ public class ContainerSlottedBook extends Container
 				NBTTagList tagList = tags.getTagList("Inventory", Constants.NBT.TAG_COMPOUND);
 				for (int i = 0; i < tagList.tagCount(); i++)
 				{
-					
+
 					NBTTagCompound tag = (NBTTagCompound) tagList.getCompoundTagAt(i);
 					byte slot = tag.getByte("Slot");
 					if (slot >= 0 && slot < inventory.getSizeInventory())
 					{
-						ItemStack invStack = new ItemStack(tag);
+						ItemStack invStack = ItemStack.loadItemStackFromNBT(tag);
 						this.inventory.setInventorySlotContents(slot, invStack);
 					}
 				}
 			}
 		}
-		
+
 		addSlotToContainer(this.bookslot = new SlotSlottedBook(this, inventory, 0, 80, -3));
 		bindPlayerInventory(inventoryPlayer);
 	}
 
 	@Override
-	public boolean canInteractWith(EntityPlayer entityplayer) 
+	public boolean canInteractWith(EntityPlayer entityplayer)
 	{
 		return true;
 	}
-	
+
     @Override
-    public void onContainerClosed(EntityPlayer player) 
+    public void onContainerClosed(EntityPlayer player)
     {
     	// Save here
     	updateNBT(player);
     }
-    
+
     private void updateNBT(EntityPlayer player)
     {
-    	ItemStack newStack = player.getHeldItem(EnumHand.MAIN_HAND);
-    	if (newStack != ItemStack.EMPTY && newStack.getItem() instanceof ItemSlottedBook)
+    	ItemStack newStack = player.getHeldItem();
+    	if (newStack != null && newStack.getItem() instanceof ItemSlottedBook)
     	{
     		NBTTagCompound tags = newStack.getTagCompound();
          	if (tags == null)
@@ -80,7 +78,7 @@ public class ContainerSlottedBook extends Container
         	for (int i = 0; i < inventory.getSizeInventory(); i++)
         	{
         		ItemStack stack = inventory.getStackInSlot(i);
-        		if (stack != ItemStack.EMPTY)
+        		if (stack != null)
         		{
         			NBTTagCompound tag = new NBTTagCompound();
         			tag.setByte("Slot", (byte) i);
@@ -92,19 +90,19 @@ public class ContainerSlottedBook extends Container
         	newStack.setTagCompound(tags);
     	}
 
-    	player.inventory.setInventorySlotContents(player.inventory.currentItem, newStack); 
+    	player.inventory.setInventorySlotContents(player.inventory.currentItem, newStack);
     }
 
     @Override
-    public ItemStack slotClick(int slot, int dragType, ClickType modifier, EntityPlayer player)
+    public ItemStack slotClick(int slot, int dragType, int modifier, EntityPlayer player)
     {
     	if (slot == -999)
     	{
-    		return ItemStack.EMPTY;
+    		return null;
     	}
     	return super.slotClick(slot, dragType, modifier, player);
     }
-    
+
 	protected void bindPlayerInventory(InventoryPlayer inventoryPlayer)
 	{
 		int heldSlot = inventoryPlayer.currentItem;
@@ -115,7 +113,7 @@ public class ContainerSlottedBook extends Container
 				addSlotToContainer(new Slot(inventoryPlayer, j+i*9+9, 8+j*18, 96+i*18));
 			}
 		}
-		for (int i = 0; i < 9; i++) 
+		for (int i = 0; i < 9; i++)
 		{
 			if (i == heldSlot)
 			{
@@ -127,11 +125,11 @@ public class ContainerSlottedBook extends Container
 			}
 		}
 	}
-	
+
 	@Override
 	public ItemStack transferStackInSlot(EntityPlayer player, int slot)
 	{
-		ItemStack stack = ItemStack.EMPTY;
+		ItemStack stack = null;
 		Slot slotObject = (Slot) inventorySlots.get(slot);
 	//null checks and checks if the item can be stacked (maxStackSize > 1)
 		if (slotObject != null && slotObject.getHasStack())
@@ -143,35 +141,35 @@ public class ContainerSlottedBook extends Container
 
 			if (slot < 1)
 			{
-				if (!this.mergeItemStack(stackInSlot, 1, 37, true))  
+				if (!this.mergeItemStack(stackInSlot, 1, 37, true))
 				{
-					return ItemStack.EMPTY;
+					return null;
 				}
 			}
 			//places it into the tileEntity is possible since its in the player inventory
 
 			else if (bookslot.slottedBookCheck(stackInSlot) && !this.mergeItemStack(stackInSlot, 0, 1, false))
 			{
-				return ItemStack.EMPTY;
+				return null;
 			}
 
-			
-			if (stackInSlot.getCount() == 0)
+
+			if (stackInSlot.stackSize == 0)
 			{
-				slotObject.putStack(ItemStack.EMPTY);
-			} else 
+				slotObject.putStack(null);
+			} else
 			{
 				slotObject.onSlotChanged();
 			}
-			
-			if (stackInSlot.getCount() == stack.getCount())
+
+			if (stackInSlot.stackSize == stack.stackSize)
 			{
-				return ItemStack.EMPTY;
+				return null;
 			}
-			slotObject.onTake(player, stackInSlot);
+			slotObject.onPickupFromSlot(player, stackInSlot);
 		}
 		return stack;
 	}
-	
+
 
 }

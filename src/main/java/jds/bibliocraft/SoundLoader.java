@@ -1,11 +1,12 @@
 package jds.bibliocraft;
 
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.client.event.sound.SoundLoadEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-public class SoundLoader 
+
+public class SoundLoader
 {
-	
+
 	@SubscribeEvent
 	public void onSound(SoundLoadEvent event)
 	{
@@ -21,7 +22,7 @@ public class SoundLoader
 			event.manager.soundPoolSounds.addSound("bibliocraft:screwtwo.ogg");
 			event.manager.soundPoolSounds.addSound("bibliocraft:screwthre.ogg");
 			event.manager.soundPoolSounds.addSound("bibliocraft:screwfour.ogg");
-			
+
 		}
 		catch (Exception e)
 		{

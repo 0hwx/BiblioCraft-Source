@@ -3,26 +3,55 @@ package jds.bibliocraft.models;
 import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
 
-import jds.bibliocraft.blocks.BlockCookieJar;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraftforge.common.model.TRSRTransformation;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.model.AdvancedModelLoader;
+import net.minecraftforge.client.model.IModelCustom;
 
-public class ModelCookieJar extends BiblioModelSimple
+public class ModelCookieJar
 {
-	public static final ModelResourceLocation modelResourceLocation = new ModelResourceLocation("bibliocraft:" + BlockCookieJar.name);
+    private IModelCustom model = AdvancedModelLoader.loadModel(new ResourceLocation("bibliocraft", "models/block/cookiejar.obj"));
 
-	public ModelCookieJar()
-	{
-		super("bibliocraft:block/cookiejar.obj");
- 	}
-	
-	@Override
-	public TRSRTransformation getTweakedGUITransform(TRSRTransformation transform)
-	{
-		transform = transform.compose(new TRSRTransformation(new Vector3f(0.0f, 0.55f, 0.02f), 
-														   new Quat4f(0.0f, 0.0f, 0.0f, 1.0f), 
-														   new Vector3f(1.1f, 1.1f, 1.1f), 
-														   new Quat4f(0.0f, 0.0f, 0.0f, 1.0f)));
-		return transform;
-	}
+    public ModelCookieJar() {}
+
+    public void renderCookieJar() {
+        this.model.renderAll();
+    }
+
+    public void renderlid() {
+        this.model.renderPart("lid");
+    }
+
+    public void renderJar() {
+        this.model.renderPart("jar");
+    }
+
+    public void renderCookie(int Count) {
+        switch (Count) {
+            case 0:
+                this.model.renderPart("cookie001");
+                break;
+            case 1:
+                this.model.renderPart("cookie002");
+                break;
+            case 2:
+                this.model.renderPart("cookie003");
+                break;
+            case 3:
+                this.model.renderPart("cookie004");
+                break;
+            case 4:
+                this.model.renderPart("cookie005");
+                break;
+            case 5:
+                this.model.renderPart("cookie006");
+                break;
+            case 6:
+                this.model.renderPart("cookie007");
+                break;
+            case 7:
+                this.model.renderPart("cookie008");
+        }
+    }
+
+
 }

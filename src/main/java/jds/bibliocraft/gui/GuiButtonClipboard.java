@@ -10,15 +10,15 @@ public class GuiButtonClipboard extends GuiButton
 {
 
 	private boolean centered;
-	
-	public GuiButtonClipboard(int par1, int par2, int par3, int par4, int par5, String par6, boolean center) 
+
+	public GuiButtonClipboard(int par1, int par2, int par3, int par4, int par5, String par6, boolean center)
 	{
 		super(par1, par2, par3, par4, par5, par6);
 		centered = center;
 	}
-	
+
 	@Override
-	public void drawButton(Minecraft par1Minecraft, int par2, int par3, float thing)
+	public void drawButton(Minecraft par1Minecraft, int par2, int par3)
     {
         if (this.enabled)
         {
@@ -29,18 +29,18 @@ public class GuiButtonClipboard extends GuiButton
             {
                 l = -6250336;
             }
-            else if (this.hovered)
+            else if (this.field_146123_n)
             {
                 l = 16777120;
             }
 
-            
+
             if (!centered)
             {
             	float scalediff = 0.8F;
-            	float widthscaled = ((this.x + this.width / 2)-54)*(1.0F / scalediff);
+            	float widthscaled = ((this.xPosition + this.width / 2)-54)*(1.0F / scalediff);
             	int widthd = (int)widthscaled;
-            	float heightscaled = ((this.y + (this.height - 8) / 2)+3)*(1.0F / scalediff);
+            	float heightscaled = ((this.yPosition + (this.height - 8) / 2)+3)*(1.0F / scalediff);
             	int heightd = (int)heightscaled;
             	GL11.glPushMatrix();
             	GL11.glScalef(scalediff, scalediff, scalediff);
@@ -50,9 +50,9 @@ public class GuiButtonClipboard extends GuiButton
             else
             {
             	float scalediff = 0.8F;
-            	float widthscaled = (((this.x + this.width / 2)-(this.displayString.length()/2)*(5*scalediff))-10)*(1.0F / scalediff);
+            	float widthscaled = (((this.xPosition + this.width / 2)-(this.displayString.length()/2)*(5*scalediff))-10)*(1.0F / scalediff);
             	int widthd = (int)widthscaled;
-            	float heightscaled = ((this.y + (this.height - 8) / 2)+2)*(1.0F / scalediff);
+            	float heightscaled = ((this.yPosition + (this.height - 8) / 2)+2)*(1.0F / scalediff);
             	int heightd = (int)heightscaled;
             	GL11.glPushMatrix();
             	GL11.glScalef(scalediff, scalediff, scalediff);
@@ -60,7 +60,7 @@ public class GuiButtonClipboard extends GuiButton
             	GL11.glPopMatrix();
             }
         }
-        
+
     }
 
 }

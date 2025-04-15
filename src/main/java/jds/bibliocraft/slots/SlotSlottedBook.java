@@ -9,28 +9,28 @@ import net.minecraft.item.ItemStack;
 public class SlotSlottedBook extends Slot
 {
 	private ContainerSlottedBook slottedContainer;
-	
+
 	public SlotSlottedBook(ContainerSlottedBook container, IInventory iInventory, int x, int y, int z)
 	{
 		super(iInventory, x, y, z);
 		slottedContainer = container;
 	}
-	
+
 	@Override
 	public int getSlotStackLimit()
     {
         return 64;
     }
-	
+
 	@Override
 	public boolean isItemValid(ItemStack stack)
 	{
 		return slottedBookCheck(stack);
 	}
-	
+
 	public static boolean slottedBookCheck(ItemStack book)
 	{
-		if (book != ItemStack.EMPTY)
+		if (book != null)
 		{
 			if (book.getItem() instanceof ItemSlottedBook)
 			{

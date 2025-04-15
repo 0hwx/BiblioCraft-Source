@@ -1,59 +1,55 @@
 package jds.bibliocraft.models;
 
-import javax.vecmath.Quat4f;
-import javax.vecmath.Vector3f;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.model.AdvancedModelLoader;
+import net.minecraftforge.client.model.IModelCustom;
+import scala.reflect.internal.Trees;
 
-import jds.bibliocraft.blocks.BlockFancyWorkbench;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraftforge.common.model.TRSRTransformation;
 
-public class ModelFancyWorkbench extends BiblioModelWood
+public class ModelFancyWorkbench
 {
-	public static final ModelResourceLocation modelResourceLocation = new ModelResourceLocation("bibliocraft:" + BlockFancyWorkbench.name);
+    private IModelCustom model = AdvancedModelLoader.loadModel(new ResourceLocation("bibliocraft", "models/block/fancyworkbench.obj"));
 
-	public ModelFancyWorkbench()
-	{
-		super("bibliocraft:block/fancyworkbench.obj");
-	}
-	
-	@Override
-	public String getTextureLocation(String resourceLocation, String textureLocation) 
-	{
-		String returnValue = resourceLocation;
-		if (returnValue.contentEquals("minecraft:blocks/planks_oak"))
-		{
-			returnValue = textureLocation;
-		}
-		return returnValue;
-	}
-	
-	@Override
-	public TRSRTransformation getTweakedMasterTransform(TRSRTransformation transform)
-	{
-		transform = transform.compose(new TRSRTransformation(new Vector3f(-0.24f, 0.0f, 0.0f), 
-														     new Quat4f(0.0f, 0.0f, 0.0f, 1.0f), 
-														     new Vector3f(1.0f, 1.0f, 1.0f), 
-														     new Quat4f(0.0f, 0.0f, 0.0f, 1.0f)));
-		return transform;
-	}
-	
-	@Override
-	public TRSRTransformation getTweakedGUITransform(TRSRTransformation transform)
-	{
-		transform = transform.compose(new TRSRTransformation(new Vector3f(0.0f, 0.0f, 0.0f), 
-														     new Quat4f(0.0f, 0.0f, 0.0f, 1.0f), 
-														     new Vector3f(0.9f, 0.9f, 0.9f), 
-														     new Quat4f(0.0f, 0.0f, 0.0f, 1.0f)));
-		return transform;
-	}
-	
-	@Override
-	public TRSRTransformation getTweakedLeftHandTransform(TRSRTransformation transform)
-	{
-		transform = transform.compose(new TRSRTransformation(new Vector3f(0.5f, 0.0f, 0.0f), 
-				   new Quat4f(0.0f, 0.0f, 0.0f, 1.0f), 
-				   new Vector3f(1.0f, 1.0f, 1.0f), 
-				   new Quat4f(0.0f, 0.0f, 0.0f, 1.0f)));
-		return transform;
-	}
+    public ModelFancyWorkbench() {}
+
+    public void renderbench() {
+        this.model.renderPart("bench");
+    }
+    public void rendertop() {
+        this.model.renderPart("top");
+    }
+
+    public void rendersides() {
+        this.model.renderPart("sides");
+    }
+
+    public void renderbook(int Count) {
+        switch (Count) {
+            case 0:
+                this.model.renderPart("book1");
+                break;
+            case 1:
+                this.model.renderPart("book2");
+                break;
+            case 2:
+                this.model.renderPart("book3");
+                break;
+            case 3:
+                this.model.renderPart("book4");
+                break;
+            case 4:
+                this.model.renderPart("book5");
+                break;
+            case 5:
+                this.model.renderPart("book6");
+                break;
+            case 6:
+                this.model.renderPart("book7");
+                break;
+            case 7:
+                this.model.renderPart("book8");
+                break;
+        }
+    }
+
 }

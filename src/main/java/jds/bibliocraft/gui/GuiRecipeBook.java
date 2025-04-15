@@ -19,20 +19,18 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.translation.I18n;
+import net.minecraft.client.resources.I18n;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
+import cpw.mods.fml.common.network.ByteBufUtils;
 
 public class GuiRecipeBook extends GuiScreen
 {
-	
+
 	private int guiImageWidth = 256;
 	private int guiImageHeight = 158;
 	private ItemStack recipeBook;
-	private NonNullList<ItemStack> bookGrid = NonNullList.<ItemStack>withSize(9, ItemStack.EMPTY);
-	private ItemStack resultStack = ItemStack.EMPTY;
+	private ItemStack[] bookGrid = new ItemStack[9];
+	private ItemStack resultStack = null;
 	private int heightOffset = 0;
 	private int widthOffset = 0;
 	private int[] ingredientCounts = new int[9];
@@ -53,7 +51,7 @@ public class GuiRecipeBook extends GuiScreen
 	private int zcoord = 0;
 	private int inventorySlot = 0;
 	private boolean canCraft = false;
-	
+
 	public GuiRecipeBook(ItemStack book, boolean isOnDesk, int x, int y, int z, int slot, boolean canCraft)
 	{
 		this.recipeBook = book;
@@ -67,39 +65,39 @@ public class GuiRecipeBook extends GuiScreen
 		loadBookGrid();
 		compareingredients();
 	}
-	
+
 	private void loadBookGrid()
 	{
 		NBTTagCompound nbt = this.recipeBook.getTagCompound();
 		if (nbt != null)
 		{
 			NBTTagList tagList = nbt.getTagList("grid", Constants.NBT.TAG_COMPOUND);
-			this.bookGrid = NonNullList.<ItemStack>withSize(9, ItemStack.EMPTY);
+			this.bookGrid = new ItemStack[9];
 			for (int i = 0; i < 9; i++)
 			{
 				NBTTagCompound tag = (NBTTagCompound) tagList.getCompoundTagAt(i);
 				byte slot = tag.getByte("Slot");
 				if (slot >= 0 && slot < 9)
 				{
-					ItemStack nbtStack = new ItemStack(tag);
+					ItemStack nbtStack = ItemStack.loadItemStackFromNBT(tag);
 					if (nbtStack != null)
 					{
-						this.bookGrid.set(slot,  nbtStack);//[slot] = nbtStack;
+						this.bookGrid[slot] = nbtStack;
 					}
 				}
 			}
-			
+
 			NBTTagCompound resultTag = nbt.getCompoundTag("result");
 			if (resultTag != null)
 			{
-				resultStack = new ItemStack(resultTag);
+				resultStack = ItemStack.loadItemStackFromNBT(resultTag);
 			}
-			
+
 			this.signed = nbt.getBoolean("signed");
-			
+
 		}
 	}
-	
+
 	private void saveText()
 	{
 		NBTTagCompound nbt = this.recipeBook.getTagCompound();
@@ -115,7 +113,7 @@ public class GuiRecipeBook extends GuiScreen
 			this.recipeBook.setTagCompound(nbt);
 		}
 	}
-	
+
 	private void loadText()
 	{
 		NBTTagCompound nbt = this.recipeBook.getTagCompound();
@@ -132,7 +130,7 @@ public class GuiRecipeBook extends GuiScreen
 			this.edited = nbt.getBoolean("edited");
 		}
 	}
-	
+
 	public void compareingredients()
 	{
 		ingredientCounts = new int[9];
@@ -148,8 +146,8 @@ public class GuiRecipeBook extends GuiScreen
 				//System.out.println(slot);
 				if (slot >= 0 && slot < 9)
 				{
-					ItemStack nbtStack = new ItemStack(tag);
-					if (nbtStack != ItemStack.EMPTY && !nbtStack.getUnlocalizedName().contentEquals(ItemStack.EMPTY.getUnlocalizedName()))
+					ItemStack nbtStack = ItemStack.loadItemStackFromNBT(tag);
+					if (nbtStack != null && !nbtStack.getUnlocalizedName().contentEquals(null))
 					{
 						int n = 0;
 						boolean complete = false;
@@ -165,7 +163,7 @@ public class GuiRecipeBook extends GuiScreen
 								}
 							}
 						}
-						
+
 						if (havematch)
 						{
 							this.ingredientCounts[n] += 1;
@@ -195,7 +193,7 @@ public class GuiRecipeBook extends GuiScreen
 		}
 	}
 
-	
+
 	@Override
 	public void initGui()
 	{
@@ -206,49 +204,49 @@ public class GuiRecipeBook extends GuiScreen
     	int heightRender = (this.height - this.guiImageHeight) / 2;
     	if (this.signing)
     	{
-    		buttonList.add(this.buttonCancel = new GuiButton(2, widthRender+70, heightRender+130, 40, 20, I18n.translateToLocal("gui.atlas.transfer.cancel")));
-	    	buttonList.add(this.buttonSigned = new GuiButton(3, widthRender+20, heightRender+130, 40, 20, I18n.translateToLocal("gui.atlas.yes")));
+    		buttonList.add(this.buttonCancel = new GuiButton(2, widthRender+70, heightRender+130, 40, 20, I18n.format("gui.atlas.transfer.cancel")));
+	    	buttonList.add(this.buttonSigned = new GuiButton(3, widthRender+20, heightRender+130, 40, 20, I18n.format("gui.atlas.yes")));
     	}
     	else
     	{
     		if (!this.signed)
     		{
-    			buttonList.add(this.buttonSave = new GuiButton(0, widthRender+70, heightRender+130, 40, 20, I18n.translateToLocal("book.save")));
-    			buttonList.add(this.buttonSign = new GuiButton(1, widthRender+20, heightRender+130, 40, 20, I18n.translateToLocal("book.sign")));
+    			buttonList.add(this.buttonSave = new GuiButton(0, widthRender+70, heightRender+130, 40, 20, I18n.format("book.save")));
+    			buttonList.add(this.buttonSign = new GuiButton(1, widthRender+20, heightRender+130, 40, 20, I18n.format("book.sign")));
     		}
 	    	for (int n = 0; n<10; n++)
 	    	{
-	    		this.text[n] = new GuiBiblioTextField(fontRenderer, (int)((widthRender+12)*(1.0f/0.8f)), (int)((heightRender+22+(10*n))*(1.0f/0.8f)), 136, 10);
+	    		this.text[n] = new GuiBiblioTextField(fontRendererObj, (int)((widthRender+12)*(1.0f/0.8f)), (int)((heightRender+22+(10*n))*(1.0f/0.8f)), 136, 10);
 	    		this.text[n].setEnableBackgroundDrawing(false);
 	    		this.text[n].setMaxStringLength(24);
 	    		this.text[n].setTextColor(0x000000);
 	    	}
 	    	loadText();
     	}
-    	if (canCraft && this.resultStack != ItemStack.EMPTY && this.inventorySlot != -1) 
+    	if (canCraft && this.resultStack != null && this.inventorySlot != -1)
     	{
-    		buttonList.add(this.buttonCreate = new GuiButton(4, widthRender+212, heightRender+58, 40, 20, "\u00a76"+I18n.translateToLocal("gui.craft")));
+    		buttonList.add(this.buttonCreate = new GuiButton(4, widthRender+212, heightRender+58, 40, 20, "\u00a76"+I18n.format("gui.craft")));
     	}
 	}
-	
+
     @Override
 	public void drawScreen(int x, int y, float f)
     {
-    	
+
     	GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
     	this.mc.getTextureManager().bindTexture(CommonProxy.RECIPEBOOKGUI);
      	int widthRender = (this.width - this.guiImageWidth) / 2;
     	int heightRender = (this.height - this.guiImageHeight) / 2;
     	this.drawTexturedModalRect(widthRender, heightRender, 0, 0, this.guiImageWidth, this.guiImageHeight);
-    	
+
     	super.drawScreen(x, y, f);
     	if (signing)
     	{
-    		this.fontRenderer.drawString(I18n.translateToLocal("gui.recipe.areyousure"), (widthRender+20), (heightRender+48), 0x111111, false);
-    		this.fontRenderer.drawSplitString(I18n.translateToLocal("gui.recipe.finalize"), (widthRender+20), (heightRender+68), 90, 0x5A5A5A);
+    		this.fontRendererObj.drawString(I18n.format("gui.recipe.areyousure"), (widthRender+20), (heightRender+48), 0x111111, false);
+    		this.fontRendererObj.drawSplitString(I18n.format("gui.recipe.finalize"), (widthRender+20), (heightRender+68), 90, 0x5A5A5A);
     	}
-    	
-    	
+
+
     	GL11.glPushMatrix();
 		GL11.glScaled(0.8, 0.8, 0.8);
 		for (int i = 0; i<this.ingredientCounts.length; i++)
@@ -257,17 +255,17 @@ public class GuiRecipeBook extends GuiScreen
 			ingredientsTest = this.ingredientCounts[i];
 			if (this.ingredientCounts[i] != 0)
 			{
-				this.fontRenderer.drawString(this.ingredientCounts[i]+"x "+this.ingredientNames[i], (int) ((widthRender+142)*(1.0f/0.8f)), (int)((heightRender+78+(7*i))*(1.0f/0.8f)), 0x111111, false);
+				this.fontRendererObj.drawString(this.ingredientCounts[i]+"x "+this.ingredientNames[i], (int) ((widthRender+142)*(1.0f/0.8f)), (int)((heightRender+78+(7*i))*(1.0f/0.8f)), 0x111111, false);
 			}
 		}
 
-		if (resultStack != ItemStack.EMPTY)
+		if (resultStack != null)
 		{
-			this.fontRenderer.drawString(this.resultStack.getDisplayName(), (int)((widthRender+14)*(1.0f/0.8f)), (int)((heightRender+10)*(1.0f/0.8f)), 0x000000, false);
-			this.fontRenderer.drawString(this.resultStack.getDisplayName(), (int)((widthRender+142)*(1.0f/0.8f)), (int)((heightRender+10)*(1.0f/0.8f)), 0x000000, false);
+			this.fontRendererObj.drawString(this.resultStack.getDisplayName(), (int)((widthRender+14)*(1.0f/0.8f)), (int)((heightRender+10)*(1.0f/0.8f)), 0x000000, false);
+			this.fontRendererObj.drawString(this.resultStack.getDisplayName(), (int)((widthRender+142)*(1.0f/0.8f)), (int)((heightRender+10)*(1.0f/0.8f)), 0x000000, false);
 		}
-	
-		
+
+
 		if (!this.signing)
 		{
 			for (int n = 0; n<10; n++)
@@ -277,16 +275,16 @@ public class GuiRecipeBook extends GuiScreen
 		}
     	GL11.glPopMatrix();
 
-		if (resultStack != ItemStack.EMPTY)
+		if (resultStack != null)
 		{
 			RenderHelper.enableGUIStandardItemLighting();
-			this.itemRender.renderItemAndEffectIntoGUI(resultStack, widthRender+224, heightRender+37);
+			this.itemRender.renderItemAndEffectIntoGUI(this.fontRendererObj, this.mc.getTextureManager(), resultStack, widthRender+224, heightRender+37);
 		}
-		
+
 
 		for (int n = 0; n<9; n++)
 		{
-			if (bookGrid.get(n) != ItemStack.EMPTY)
+			if (bookGrid[n] != null)
 			{
 				switch (n)
 				{
@@ -301,12 +299,12 @@ public class GuiRecipeBook extends GuiScreen
 					case 8:{widthOffset = 36; heightOffset = 36; break;}
 				}
 				RenderHelper.enableGUIStandardItemLighting();
-				this.itemRender.renderItemAndEffectIntoGUI(bookGrid.get(n), widthRender+142+widthOffset, heightRender+20+heightOffset); // render items from craft grid. 
+				this.itemRender.renderItemAndEffectIntoGUI(this.fontRendererObj,this.mc.getTextureManager(), bookGrid[n], widthRender+142+widthOffset, heightRender+20+heightOffset); // render items from craft grid.
 			}
 		}
-		
+
     }
-    
+
     @Override
 	public void updateScreen()
     {
@@ -314,10 +312,10 @@ public class GuiRecipeBook extends GuiScreen
         //System.out.println("tick");
         if (!edited && !this.text[0].isFocused())
         {
-        	this.text[0].setText(I18n.translateToLocal("gui.recipe.description")); 
+        	this.text[0].setText(I18n.format("gui.recipe.description"));
         }
     }
-    
+
     @Override
  	protected void actionPerformed(GuiButton click)
     {
@@ -325,7 +323,7 @@ public class GuiRecipeBook extends GuiScreen
      	{
      		saveText();
      		sendPacket();
-     		this.mc.player.closeScreen();
+     		this.mc.thePlayer.closeScreen();
      	}
      	if (click.id == 1)
      	{
@@ -343,14 +341,14 @@ public class GuiRecipeBook extends GuiScreen
      		this.signed = true;
      		signBook();
      		sendPacket();
-     		this.mc.player.closeScreen();
+     		this.mc.thePlayer.closeScreen();
      	}
      	if (click.id == 4)
      	{
      		this.sendRecipeCraftRecipe();
      	}
     }
-    
+
     private void sendRecipeCraftRecipe()
     {
     	// ByteBuf buffer = Unpooled.buffer();
@@ -362,7 +360,7 @@ public class GuiRecipeBook extends GuiScreen
 	    	// BiblioCraft.ch_BiblioInvStack.sendToServer(new FMLProxyPacket(new PacketBuffer(buffer), "BiblioRecipeCraft"));
     	}
     }
-    
+
     private void signBook()
     {
     	NBTTagCompound nbt = this.recipeBook.getTagCompound();
@@ -372,7 +370,7 @@ public class GuiRecipeBook extends GuiScreen
     		this.recipeBook.setTagCompound(nbt);
     	}
     }
-    
+
     private void sendPacket()
     {
     	ByteBuf buffer = Unpooled.buffer();
@@ -384,7 +382,7 @@ public class GuiRecipeBook extends GuiScreen
     	}
     	else
     	{
-			BiblioNetworking.INSTANCE.sendToServer(new BiblioMCBEdit(new BlockPos(this.xcoord, this.ycoord, this.zcoord), 0, this.recipeBook));
+			BiblioNetworking.INSTANCE.sendToServer(new BiblioMCBEdit(this.xcoord, this.ycoord, this.zcoord, 0, this.recipeBook));
         	// buffer.writeInt(this.xcoord);
         	// buffer.writeInt(this.ycoord);
         	// buffer.writeInt(this.zcoord);
@@ -392,25 +390,18 @@ public class GuiRecipeBook extends GuiScreen
         	// BiblioCraft.ch_BiblioMCBEdit.sendToServer(new FMLProxyPacket(new PacketBuffer(buffer), "BiblioMCBEdit"));
     	}
     }
-    
+
     @Override
     protected void mouseClicked(int x, int y, int click)
     {
-    	 try 
-    	 {
-			super.mouseClicked(x, y, click);
-		 } 
-    	 catch (IOException e) 
-    	 {
-			e.printStackTrace();
-		 }
-    	 if (!signed)
+        super.mouseClicked(x, y, click);
+        if (!signed)
     	 {
 	    	 for (int n = 0; n<10; n++)
 	    	 {
 	    		 if (this.text[n].mouseClicked((int)(x*(1.0f/0.8f)), (int)(y*(1.0f/0.8f)), click))
 	    		 {
-	    			 
+
 	    		 }
 	    	 }
 	    	 if (this.text[0].isFocused() && !this.edited)
@@ -420,19 +411,12 @@ public class GuiRecipeBook extends GuiScreen
 	    	 }
     	 }
     }
-    
+
     @Override
     protected void keyTyped(char par1, int key)
     {
-    	try 
-    	{
-			super.keyTyped(par1, key);
-		} 
-    	catch (IOException e) 
-    	{
-			e.printStackTrace();
-		}
-    	if (!signed)
+        super.keyTyped(par1, key);
+        if (!signed)
     	{
 	    	if (key == 28 || key == 208) // down
 	    	{
@@ -478,14 +462,14 @@ public class GuiRecipeBook extends GuiScreen
 	    	}
     	}
     }
-    
+
     @Override
     public boolean doesGuiPauseGame()
     {
         return false;
     }
 
-    
+
     @Override
     public void onGuiClosed()
     {

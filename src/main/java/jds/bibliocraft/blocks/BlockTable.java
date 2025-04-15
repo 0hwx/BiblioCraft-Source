@@ -13,83 +13,81 @@ import jds.bibliocraft.states.TextureState;
 import jds.bibliocraft.tileentities.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityTable;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.model.TRSRTransformation;
+import net.minecraftforge.common.util.ForgeDirection;
 
 public class BlockTable extends BiblioWoodBlock
 {
 	public static final String name = "Table";
 	public static final BlockTable instance = new BlockTable();
-	
+
 	public BlockTable()
 	{
 		super(name, false);
 	}
 
-	
+
 	@Override
-	public boolean onBlockActivatedCustomCommands(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ) 
+	public boolean onBlockActivatedCustomCommands(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ)
 	{
 		if (!world.isRemote)
 		{
-			ItemStack playerhand = player.getHeldItem(EnumHand.MAIN_HAND);
-			TileEntityTable tabletile = (TileEntityTable)world.getTileEntity(pos);
-			if (side == EnumFacing.UP)
+			ItemStack playerhand = player.getHeldItem();
+			TileEntityTable tabletile = (TileEntityTable)world.getTileEntity(x, y, z);
+            ForgeDirection sides = ForgeDirection.getOrientation(side);
+			if (sides == ForgeDirection.UP)
 			{
 				if (player.isSneaking())
 				{
-					player.openGui(BiblioCraft.instance, 9, world, pos.getX(), pos.getY(), pos.getZ()); 
+					player.openGui(BiblioCraft.instance, 9, world, x, y, z);
 					return true;
 				}
 				else
 				{
 					 if (tabletile != null)
 					 {
-						 if (playerhand != ItemStack.EMPTY)
+						 if (playerhand != null)
 						 {
-							 if(playerhand.getItem() == Item.getItemFromBlock(Blocks.CARPET))
+							 if(playerhand.getItem() == Item.getItemFromBlock(Blocks.carpet))
 							 {
 								 int additem = tabletile.setTableCloth(playerhand);
 								 if (additem != -1)
 								 {
 									 if (additem == 0)
 									 {
-										player.inventory.setInventorySlotContents(player.inventory.currentItem, ItemStack.EMPTY);
+										player.inventory.setInventorySlotContents(player.inventory.currentItem, null);
 									 }
 									 else
 									 {
-										playerhand.setCount(additem);
+										playerhand.stackSize = (additem);
 									 	player.inventory.setInventorySlotContents(player.inventory.currentItem, playerhand);
 									 }
 								 }
 								 return true;
 							 }
-							 
+
 							 Item drilltest = playerhand.getItem();
-							 if(drilltest != ItemStack.EMPTY.getItem())
+							 if(drilltest != null)
 							 {
 								 if (drilltest instanceof ItemDrill)
 								 {
-									 dropStackInSlot(world, pos, 1, new BlockPos(pos.getX(), pos.getY() + 1, pos.getZ()));
-									 tabletile.setTableCloth(ItemStack.EMPTY);
+									 dropStackInSlot(world, x, y, z, 1, Vec3.createVectorHelper(x, y + 1, z));
+									 tabletile.setTableCloth(null);
 									 return false;
 								 }
 							 }
-	
+
 						 }
-						 if (playerhand != ItemStack.EMPTY && !tabletile.isSlotFull())
+						 if (playerhand != null && !tabletile.isSlotFull())
 						 {
 							 //place the item in the inventory
 							 tabletile.addStackToInventoryFromWorld(playerhand, 0, player);
@@ -98,8 +96,8 @@ public class BlockTable extends BiblioWoodBlock
 						 if (tabletile.isSlotFull())
 						 {
 							 // drop the item
-							 dropStackInSlot(world, pos, 0, new BlockPos(pos.getX(), pos.getY() + 1, pos.getZ()));
-							 tabletile.setTableSlot(ItemStack.EMPTY);
+                             dropStackInSlot(world, x, y, z, 0, Vec3.createVectorHelper(x, y + 1, z));
+							 tabletile.setTableSlot(null);
 							 return true;
 						 }
 					 }
@@ -109,38 +107,38 @@ public class BlockTable extends BiblioWoodBlock
 			 else
 			 {
 				 //not top of table
-				 if (playerhand != ItemStack.EMPTY)
+				 if (playerhand != null)
 				 {
-					 if(playerhand.getItem() == Item.getItemFromBlock(Blocks.CARPET))
+					 if(playerhand.getItem() == Item.getItemFromBlock(Blocks.carpet))
 					 {
 						 int additem = tabletile.setCarpet(playerhand);
 						 if (additem == -1)
 						 {
-							 
+
 						 }
 						 else
 						 {
 							 if (additem == 0)
 							 {
-								player.inventory.setInventorySlotContents(player.inventory.currentItem, ItemStack.EMPTY);
+								player.inventory.setInventorySlotContents(player.inventory.currentItem, null);
 							 }
 							 else
 							 {
-								playerhand.setCount(additem);
+								playerhand.stackSize = (additem);
 								player.inventory.setInventorySlotContents(player.inventory.currentItem, playerhand);
 							 }
 						 }
 						 return true;
 					 }
 				 }
-				 
+
 			 }
-			 if (playerhand != ItemStack.EMPTY && tabletile != null)
+			 if (playerhand != null && tabletile != null)
 			 {
 				 String itemname = playerhand.toString().toLowerCase();
 				 if (itemname.contains("measure") || itemname.contains("wrench") || itemname.contains("screwdriver") || itemname.contains("crowbar") || itemname.contains("bibliodrill") || itemname.contains("handdrill"))
 				 {
-					 if (side == EnumFacing.NORTH || side == EnumFacing.SOUTH)
+					 if (sides == ForgeDirection.NORTH || sides == ForgeDirection.SOUTH)
 					 {
 						 int xangle = tabletile.getSlotX();
 						 switch (xangle)
@@ -151,7 +149,7 @@ public class BlockTable extends BiblioWoodBlock
 							 default:{tabletile.setSlotX(0); break;}
 						 }
 					 }
-					 if (side == EnumFacing.EAST || side == EnumFacing.WEST)
+					 if (sides == ForgeDirection.EAST || sides == ForgeDirection.WEST)
 					 {
 						 int yangle = tabletile.getSlotY();
 						 switch (yangle)
@@ -169,142 +167,142 @@ public class BlockTable extends BiblioWoodBlock
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(World worldIn, int meta) 
+	public TileEntity createNewTileEntity(World worldIn, int meta)
 	{
 		return new TileEntityTable();
 	}
 
-	@Override
-	public List<String> getModelParts(BiblioTileEntity tile) 
-	{
-		List<String> modelParts = new ArrayList<String>();
-		modelParts.add("monoleg");
-		modelParts.add("tableBevel01");
-		modelParts.add("tableBevel02");
-		modelParts.add("tableBevel03");
-		modelParts.add("tableBevel04");
-		
-		if (tile instanceof TileEntityTable)
-		{
-			TileEntityTable table = (TileEntityTable)tile;
-			modelParts = new ArrayList<String>();
-			if (table.getMonoleg())
-				modelParts.add("monoleg");
-			if (table.getLeg1())
-				modelParts.add("leg01");
-			if (table.getLeg2())
-				modelParts.add("leg02");
-			if (table.getLeg3())
-				modelParts.add("leg03");
-			if (table.getLeg4())
-				modelParts.add("leg04");
-			if (table.getTop1())
-			{ 
-				modelParts.add("tableBevel01"); 
-				if (table.isClothSlotFull())
-					modelParts.add("bevCloth001");
-			} 
-			else 
-			{ 
-				modelParts.add("tableSquare01"); 
-				if (table.isClothSlotFull())
-				{
-					modelParts.add("squareCloth01");
-					if (table.getExpSide1())
-						modelParts.add("squareClothSide001a");
-					if (table.getExpSide4())
-						modelParts.add("squareClothSide001b");
-				}
-			}
-			if (table.getTop2())
-			{ 
-				modelParts.add("tableBevel02"); 
-				if (table.isClothSlotFull())
-					modelParts.add("bevCloth004");
-			} 
-			else 
-			{ 
-				modelParts.add("tableSquare02"); 
-				if (table.isClothSlotFull())
-				{
-					modelParts.add("squareCloth004");
-					if (table.getExpSide1())
-						modelParts.add("squareClothSide004b");
-					if (table.getExpSide3())
-						modelParts.add("squareClothSide004a");
-				}
-			}
-			if (table.getTop3())
-			{ 
-				modelParts.add("tableBevel03"); 
-				if (table.isClothSlotFull())
-					modelParts.add("bevCloth003");
-			} 
-			else 
-			{ 
-				modelParts.add("tableSquare03"); 
-				if (table.isClothSlotFull())
-				{
-					modelParts.add("squareCloth003");
-					if (table.getExpSide2())
-						modelParts.add("squareClothSide003a");
-					if (table.getExpSide3())
-						modelParts.add("squareClothSide003b");
-				}
-			}
-			if (table.getTop4())
-			{ 
-				modelParts.add("tableBevel04"); 
-				if (table.isClothSlotFull())
-				{
-					modelParts.add("bevCloth002");
-				}
-			} 
-			else 
-			{ 
-				modelParts.add("tableSquare04"); 
-				if (table.isClothSlotFull())
-				{
-					modelParts.add("squareCloth002");
-					if (table.getExpSide2())
-						modelParts.add("squareClothSide002b");
-					if (table.getExpSide4())
-						modelParts.add("squareClothSide002a");
-				}
-			}
-			if (table.isCarpetFull())
-			{
-				modelParts.add("carpet");
-			}
-		}
-		
-		return modelParts;
-	}
+//	@Override
+//	public List<String> getModelParts(BiblioTileEntity tile)
+//	{
+//		List<String> modelParts = new ArrayList<String>();
+//		modelParts.add("monoleg");
+//		modelParts.add("tableBevel01");
+//		modelParts.add("tableBevel02");
+//		modelParts.add("tableBevel03");
+//		modelParts.add("tableBevel04");
+//
+//		if (tile instanceof TileEntityTable)
+//		{
+//			TileEntityTable table = (TileEntityTable)tile;
+//			modelParts = new ArrayList<String>();
+//			if (table.getMonoleg())
+//				modelParts.add("monoleg");
+//			if (table.getLeg1())
+//				modelParts.add("leg01");
+//			if (table.getLeg2())
+//				modelParts.add("leg02");
+//			if (table.getLeg3())
+//				modelParts.add("leg03");
+//			if (table.getLeg4())
+//				modelParts.add("leg04");
+//			if (table.getTop1())
+//			{
+//				modelParts.add("tableBevel01");
+//				if (table.isClothSlotFull())
+//					modelParts.add("bevCloth001");
+//			}
+//			else
+//			{
+//				modelParts.add("tableSquare01");
+//				if (table.isClothSlotFull())
+//				{
+//					modelParts.add("squareCloth01");
+//					if (table.getExpSide1())
+//						modelParts.add("squareClothSide001a");
+//					if (table.getExpSide4())
+//						modelParts.add("squareClothSide001b");
+//				}
+//			}
+//			if (table.getTop2())
+//			{
+//				modelParts.add("tableBevel02");
+//				if (table.isClothSlotFull())
+//					modelParts.add("bevCloth004");
+//			}
+//			else
+//			{
+//				modelParts.add("tableSquare02");
+//				if (table.isClothSlotFull())
+//				{
+//					modelParts.add("squareCloth004");
+//					if (table.getExpSide1())
+//						modelParts.add("squareClothSide004b");
+//					if (table.getExpSide3())
+//						modelParts.add("squareClothSide004a");
+//				}
+//			}
+//			if (table.getTop3())
+//			{
+//				modelParts.add("tableBevel03");
+//				if (table.isClothSlotFull())
+//					modelParts.add("bevCloth003");
+//			}
+//			else
+//			{
+//				modelParts.add("tableSquare03");
+//				if (table.isClothSlotFull())
+//				{
+//					modelParts.add("squareCloth003");
+//					if (table.getExpSide2())
+//						modelParts.add("squareClothSide003a");
+//					if (table.getExpSide3())
+//						modelParts.add("squareClothSide003b");
+//				}
+//			}
+//			if (table.getTop4())
+//			{
+//				modelParts.add("tableBevel04");
+//				if (table.isClothSlotFull())
+//				{
+//					modelParts.add("bevCloth002");
+//				}
+//			}
+//			else
+//			{
+//				modelParts.add("tableSquare04");
+//				if (table.isClothSlotFull())
+//				{
+//					modelParts.add("squareCloth002");
+//					if (table.getExpSide2())
+//						modelParts.add("squareClothSide002b");
+//					if (table.getExpSide4())
+//						modelParts.add("squareClothSide002a");
+//				}
+//			}
+//			if (table.isCarpetFull())
+//			{
+//				modelParts.add("carpet");
+//			}
+//		}
+//
+//		return modelParts;
+//	}
 
 	@Override
-	public void additionalPlacementCommands(BiblioTileEntity biblioTile, EntityLivingBase player) 
+	public void additionalPlacementCommands(BiblioTileEntity biblioTile, EntityLivingBase player)
 	{
-		biblioTile.setAngle(EnumFacing.SOUTH);
+		biblioTile.setAngle(ForgeDirection.SOUTH);
 		if (biblioTile instanceof TileEntityTable)
 		{
-			checkNeighborTables(biblioTile.getWorld(), biblioTile.getPos().getX(), biblioTile.getPos().getY(), biblioTile.getPos().getZ(), (TileEntityTable)biblioTile);
+			checkNeighborTables(biblioTile.getWorldObj(), biblioTile.xCoord, biblioTile.yCoord, biblioTile.zCoord, (TileEntityTable)biblioTile);
 		}
 	}
 
-	@Override
-	public TRSRTransformation getAdditionalTransforms(TRSRTransformation transform, BiblioTileEntity tile) 
-	{
-		transform = transform.compose(new TRSRTransformation(new Vector3f(-0.0f, 0.0f, -0.0f), 
-			     new Quat4f(0.0f, 1.0f, 0.0f, 1.0f), 
-			     new Vector3f(1.0f, 1.0f, 1.0f), 
-			     new Quat4f(0.0f, 1.0f, 0.0f, 1.0f)));
-		return transform;
-	}
+//	@Override
+//	public TRSRTransformation getAdditionalTransforms(TRSRTransformation transform, BiblioTileEntity tile)
+//	{
+//		transform = transform.compose(new TRSRTransformation(new Vector3f(-0.0f, 0.0f, -0.0f),
+//			     new Quat4f(0.0f, 1.0f, 0.0f, 1.0f),
+//			     new Vector3f(1.0f, 1.0f, 1.0f),
+//			     new Quat4f(0.0f, 1.0f, 0.0f, 1.0f)));
+//		return transform;
+//	}
 
 	@Override
-    public boolean isSideSolid(IBlockState base_state, IBlockAccess world, BlockPos pos, EnumFacing side)
+    public boolean isSideSolid(IBlockAccess world, int x, int y, int z, ForgeDirection side)
     {
-		 if (side == EnumFacing.UP)
+		 if (side == ForgeDirection.UP)
 		 {
 			 return true;
 		 }
@@ -313,12 +311,12 @@ public class BlockTable extends BiblioWoodBlock
 			 return false;
 		 }
     }
-	
+
 	@Override
-	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess blockAccess, BlockPos pos)
+	public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z)
 	{
 		AxisAlignedBB output = this.getBlockBounds(0.00F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
-		TileEntity tilee = blockAccess.getTileEntity(pos);
+		TileEntity tilee = world.getTileEntity(x, y, z);
 		if (tilee != null && tilee instanceof TileEntityTable)
 		{
 			TileEntityTable tile = (TileEntityTable)tilee;
@@ -334,26 +332,26 @@ public class BlockTable extends BiblioWoodBlock
 		}
 		return output;
 	}
-	
+
 	@Override
-	public void neighborChanged(IBlockState state, World world, BlockPos pos, Block blockIn, BlockPos fromPos)
+	public void onNeighborBlockChange(World world, int x, int y, int z, Block neighbor)
 	{
-		TileEntity tile = world.getTileEntity(pos);
+		TileEntity tile = world.getTileEntity(x, y, z);
 		if (tile != null && tile instanceof TileEntityTable)
 		{
-			TileEntityTable tabletile = (TileEntityTable)world.getTileEntity(pos);
-			checkNeighborTables(tile.getWorld(), pos.getX(), pos.getY(), pos.getZ(), tabletile);
+			TileEntityTable tabletile = (TileEntityTable)world.getTileEntity(x, y, z);
+			checkNeighborTables(tile.getWorldObj(), x, y, z, tabletile);
 			//world.markBlockForUpdate(pos);
-			tabletile.getWorld().notifyBlockUpdate(tabletile.getPos(), tabletile.getWorld().getBlockState(tabletile.getPos()), tabletile.getWorld().getBlockState(tabletile.getPos()), 3);
+			tabletile.getWorldObj().markBlockForUpdate(x, y, z);
 		}
 	}
-	
+
 	 public void checkNeighborTables(World world, int x, int y, int z, TileEntityTable table)
 	 {
-		 Block blockid1 = world.getBlockState(new BlockPos(x+1, y, z)).getBlock();
-		 Block blockid2 = world.getBlockState(new BlockPos(x-1, y, z)).getBlock();
-		 Block blockid3 = world.getBlockState(new BlockPos(x, y, z+1)).getBlock();
-		 Block blockid4 = world.getBlockState(new BlockPos(x, y, z-1)).getBlock();
+		 Block blockid1 = world.getBlock(x+1, y, z);
+		 Block blockid2 = world.getBlock(x-1, y, z);
+		 Block blockid3 = world.getBlock(x, y, z+1);
+		 Block blockid4 = world.getBlock(x, y, z-1);
 		 if (blockid1 instanceof BlockTable || blockid2 instanceof BlockTable || blockid3 instanceof BlockTable || blockid4 instanceof BlockTable)
 		 {
 			// set quad legs and tops acorrding
@@ -366,12 +364,12 @@ public class BlockTable extends BiblioWoodBlock
 			 boolean t3 = true;
 			 boolean t4 = true;
 			 boolean ml = false;
-			 
+
 			 boolean expside1 = false;
 			 boolean expside2 = false;
 			 boolean expside3 = false;
 			 boolean expside4 = false;
-			 
+
 			 if (blockid1 instanceof BlockTable )
 			 {
 				// System.out.println("Block1");
@@ -420,7 +418,7 @@ public class BlockTable extends BiblioWoodBlock
 			 {
 				 expside4 = true;
 			 }
-			 
+
 			 table.setLegs(l1, l2, l3, l4, ml);
 			 table.setTops(t1, t2, t3, t4);
 			 table.setExposeSides(expside1, expside2, expside3, expside4);
@@ -430,20 +428,20 @@ public class BlockTable extends BiblioWoodBlock
 				 // this sets the table to be a single table with 4 beveled edges and 1 center post
 			 table.setLegs(false, false, false, false, true);
 			 table.setTops(true, true, true, true);
-			
+
 		 }
 	 }
-	 
+
 		@Override
 	    public TextureState addAdditionTextureStateInformation(BiblioTileEntity tile, TextureState state)
 	    {
 			ItemStack cloth = tile.getStackInSlot(1);
 			ItemStack carpet = tile.getStackInSlot(2);
-			if (cloth != ItemStack.EMPTY)
+			if (cloth != null)
 			{
 				state.setColorOne(EnumColor.getColorFromCarpetOrWool(cloth));
 			}
-			if (carpet != ItemStack.EMPTY)
+			if (carpet != null)
 			{
 				state.setColorTwo(EnumColor.getColorFromCarpetOrWool(carpet));
 			}

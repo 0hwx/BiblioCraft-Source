@@ -3,13 +3,12 @@ package jds.bibliocraft.tileentities;
 import java.util.ArrayList;
 
 import jds.bibliocraft.blocks.BlockCookieJar;
+import net.minecraft.client.renderer.texture.ITickable;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
-import net.minecraft.util.ITickable;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraftforge.common.util.Constants;
 
 public class TileEntityCookieJar extends BiblioTileEntity implements ITickable
@@ -22,25 +21,50 @@ public class TileEntityCookieJar extends BiblioTileEntity implements ITickable
 	{
 		super(8, false);
 	}
-	
+
 	public String[] getCookieNames()
 	{
 		return this.cookieNames;
 	}
-	
-	@Override
-	public int getInventoryStackLimit() 
+
+    @Override
+    public ItemStack getStackInSlotOnClosing(int index) {
+        return null;
+    }
+
+    @Override
+    public String getInventoryName() {
+        return "";
+    }
+
+    @Override
+    public boolean hasCustomInventoryName() {
+        return false;
+    }
+
+    @Override
+	public int getInventoryStackLimit()
 	{
 		return 64;
 	}
-	
-	public void setCookies()
+
+    @Override
+    public void openInventory() {
+
+    }
+
+    @Override
+    public void closeInventory() {
+
+    }
+
+    public void setCookies()
 	{
 		int cookies = 0;
 		ArrayList<String> names = new ArrayList<String>();
 		for(int x=0; x < 8; x++)
 		{
-			if (getStackInSlot(x) != ItemStack.EMPTY)
+			if (getStackInSlot(x) != null)
 			{
 				cookies++;
 				names.add(getStackInSlot(x).getUnlocalizedName());
@@ -52,42 +76,42 @@ public class TileEntityCookieJar extends BiblioTileEntity implements ITickable
 		{
 			this.cookieNames[x] = names.get(x);
 		}
-		
+
 	}
 	public int getCookies()
 	{
 		return cookiecount;
 	}
-	
+
 	public void setIsOpen(boolean openness)
 	{
 		isOpen = openness;
 		updateSurroundingBlocks(BlockCookieJar.instance);
 	}
-	
+
 	public boolean getIsOpen()
 	{
 		return isOpen;
 	}
 
-	@Override
-	public String getName() 
-	{
-		return BlockCookieJar.name;
-	}
+//	@Override
+//	public String getName()
+//	{
+//		return BlockCookieJar.name;
+//	}
 
 	@Override
-	public void setInventorySlotContentsAdditionalCommands(int slot, ItemStack stack) 
+	public void setInventorySlotContentsAdditionalCommands(int slot, ItemStack stack)
 	{
 		setCookies();
 	}
 
 	@Override
-	public void loadCustomNBTData(NBTTagCompound nbt) 
+	public void loadCustomNBTData(NBTTagCompound nbt)
 	{
 		this.isOpen = nbt.getBoolean("isOpen");
 		this.cookiecount = nbt.getInteger("cookiecount");
-		
+
 		NBTTagList strings = nbt.getTagList("names", Constants.NBT.TAG_STRING);
 		if (strings.tagCount() > 0)
 		{
@@ -100,11 +124,11 @@ public class TileEntityCookieJar extends BiblioTileEntity implements ITickable
 	}
 
 	@Override
-	public NBTTagCompound writeCustomNBTData(NBTTagCompound nbt) 
+	public NBTTagCompound writeCustomNBTData(NBTTagCompound nbt)
 	{
     	nbt.setBoolean("isOpen", isOpen);
     	nbt.setInteger("cookiecount", cookiecount);
-    	
+
     	NBTTagList strings = new NBTTagList();
     	for (int x = 0; x < this.cookieNames.length; x++)
     	{
@@ -115,11 +139,11 @@ public class TileEntityCookieJar extends BiblioTileEntity implements ITickable
 	}
 
 	int counter = 0;
-	
+
 	@Override
-	public void update()
+	public void tick()
 	{
-		if (!this.world.isRemote && this.isOpen)
+		if (!this.worldObj.isRemote && this.isOpen)
 		{
 			if (counter >= 20)
 			{
@@ -132,11 +156,21 @@ public class TileEntityCookieJar extends BiblioTileEntity implements ITickable
 			}
 		}
 	}
-	
-	@Override
-	public ITextComponent getDisplayName() 
-	{
-		ITextComponent chat = new TextComponentString(getName());
-		return chat;
-	}
+
+    @Override
+    public int[] getAccessibleSlotsFromSide(int p_94128_1_) {
+        return new int[0];
+    }
+
+    @Override
+    public AxisAlignedBB getRenderBoundingBox() {
+        return super.getRenderBoundingBox();
+    }
+
+    //	@Override
+//	public ITextComponent getDisplayName()
+//	{
+//		ITextComponent chat = new ChatComponentText(getName());
+//		return chat;
+//	}
 }

@@ -13,13 +13,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.text.translation.I18n;
+
+import net.minecraft.client.resources.I18n;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import cpw.mods.fml.common.network.ByteBufUtils;
+import cpw.mods.fml.common.network.simpleimpl.IMessage;
+import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 
 public class BiblioRecipeCraft implements IMessage {
     ItemStack recipeBook;
@@ -50,36 +50,35 @@ public class BiblioRecipeCraft implements IMessage {
 
         @Override
         public IMessage onMessage(BiblioRecipeCraft message, MessageContext ctx) {
-            ctx.getServerHandler().player.getServerWorld().addScheduledTask(() -> {
-                EntityPlayerMP player = ctx.getServerHandler().player;
+                EntityPlayerMP player = ctx.getServerHandler().playerEntity;
                 ItemStack recipeBook = message.recipeBook;
                 int inventorySlot = message.inventorySlot;
                 if (Config.enableRecipeBookCrafting) {
-                    if (recipeBook != ItemStack.EMPTY && recipeBook.getItem() instanceof ItemRecipeBook) {
-                        NonNullList<ItemStack> bookGrid = NonNullList.<ItemStack>withSize(9, ItemStack.EMPTY);// new
+                    if (recipeBook != null && recipeBook.getItem() instanceof ItemRecipeBook) {
+                        ItemStack[] bookGrid = new ItemStack[9];// new
                                                                                                               // ItemStack[9];
-                        ItemStack resultStack = ItemStack.EMPTY;
+                        ItemStack resultStack = null;
                         NBTTagCompound nbt = recipeBook.getTagCompound();
                         if (nbt != null) {
                             NBTTagList tagList = nbt.getTagList("grid", Constants.NBT.TAG_COMPOUND);
-                            bookGrid = NonNullList.<ItemStack>withSize(9, ItemStack.EMPTY);
+                            bookGrid = new ItemStack[9];
                             for (int i = 0; i < 9; i++) {
                                 NBTTagCompound tag = (NBTTagCompound) tagList.getCompoundTagAt(i);
                                 byte slot = tag.getByte("Slot");
                                 if (slot >= 0 && slot < 9) {
-                                    ItemStack nbtStack = new ItemStack(tag);
-                                    if (nbtStack != ItemStack.EMPTY) {
-                                        bookGrid.set(slot, nbtStack);
+                                    ItemStack nbtStack = ItemStack.loadItemStackFromNBT(tag);
+                                    if (nbtStack != null) {
+                                        bookGrid[slot] = nbtStack;
                                     }
                                 }
                             }
                             NBTTagCompound resultTag = nbt.getCompoundTag("result");
                             if (resultTag != null) {
-                                resultStack = new ItemStack(resultTag);
+                                resultStack = ItemStack.loadItemStackFromNBT(resultTag);
                             }
                         }
 
-                        if (resultStack != ItemStack.EMPTY) {
+                        if (resultStack != null) {
                             if (Utils.checkForValidRecipeIngredients(bookGrid, player, false)) {
                                 Container contained = new Container() {
                                     @Override
@@ -88,66 +87,65 @@ public class BiblioRecipeCraft implements IMessage {
                                     }
                                 };
                                 InventoryCrafting playerCraftMatrix = new InventoryCrafting(contained, 3, 3);
-                                for (int i = 0; i < bookGrid.size(); i++) {
-                                    playerCraftMatrix.setInventorySlotContents(i, bookGrid.get(i));
+                                for (int i = 0; i < bookGrid.length; i++) {
+                                    playerCraftMatrix.setInventorySlotContents(i, bookGrid[i]);
                                 }
 
-                                ItemStack result = CraftingManager.findMatchingResult(playerCraftMatrix, player.world);
-                                if (result != ItemStack.EMPTY) {
+                                ItemStack result = CraftingManager.getInstance().findMatchingRecipe(playerCraftMatrix, player.worldObj);
+                                if (result != null) {
                                     if (Utils.checkForValidRecipeIngredients(bookGrid, player, true)) // remove valid
                                                                                                       // ingredients
                                                                                                       // from
                                     // inventory
                                     {
                                         if (!(player.inventory.addItemStackToInventory(result.copy()))) {
-                                            EntityItem entityItem = new EntityItem(player.world, player.posX,
+                                            EntityItem entityItem = new EntityItem(player.worldObj, player.posX,
                                                     player.posY,
                                                     player.posZ,
-                                                    new ItemStack(result.getItem(), result.getCount(),
+                                                    new ItemStack(result.getItem(), result.stackSize,
                                                             result.getItemDamage()));
                                             if (result.hasTagCompound()) {
-                                                entityItem.getItem()
+                                                entityItem.getEntityItem()
                                                         .setTagCompound(
                                                                 (NBTTagCompound) result.getTagCompound().copy());
                                             }
                                             entityItem.motionX = 0;
                                             entityItem.motionY = 0;
                                             entityItem.motionZ = 0;
-                                            player.world.spawnEntity(entityItem);
+                                            player.worldObj.spawnEntityInWorld(entityItem);
                                         }
                                         Utils.sendARecipeBookTextPacket(player,
                                                 result.getDisplayName() + " "
-                                                        + I18n.translateToLocal("gui.recipe.crafted"),
+                                                        + I18n.format("gui.recipe.crafted"),
                                                 inventorySlot);
                                     } else {
                                         Utils.sendARecipeBookTextPacket(player,
-                                                I18n.translateToLocal("gui.recipe.failed"),
+                                                I18n.format("gui.recipe.failed"),
                                                 inventorySlot);
                                     }
-                                    return;
+                                    return message;
                                 } else {
-                                    Utils.sendARecipeBookTextPacket(player, I18n.translateToLocal("gui.recipe.invalid"),
+                                    Utils.sendARecipeBookTextPacket(player, I18n.format("gui.recipe.invalid"),
                                             inventorySlot);
-                                    return;
+                                    return message;
                                 }
                             } else {
-                                Utils.sendARecipeBookTextPacket(player, I18n.translateToLocal("gui.recipe.missing"),
+                                Utils.sendARecipeBookTextPacket(player, I18n.format("gui.recipe.missing"),
                                         inventorySlot);
-                                return;
+                                return message;
                             }
                         } else {
-                            Utils.sendARecipeBookTextPacket(player, I18n.translateToLocal("gui.recipe.invalid"),
+                            Utils.sendARecipeBookTextPacket(player, I18n.format("gui.recipe.invalid"),
                                     inventorySlot);
-                            return;
+                            return message;
                         }
                     }
-                    Utils.sendARecipeBookTextPacket(player, I18n.translateToLocal("gui.recipe.wrong"), inventorySlot);
+                    Utils.sendARecipeBookTextPacket(player, I18n.format("gui.recipe.wrong"), inventorySlot);
                 } else {
-                    Utils.sendARecipeBookTextPacket(player, I18n.translateToLocal("gui.recipe.disabled"),
+                    Utils.sendARecipeBookTextPacket(player, I18n.format("gui.recipe.disabled"),
                             inventorySlot);
                 }
-                return;
-            });
+
             return null;
         }
     }

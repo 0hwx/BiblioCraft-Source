@@ -1,15 +1,10 @@
-newmtl wood
-Kd 1.00 1.00 1.00
-map_Kd minecraft:blocks/planks_oak
-
-newmtl top
-Kd 1.00 1.00 1.00
-map_Kd minecraft:blocks/crafting_table_top
-
-newmtl sides
-Kd 1.00 1.00 1.00
-map_Kd bibliocraft:models/benchsides
-
-newmtl books
-Kd 1.00 1.00 1.00
-map_Kd bibliocraft:models/bookcase_books
+# Made in Blockbench 4.12.3
+newmtl m_e0a8f258-b216-1680-2632-86907451c1a7
+map_Kd planks_oak.png
+newmtl m_f4ad0c70-de89-e756-e78c-4aac03abd35d
+map_Kd crafting_table_top.png
+newmtl m_ca23a596-274e-7436-41d9-a7890a7e801d
+map_Kd benchsides.png
+newmtl m_5d390fbd-85d2-f22d-9561-f68cd3f9a054
+map_Kd bookcase_books.png
+newmtl none

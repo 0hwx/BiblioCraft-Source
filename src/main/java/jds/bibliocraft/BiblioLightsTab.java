@@ -4,9 +4,10 @@ import jds.bibliocraft.blocks.BlockLampGold;
 import jds.bibliocraft.blocks.BlockLanternGold;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 public class BiblioLightsTab extends CreativeTabs
 {
@@ -17,21 +18,21 @@ public class BiblioLightsTab extends CreativeTabs
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public ItemStack getTabIconItem() 
+	public Item getTabIconItem()
 	{
-		if (Config.enableLantern)
-		{
-			return new ItemStack(BlockLanternGold.instance);
-		}
-		else if (Config.enableLamp)
-		{
-			return new ItemStack(BlockLampGold.instance);
-		}
-		else
-		{
-			return new ItemStack(Blocks.GLOWSTONE);
-		}
-		
+//		if (Config.enableLantern)
+//		{
+//			return Item.getItemFromBlock(BlockLanternGold.instance);
+//		}
+//		else if (Config.enableLamp)
+//		{
+//			return Item.getItemFromBlock(BlockLampGold.instance);
+//		}
+//		else
+//		{
+//			return Item.getItemFromBlock(Blocks.glowstone);
+//		}
+        return Item.getItemFromBlock(Blocks.glowstone);
 	}
 
 }

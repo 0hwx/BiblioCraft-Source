@@ -5,20 +5,18 @@ import java.util.List;
 
 import jds.bibliocraft.Config;
 import jds.bibliocraft.blocks.BlockTable;
+import net.minecraft.client.renderer.texture.ITickable;
 import net.minecraft.entity.item.EntityItemFrame;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.Packet;
-import net.minecraft.util.ITickable;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraft.world.storage.MapData;
 
 public class TileEntityTable extends BiblioTileEntity implements ITickable
-{	
+{
 	public boolean leg1 = false;
 	public boolean leg2 = false;
 	public boolean leg3 = false;
@@ -38,38 +36,63 @@ public class TileEntityTable extends BiblioTileEntity implements ITickable
 	private int counter = 1;
 	public EntityItemFrame fauxFrame;// = new EntityItemFrame(this.worldObj);
 	public int redstonePassthrough = 0;
-	
+
 	public boolean isVanilla = true;
-	
+
 	public TileEntityTable()
 	{
 		super(3, true);
 	}
-	
+
 	public boolean getHasMap()
 	{
 		return hasMap;
 	}
-	
-	@Override
+
+    @Override
+    public ItemStack getStackInSlotOnClosing(int index) {
+        return null;
+    }
+
+    @Override
+    public String getInventoryName() {
+        return "";
+    }
+
+    @Override
+    public boolean hasCustomInventoryName() {
+        return false;
+    }
+
+    @Override
 	public int getInventoryStackLimit()
 	{
 		return 64;
 	}
-	
-	public boolean setTableSlot(ItemStack stack)
+
+    @Override
+    public void openInventory() {
+
+    }
+
+    @Override
+    public void closeInventory() {
+
+    }
+
+    public boolean setTableSlot(ItemStack stack)
 	{
 		boolean hasStack;
-		if (stack == ItemStack.EMPTY)
+		if (stack == null)
 		{
 			if (isSlotFull())
 			{
-				setInventorySlotContents(0, ItemStack.EMPTY);
+				setInventorySlotContents(0, null);
 			}
 			hasStack = false;
 			return hasStack;
 		}
-		
+
 		if (!isSlotFull())
 		{
 			setInventorySlotContents(0, stack);
@@ -81,10 +104,10 @@ public class TileEntityTable extends BiblioTileEntity implements ITickable
 		}
 		return hasStack;
 	}
-	
+
 	public boolean isSlotFull()
 	{
-		if (getStackInSlot(0) != ItemStack.EMPTY)
+		if (getStackInSlot(0) != null)
 		{
 			return true;
 		}
@@ -95,7 +118,7 @@ public class TileEntityTable extends BiblioTileEntity implements ITickable
 	}
 	public boolean isClothSlotFull()
 	{
-		if (getStackInSlot(1)!= ItemStack.EMPTY)
+		if (getStackInSlot(1)!= null)
 		{
 			return true;
 		}
@@ -104,10 +127,10 @@ public class TileEntityTable extends BiblioTileEntity implements ITickable
 			return false;
 		}
 	}
-	
+
 	public boolean isCarpetFull()
 	{
-		if (getStackInSlot(2) != ItemStack.EMPTY)
+		if (getStackInSlot(2) != null)
 		{
 			return true;
 		}
@@ -116,7 +139,7 @@ public class TileEntityTable extends BiblioTileEntity implements ITickable
 			return false;
 		}
 	}
-	
+
 	public ItemStack getCaseStack()
 	{
 		if (isSlotFull())
@@ -125,42 +148,42 @@ public class TileEntityTable extends BiblioTileEntity implements ITickable
 		}
 		else
 		{
-			return ItemStack.EMPTY;
+			return null;
 		}
 	}
-	
+
 	public int setTableCloth(ItemStack stack)
 	{
 		int stacksize = 0;
-		if (stack == ItemStack.EMPTY)
+		if (stack == null)
 		{
 			if(isClothSlotFull())
 			{
-				setInventorySlotContents(1, ItemStack.EMPTY);
+				setInventorySlotContents(1, null);
 			}
 			stacksize = -1;
 			return stacksize;
 		}
-		
+
 		if (!isClothSlotFull())
 		{
-			if (stack.getCount() > 1)
+			if (stack.stackSize > 1)
 			{
-				stacksize = stack.getCount() - 1;
+				stacksize = stack.stackSize - 1;
 			}
 			else
 			{
 				stacksize = 0;
 			}
 			ItemStack carpetpiece = stack.copy();
-			carpetpiece.setCount(1);
+			carpetpiece.stackSize = (1);
 			setInventorySlotContents(1, carpetpiece);
 		}
 		else
 		{
-			stacksize = stack.getCount();
+			stacksize = stack.stackSize;
 		}
-		
+
 		return stacksize;
 	}
 	public int getClothMetaData()
@@ -179,37 +202,37 @@ public class TileEntityTable extends BiblioTileEntity implements ITickable
 	public int setCarpet(ItemStack stack)
 	{
 		int stacksize = 0;
-		if (stack == ItemStack.EMPTY)
+		if (stack == null)
 		{
 			if(isCarpetFull())
 			{
-				setInventorySlotContents(2, ItemStack.EMPTY);
+				setInventorySlotContents(2, null);
 			}
 			stacksize = -1;
 			return stacksize;
 		}
-		
+
 		if (!isCarpetFull())
 		{
-			if (stack.getCount() > 1)
+			if (stack.stackSize > 1)
 			{
-				stacksize = stack.getCount() - 1;
+				stacksize = stack.stackSize - 1;
 			}
 			else
 			{
 				stacksize = 0;
 			}
 			ItemStack carpetpiece = stack.copy();
-			carpetpiece.setCount(1);
+			carpetpiece.stackSize = (1);
 			setInventorySlotContents(2, carpetpiece);
 		}
 		else
 		{
-			stacksize = stack.getCount();
+			stacksize = stack.stackSize;
 		}
 		return stacksize;
 	}
-	
+
 	public int getCarpetMetaData()
 	{
 		if(isCarpetFull())
@@ -274,16 +297,16 @@ public class TileEntityTable extends BiblioTileEntity implements ITickable
 	{
 		return monoleg;
 	}
-	
+
 	public void setSlotX(int angle)
 	{
 		slotxangle = angle;
-		getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+        getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
 	public void setSlotY(int angle)
 	{
 		slotyangle = angle;
-		getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
+        getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
 	public int getSlotX()
 	{
@@ -293,8 +316,8 @@ public class TileEntityTable extends BiblioTileEntity implements ITickable
 	{
 		return slotyangle;
 	}
-	
-	public void setExposeSides(boolean expside1, boolean expside2, boolean expside3, boolean expside4) 
+
+	public void setExposeSides(boolean expside1, boolean expside2, boolean expside3, boolean expside4)
 	{
 		exps1 = expside1;
 		exps2 = expside2;
@@ -317,16 +340,16 @@ public class TileEntityTable extends BiblioTileEntity implements ITickable
 	{
 		return exps4;
 	}
-	
+
 	public void setFrame(World world)
 	{
 		fauxFrame = new EntityItemFrame(world);
 	}
-	
+
 	@Override
-	public void update() 
+	public void tick()
 	{
-		if (!this.world.isRemote)
+		if (!this.worldObj.isRemote)
 		{
 			if (counter >= Config.mapUpdateRate)
 			{
@@ -335,27 +358,27 @@ public class TileEntityTable extends BiblioTileEntity implements ITickable
 				{
 					if (this.fauxFrame == null)
 					{
-						if (this.world != null)
+						if (this.worldObj != null)
 						{
-							this.setFrame(this.world);
+							this.setFrame(this.worldObj);
 						}
 						return;
 					}
-					List players = this.world.playerEntities;
+					List players = this.worldObj.playerEntities;
 					ItemStack mapstack = getStackInSlot(0);
-					
+
 					mapstack.setItemFrame(fauxFrame);
-					MapData mapdata =Items.FILLED_MAP.getMapData(mapstack, this.world);
-					
+					MapData mapdata =Items.filled_map.getMapData(mapstack, this.worldObj);
+
 		            Iterator iterator = players.iterator();
 		            while (iterator.hasNext())
 		            {
 		                 EntityPlayerMP entityplayermp = (EntityPlayerMP)iterator.next();
-		                Items.FILLED_MAP.updateMapData(getWorld(), entityplayermp, mapdata);
-	                     Packet packet = mapdata.getMapPacket(mapstack, getWorld(), entityplayermp);
+		                Items.filled_map.updateMapData(getWorldObj(), entityplayermp, mapdata);
+	                     byte[] packet = mapdata.getUpdatePacketData(mapstack, getWorldObj(), entityplayermp);
 	                     if (packet != null)
 	                     {
-	                         entityplayermp.connection.sendPacket(packet);
+//	                         entityplayermp.playerNetServerHandler.sendPacket(packet);
 	                     }
 		            }
 				}
@@ -365,21 +388,21 @@ public class TileEntityTable extends BiblioTileEntity implements ITickable
 				counter++;
 			}
 		}
-		
+
 	}
 
-	@Override
-	public String getName() 
-	{
-		return BlockTable.name;
-	}
+//	@Override
+//	public String getName()
+//	{
+//		return BlockTable.name;
+//	}
 
 	@Override
-	public void setInventorySlotContentsAdditionalCommands(int slot, ItemStack stack) 
+	public void setInventorySlotContentsAdditionalCommands(int slot, ItemStack stack)
 	{
-		if(stack != ItemStack.EMPTY)
+		if(stack != null)
 		{
-			if (stack.getItem() ==Items.FILLED_MAP)
+			if (stack.getItem() ==Items.filled_map)
 			{
 				hasMap = true;
 			}
@@ -395,7 +418,7 @@ public class TileEntityTable extends BiblioTileEntity implements ITickable
 	}
 
 	@Override
-	public void loadCustomNBTData(NBTTagCompound nbt) 
+	public void loadCustomNBTData(NBTTagCompound nbt)
 	{
 		this.leg1 = nbt.getBoolean("leg1");
 		this.leg2 = nbt.getBoolean("leg2");
@@ -417,7 +440,7 @@ public class TileEntityTable extends BiblioTileEntity implements ITickable
 	}
 
 	@Override
-	public NBTTagCompound writeCustomNBTData(NBTTagCompound nbt) 
+	public NBTTagCompound writeCustomNBTData(NBTTagCompound nbt)
 	{
 		nbt.setBoolean("leg1", leg1);
     	nbt.setBoolean("leg2", leg2);
@@ -438,11 +461,16 @@ public class TileEntityTable extends BiblioTileEntity implements ITickable
     	nbt.setBoolean("isVanilla", this.isVanilla);
 		return nbt;
 	}
-	
-	@Override
-	public ITextComponent getDisplayName() 
-	{
-		ITextComponent chat = new TextComponentString(getName());
-		return chat;
-	}
+
+//	@Override
+//	public ITextComponent getDisplayName()
+//	{
+//		ITextComponent chat = new ChatComponentText(getName());
+//		return chat;
+//	}
+
+    @Override
+    public int[] getAccessibleSlotsFromSide(int p_94128_1_) {
+        return new int[0];
+    }
 }

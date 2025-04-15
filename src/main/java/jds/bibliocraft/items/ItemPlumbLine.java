@@ -3,41 +3,38 @@ package jds.bibliocraft.items;
 import jds.bibliocraft.BlockLoader;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLiquid;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.translation.I18n;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 
 public class ItemPlumbLine extends Item
 {
 	public static final String name = "PlumbLine";
 	public static final ItemPlumbLine instance = new ItemPlumbLine();
-	
+
 	public ItemPlumbLine()
 	{
 		super();
 		setCreativeTab(BlockLoader.biblioTab);
 		setUnlocalizedName(name);
 		setMaxStackSize(1);
-		setRegistryName(name);
+		setUnlocalizedName(name);
 	}
-    
-	
+
+
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
+	public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
     {
 		if (world.isRemote)
 		{
-			float angle = MathHelper.floor(player.rotationYaw * 4.0F / 360.0F + 0.5D) & 3;
+			float angle = MathHelper.floor_double(player.rotationYaw * 4.0F / 360.0F + 0.5D) & 3;
 	        ++angle;
-	        angle %= 4; 
+	        angle %= 4;
 	        int yaw = (int)angle;
 			if (yaw < 0.0f)
 			{
@@ -80,15 +77,15 @@ public class ItemPlumbLine extends Item
 					break;
 				}
 			}
-			
-			
+
+
 			int lastY = initY;
-			
+
 			for (int i = 0; i < 255; i++)
 			{
 				lastY = initY - i;
-				Block testBlock = world.getBlockState(new BlockPos(initX, lastY, initZ)).getBlock();
-				if (testBlock instanceof BlockLiquid || world.isAirBlock(new BlockPos(initX, lastY, initZ)))
+				Block testBlock = world.getBlock(initX, lastY, initZ);
+				if (testBlock instanceof BlockLiquid || world.isAirBlock(initX, lastY, initZ))
 				{
 					// continue
 				}
@@ -99,9 +96,13 @@ public class ItemPlumbLine extends Item
 			}
 			int depth = initY - lastY;
 			int ypos = lastY + 1;
-			player.sendMessage(new TextComponentString(I18n.translateToLocal("item.plumbline.depth")+" = "+depth+"m  @  y = "+ypos));
-			
+			player.addChatMessage(new ChatComponentText(I18n.format("item.plumbline.depth")+" = "+depth+"m  @  y = "+ypos));
+
 		}
-		return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, player.getHeldItem(hand));
+		return stack;
+    }
+    @Override
+    public void registerIcons(IIconRegister register) {
+        this.itemIcon = register.registerIcon("bibliocraft:plumbline");
     }
 }

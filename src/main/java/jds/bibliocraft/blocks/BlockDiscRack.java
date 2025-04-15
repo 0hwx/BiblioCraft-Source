@@ -8,48 +8,43 @@ import jds.bibliocraft.Config;
 import jds.bibliocraft.helpers.EnumVertPosition;
 import jds.bibliocraft.tileentities.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityDiscRack;
-import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemRecord;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
-import net.minecraftforge.common.model.TRSRTransformation;
+import net.minecraftforge.common.util.ForgeDirection;
+
 
 public class BlockDiscRack extends BiblioSimpleBlock
 {
 	public static final BlockDiscRack instance = new BlockDiscRack();
 	public static final String name = "DiscRack";
-	
+
 	public BlockDiscRack()
 	{
-		super(Material.WOOD, SoundType.WOOD, name);
+		super(Material.wood, soundTypeWood, name);
 	}
-	
+
 	@Override
-	public boolean onBlockActivatedCustomCommands(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ)
+	public boolean onBlockActivatedCustomCommands(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ)
 	{
-		TileEntity tile = world.getTileEntity(pos);
+		TileEntity tile = world.getTileEntity(x, y, z);
 		if (!world.isRemote && tile != null && tile instanceof TileEntityDiscRack)
 		{
-			ItemStack playerStack = player.getHeldItem(EnumHand.MAIN_HAND);
+			ItemStack playerStack = player.getHeldItem();
 			TileEntityDiscRack rackTile = (TileEntityDiscRack)tile;
 			if (rackTile != null)
 			{
-				EnumFacing angle = rackTile.getAngle();
+				ForgeDirection angle = rackTile.getAngle();
 				EnumVertPosition vertAngle = rackTile.getVertPosition();
 				boolean isRotated = rackTile.getWallRotation();
 				int discSlot = getDiscSlot(hitX, hitY, hitZ, angle, vertAngle, isRotated);
-				if (playerStack != ItemStack.EMPTY)
+				if (playerStack != null)
 				{
 					String discName = playerStack.getUnlocalizedName().toLowerCase();
 					if (playerStack.getItem() instanceof ItemRecord || Config.testDiscValidity(discName))
@@ -71,7 +66,7 @@ public class BlockDiscRack extends BiblioSimpleBlock
 					}
 				}
 			}
-			player.openGui(BiblioCraft.instance, 0, world, pos.getX(), pos.getY(), pos.getZ());
+			player.openGui(BiblioCraft.instance, 0, world, x, y, z);
 		}
 		return true;
 	}
@@ -81,54 +76,54 @@ public class BlockDiscRack extends BiblioSimpleBlock
 	{
 		return new TileEntityDiscRack();
 	}
-	
-	@Override
-	public TRSRTransformation getAdditionalTransforms(TRSRTransformation transform, BiblioTileEntity tile)
-	{
-		transform = transform.compose(new TRSRTransformation(new Vector3f(0.0f, 0.0f, 0.0f), 
-				   new Quat4f(0.0f, 1.0f, 0.0f, 1.0f), 
-				   new Vector3f(1.0f, 1.0f, 1.0f), 
-				   new Quat4f(0.0f, 1.0f, 0.0f, 1.0f)));
-		switch (tile.getVertPosition())
-		{
-			case FLOOR: { break; }
-			case WALL:
-			{
-				boolean isRotated = false;
-				if (tile instanceof TileEntityDiscRack)
-				{
-					TileEntityDiscRack discrack = (TileEntityDiscRack)tile;
-					isRotated = discrack.getWallRotation();
-				}
-				if (isRotated)
-				{
-					transform = transform.compose(new TRSRTransformation(new Vector3f(0.0f, 0.0f, 0.0f), 
-							   new Quat4f(1.0f, 0.0f, 0.0f, 1.0f), 
-							   new Vector3f(1.0f, 1.0f, 1.0f), 
-							   new Quat4f(0.0f, 0.0f, 1.0f, 1.0f)));
-				}
-				else
-				{
-					transform = transform.compose(new TRSRTransformation(new Vector3f(0.0f, 1.0f, 0.0f), 
-							   new Quat4f(0.0f, 0.0f, 0.0f, 1.0f), 
-							   new Vector3f(1.0f, 1.0f, 1.0f), 
-							   new Quat4f(0.0f, 0.0f, 1.0f, 1.0f)));
-				}
-				break;
-			}
-			case CEILING:
-			{
-				transform = transform.compose(new TRSRTransformation(new Vector3f(0.0f, 1.0f, -1.0f), 
-						   new Quat4f(1.0f, 0.0f, 0.0f, 1.0f), 
-						   new Vector3f(1.0f, 1.0f, 1.0f), 
-						   new Quat4f(1.0f, 0.0f, 0.0f, 1.0f)));
-				break;
-			}
-		}
-		return transform;
-	}
-	
-	public static int getDiscSlot(float hitX, float hitY, float hitZ, EnumFacing angle, EnumVertPosition vertAngle, boolean wallRotated)
+
+//	@Override
+//	public TRSRTransformation getAdditionalTransforms(TRSRTransformation transform, BiblioTileEntity tile)
+//	{
+//		transform = transform.compose(new TRSRTransformation(new Vector3f(0.0f, 0.0f, 0.0f),
+//				   new Quat4f(0.0f, 1.0f, 0.0f, 1.0f),
+//				   new Vector3f(1.0f, 1.0f, 1.0f),
+//				   new Quat4f(0.0f, 1.0f, 0.0f, 1.0f)));
+//		switch (tile.getVertPosition())
+//		{
+//			case FLOOR: { break; }
+//			case WALL:
+//			{
+//				boolean isRotated = false;
+//				if (tile instanceof TileEntityDiscRack)
+//				{
+//					TileEntityDiscRack discrack = (TileEntityDiscRack)tile;
+//					isRotated = discrack.getWallRotation();
+//				}
+//				if (isRotated)
+//				{
+//					transform = transform.compose(new TRSRTransformation(new Vector3f(0.0f, 0.0f, 0.0f),
+//							   new Quat4f(1.0f, 0.0f, 0.0f, 1.0f),
+//							   new Vector3f(1.0f, 1.0f, 1.0f),
+//							   new Quat4f(0.0f, 0.0f, 1.0f, 1.0f)));
+//				}
+//				else
+//				{
+//					transform = transform.compose(new TRSRTransformation(new Vector3f(0.0f, 1.0f, 0.0f),
+//							   new Quat4f(0.0f, 0.0f, 0.0f, 1.0f),
+//							   new Vector3f(1.0f, 1.0f, 1.0f),
+//							   new Quat4f(0.0f, 0.0f, 1.0f, 1.0f)));
+//				}
+//				break;
+//			}
+//			case CEILING:
+//			{
+//				transform = transform.compose(new TRSRTransformation(new Vector3f(0.0f, 1.0f, -1.0f),
+//						   new Quat4f(1.0f, 0.0f, 0.0f, 1.0f),
+//						   new Vector3f(1.0f, 1.0f, 1.0f),
+//						   new Quat4f(1.0f, 0.0f, 0.0f, 1.0f)));
+//				break;
+//			}
+//		}
+//		return transform;
+//	}
+
+	public static int getDiscSlot(float hitX, float hitY, float hitZ, ForgeDirection angle, EnumVertPosition vertAngle, boolean wallRotated)
 	{
 		int discSlot = 0;
 		switch (vertAngle)
@@ -179,7 +174,7 @@ public class BlockDiscRack extends BiblioSimpleBlock
 		}
 		return discSlot;
 	}
-	
+
 	public static int getDiscSlotPos(float hit)
 	{
 		if (hit >= 0.87f) 					{ return 8; }
@@ -206,11 +201,11 @@ public class BlockDiscRack extends BiblioSimpleBlock
 		if (hit < 0.142f) 					{ return 8; }
 		return 0;
 	}
-	
+
 	@Override
-	public void additionalPlacementCommands(BiblioTileEntity biblioTile, EntityLivingBase player) 
+	public void additionalPlacementCommands(BiblioTileEntity biblioTile, EntityLivingBase player)
 	{
-	     int pitch = MathHelper.floor(player.rotationPitch * 3.0F / 180.0F + 0.5D) & 3;
+	     int pitch = MathHelper.floor_double(player.rotationPitch * 3.0F / 180.0F + 0.5D) & 3;
 	     ++pitch;
 	     pitch %= 4;
 	     if (pitch == 0)
@@ -226,16 +221,16 @@ public class BlockDiscRack extends BiblioSimpleBlock
 	    	 biblioTile.setVertPosition(EnumVertPosition.FLOOR);
 	     }
 	}
-	
+
     @Override
-	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess blockAccess, BlockPos pos)
+	public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z)
 	{
 		AxisAlignedBB output = this.getBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
-    	TileEntity tile = blockAccess.getTileEntity(pos);
+    	TileEntity tile = world.getTileEntity(x, y, z);
     	if (tile != null && tile instanceof TileEntityDiscRack)
     	{
     		TileEntityDiscRack rackTile = (TileEntityDiscRack)tile;
-	    	EnumFacing rackAngle = rackTile.getAngle();
+	    	ForgeDirection rackAngle = rackTile.getAngle();
 			EnumVertPosition vertRackAngle = rackTile.getVertPosition();
 			boolean rotated = rackTile.getWallRotation();
 			switch (rackAngle)
@@ -244,7 +239,7 @@ public class BlockDiscRack extends BiblioSimpleBlock
 				{
 					switch (vertRackAngle)
 					{
-						case FLOOR:{output = this.getBlockBounds(0.0F, 0.0F, 0.25F, 1.0F, 0.35F, 0.75F); break;} 
+						case FLOOR:{output = this.getBlockBounds(0.0F, 0.0F, 0.25F, 1.0F, 0.35F, 0.75F); break;}
 						case WALL:
 						{
 							if (!rotated)
@@ -326,7 +321,7 @@ public class BlockDiscRack extends BiblioSimpleBlock
 				}
 				default: break;
 			}
-			
+
     	}
     	return output;
 	}
