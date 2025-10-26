@@ -1,7 +1,7 @@
 newmtl wood
 Kd 1.00 1.00 1.00
-map_Kd minecraft:blocks/planks_oak
+map_Kd planks_oak.png
 
 newmtl latch
 Kd 1.00 1.00 1.00
-map_Kd minecraft:blocks/iron_block
+map_Kd iron_block.png

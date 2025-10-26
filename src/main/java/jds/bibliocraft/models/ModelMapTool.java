@@ -200,7 +200,7 @@
 //	        {
 //		        try
 //		        {
-//		            model = ModelLoaderRegistry.getModel(new ResourceLocation("bibliocraft:item/maptool.obj"));
+//		            model = ModelLoaderRegistry.setModel(new ResourceLocation("bibliocraft:item/maptool.obj"));
 //		            model = model.process(ImmutableMap.of("flip-v", "true"));
 //		            gotOBJ = true;
 //		        }

@@ -3,6 +3,7 @@ package jds.bibliocraft.network.packet.client;
 import io.netty.buffer.ByteBuf;
 import jds.bibliocraft.network.packet.Utils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.item.ItemStack;
 import cpw.mods.fml.common.network.ByteBufUtils;
@@ -51,7 +52,7 @@ public class BiblioAtlasSWPClient implements IMessage {
     @SideOnly(Side.CLIENT)
     public static void handleAtlas(ItemStack atlas)
     {
-        EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+        EntityClientPlayerMP player = Minecraft.getMinecraft().thePlayer;
         player.rotationPitch = 50.0f;
         Utils.openMapGUI(Minecraft.getMinecraft().thePlayer, atlas);
     }

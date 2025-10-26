@@ -121,71 +121,6 @@ public class BlockClipboard extends BiblioBlock
 		return new TileEntityClipboard();
 	}
 
-//	@Override
-//	public List<String> getModelParts(BiblioTileEntity tile)
-//	{
-//		List<String> modelParts = new ArrayList<String>();
-//		modelParts.add("Clipboard");
-//		if (tile instanceof TileEntityClipboard)
-//		{
-//			TileEntityClipboard clipboard = (TileEntityClipboard)tile;
-//			clipboard.getNBTData();
-//			switch (clipboard.button0state)
-//			{
-//			case 1: { modelParts.add("box1c"); break; }
-//			case 2: { modelParts.add("box1x"); break; }
-//			}
-//
-//			switch (clipboard.button1state)
-//			{
-//			case 1: { modelParts.add("box2c"); break; }
-//			case 2: { modelParts.add("box2x"); break; }
-//			}
-//
-//			switch (clipboard.button2state)
-//			{
-//			case 1: { modelParts.add("box3c"); break; }
-//			case 2: { modelParts.add("box3x"); break; }
-//			}
-//
-//			switch (clipboard.button3state)
-//			{
-//			case 1: { modelParts.add("box4c"); break; }
-//			case 2: { modelParts.add("box4x"); break; }
-//			}
-//
-//			switch (clipboard.button4state)
-//			{
-//			case 1: { modelParts.add("box5c"); break; }
-//			case 2: { modelParts.add("box5x"); break; }
-//			}
-//
-//			switch (clipboard.button5state)
-//			{
-//			case 1: { modelParts.add("box6c"); break; }
-//			case 2: { modelParts.add("box6x"); break; }
-//			}
-//
-//			switch (clipboard.button6state)
-//			{
-//			case 1: { modelParts.add("box7c"); break; }
-//			case 2: { modelParts.add("box7x"); break; }
-//			}
-//
-//			switch (clipboard.button7state)
-//			{
-//			case 1: { modelParts.add("box8c"); break; }
-//			case 2: { modelParts.add("box8x"); break; }
-//			}
-//
-//			switch (clipboard.button8state)
-//			{
-//			case 1: { modelParts.add("box9c"); break; }
-//			case 2: { modelParts.add("box9x"); break; }
-//			}
-//		}
-//		return modelParts;
-//	}
 
 	@Override
 	public void additionalPlacementCommands(BiblioTileEntity biblioTile, EntityLivingBase player)
@@ -199,47 +134,25 @@ public class BlockClipboard extends BiblioBlock
 		return stack;
 	}
 
-//	@Override
-//	public ExtendedBlockState getExtendedBlockStateAlternate(ExtendedBlockState state)
-//	{
-//		return state;
-//	}
-//
-//	@Override
-//	public IExtendedBlockState getIExtendedBlockStateAlternate(BiblioTileEntity biblioTile, IExtendedBlockState state)
-//	{
-//		return state;
-//	}
-//
-//	@Override
-//	public TRSRTransformation getAdditionalTransforms(TRSRTransformation transform, BiblioTileEntity tile)
-//	{
-//		return transform;
-//	}
+
 
 	@Override
 	public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z)
 	{
-		AxisAlignedBB output = this.getBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
 		TileEntity tile = world.getTileEntity(x, y, z);
 		if (tile != null && tile instanceof TileEntityClipboard)
 		{
 			TileEntityClipboard clipboard = (TileEntityClipboard)tile;
 			switch (clipboard.getAngle())
 			{
-				case SOUTH:{output = this.getBlockBounds(0.97F, 0.08F, 0.15F, 1.0F, 0.92F, 0.85F); break;}
-				case WEST:{output = this.getBlockBounds(0.15F, 0.08F, 0.97F, 0.85F, 0.92F, 1.0F); break;}
-				case NORTH:{output = this.getBlockBounds(0.0F, 0.08F, 0.15F, 0.03F, 0.92F, 0.85F); break;}
-				case EAST:{output = this.getBlockBounds(0.15F, 0.08F, 0.0F, 0.85F, 0.92F, 0.03F); break;}
+				case SOUTH:{this.setBlockBounds(0.97F, 0.08F, 0.15F, 1.0F, 0.92F, 0.85F); break;}
+				case WEST:{this.setBlockBounds(0.15F, 0.08F, 0.97F, 0.85F, 0.92F, 1.0F); break;}
+				case NORTH:{this.setBlockBounds(0.0F, 0.08F, 0.15F, 0.03F, 0.92F, 0.85F); break;}
+				case EAST:{this.setBlockBounds(0.15F, 0.08F, 0.0F, 0.85F, 0.92F, 0.03F); break;}
 				default: break;
 			}
 		}
-	    return output;
+	    return super.getCollisionBoundingBoxFromPool(world, x, y, z);
 	}
 
-//	@Override
-//	public IBlockState getFinalBlockstate(IBlockState state, IBlockState newState)
-//	{
-//		return newState;
-//	}
 }

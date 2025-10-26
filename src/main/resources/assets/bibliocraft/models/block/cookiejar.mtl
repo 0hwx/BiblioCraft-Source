@@ -1,11 +1,11 @@
 newmtl lid
 Kd 1.00 1.00 1.00
-map_Kd minecraft:blocks/iron_block
+map_Kd iron_block.png
 
 newmtl glass
 Kd 1.00 1.00 1.00
-map_Kd minecraft:blocks/glass
+map_Kd glass.png
 
 newmtl cookies
 Kd 1.00 1.00 1.00
-map_Kd minecraft:items/cookie
+map_Kd cookie.png

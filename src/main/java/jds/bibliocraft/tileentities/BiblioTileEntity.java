@@ -35,6 +35,7 @@ public abstract class BiblioTileEntity extends TileEntity implements IInventory,
 	private boolean isLocked = false;
 	private String lockee = "";
 	private int renderBoxAdditionalSize = 1;
+    private int extendedMeta;
 
 	public BiblioTileEntity(int inventorySize, boolean canRetexture)
 	{
@@ -320,6 +321,7 @@ public abstract class BiblioTileEntity extends TileEntity implements IInventory,
     public void readFromNBT(NBTTagCompound nbt)
     {
         super.readFromNBT(nbt);
+        this.extendedMeta = nbt.getInteger("ExtendedMeta");
         loadNBTData(nbt);
     }
 
@@ -352,6 +354,7 @@ public abstract class BiblioTileEntity extends TileEntity implements IInventory,
 	@Override
     public void writeToNBT(NBTTagCompound nbt)
     {   super.writeToNBT(nbt);
+        nbt.setInteger("ExtendedMeta", this.extendedMeta);
         writeNBTData(nbt);
     }
 

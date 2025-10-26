@@ -11,7 +11,7 @@ import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraftforge.common.util.Constants;
 
-public class TileEntityCookieJar extends BiblioTileEntity implements ITickable
+public class TileEntityCookieJar extends BiblioTileEntity
 {
 	public boolean isOpen = false;
 	public int cookiecount = 0;
@@ -141,7 +141,7 @@ public class TileEntityCookieJar extends BiblioTileEntity implements ITickable
 	int counter = 0;
 
 	@Override
-	public void tick()
+	public void updateEntity()
 	{
 		if (!this.worldObj.isRemote && this.isOpen)
 		{

@@ -7,6 +7,7 @@ import jds.bibliocraft.models.ModelClipboard;
 import jds.bibliocraft.tileentities.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityCase;
 import jds.bibliocraft.tileentities.TileEntityClipboard;
+import jds.bibliocraft.utils.BiblioWoodRegistry;
 import org.lwjgl.opengl.GL11;
 
 import static jds.bibliocraft.CommonProxy.WoolColourTexture;
@@ -46,12 +47,12 @@ public class TileEntityCaseRenderer extends TileEntityBiblioRenderer
         GL11.glRotatef(180.0F, 0.0F, 0.0F, 1.0F);
         this.bindTexture(WoolColourTexture(this.WoolColor));
         this.model.rendercase_inside();
-        this.bindTexture(CommonProxy.VanilaPlankTexture(this.meta));
+        this.bindTexture(BiblioWoodRegistry.getResource(meta));
         this.model.rendercase_bottom();
 
         if (this.openLid)
         {
-            this.bindTexture(CommonProxy.VanilaPlankTexture(this.meta));
+            this.bindTexture(BiblioWoodRegistry.getResource(meta));
             this.model.renderlid_wood_open();
             this.bindTexture(CommonProxy.GLASS);
             this.model.renderlid_glass_open();
@@ -60,7 +61,7 @@ public class TileEntityCaseRenderer extends TileEntityBiblioRenderer
         }
         else
         {
-            this.bindTexture(CommonProxy.VanilaPlankTexture(this.meta));
+            this.bindTexture(BiblioWoodRegistry.getResource(meta));
             this.model.rendercase_lid_wood();
             this.bindTexture(CommonProxy.GLASS);
             this.model.rendercase_lid_glass();
@@ -69,7 +70,7 @@ public class TileEntityCaseRenderer extends TileEntityBiblioRenderer
         }
         GL11.glPopMatrix();
     }
-		renderSlotItem(tile.getStackInSlot(0), 0,0,0, 0.5f,0);
+		renderSlotItem(tile.getStackInSlot(0), 0,0,0, 0.5f);
         tile.getRenderBoundingBox();
 	}
 

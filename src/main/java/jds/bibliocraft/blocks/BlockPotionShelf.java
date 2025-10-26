@@ -1,23 +1,13 @@
 package jds.bibliocraft.blocks;
 
-import java.util.List;
-
-import javax.vecmath.Quat4f;
-import javax.vecmath.Vector3f;
-
-import com.google.common.collect.Lists;
-
 import jds.bibliocraft.BiblioCraft;
 import jds.bibliocraft.Config;
 import jds.bibliocraft.tileentities.BiblioTileEntity;
-import jds.bibliocraft.tileentities.TileEntityBookcase;
 import jds.bibliocraft.tileentities.TileEntityPotionShelf;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
@@ -89,12 +79,6 @@ public class BlockPotionShelf  extends BiblioWoodBlock
 		return new TileEntityPotionShelf();
 	}
 
-//	@Override
-//	public List<String> getModelParts(BiblioTileEntity tile)
-//	{
-////		List<String> modelParts = Lists.newArrayList(OBJModel.Group.ALL);
-//		return List.of();
-//	}
 
 	@Override
 	public void additionalPlacementCommands(BiblioTileEntity biblioTile, EntityLivingBase player)
@@ -102,15 +86,6 @@ public class BlockPotionShelf  extends BiblioWoodBlock
 
 	}
 
-//	@Override
-//	public TRSRTransformation getAdditionalTransforms(TRSRTransformation transform, BiblioTileEntity tile)
-//	{
-//		transform = transform.compose(new TRSRTransformation(new Vector3f(-0.0f, 0.0f, -0.0f),
-//			     new Quat4f(0.0f, 1.0f, 0.0f, 1.0f),
-//			     new Vector3f(1.0f, 1.0f, 1.0f),
-//			     new Quat4f(0.0f, 1.0f, 0.0f, 1.0f)));
-//		return transform;
-//	}
 
 	private static int isWhatShelf(float hitY)
 	{

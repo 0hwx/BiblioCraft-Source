@@ -2,6 +2,8 @@ package jds.bibliocraft;
 
 import java.io.File;
 
+
+import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
@@ -14,6 +16,11 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import jds.bibliocraft.models.ModelToolRack;
+import jds.bibliocraft.rendering.isbrh.SimpleModelRenderer;
+import jds.bibliocraft.utils.BiblioWoodRegistry;
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.client.model.obj.WavefrontObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -33,6 +40,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
+import vazkii.botania.common.block.ModBlocks;
 
 /**
  * BiblioCraft
@@ -104,10 +112,16 @@ public class BiblioCraft
 	public static EnchantmentDeathCompass deathCompassEnch;
 	public static EnchantmentReading readingEnch;
 
+    public static int availablerenderIDs = RenderingRegistry.getNextAvailableRenderId();
+
 	@Mod.EventHandler
 	public void preInit(FMLPreInitializationEvent event)
 	{
 		Config.init(event);
+        BiblioWoodRegistry.init();
+//        RenderingRegistry.registerBlockHandler(new CustomISBRHRender());
+        RenderingRegistry.registerBlockHandler(new SimpleModelRenderer());
+
 		if (Config.enableLamp || Config.enableLantern)
 		{
 			BlockLoader.initLightTab();
@@ -137,6 +151,12 @@ public class BiblioCraft
 		//RecipeSorter.register("bibliocraft:shapedframedwood", RecipeBiblioFramedWood.class, RecipeSorter.Category.SHAPED, "");
 		//RecipeSorter.register("bibliocraft:shapelessframedwood", RecipeShapelessFramedWood.class, RecipeSorter.Category.SHAPELESS, "");
 	}
+
+    @Mod.EventHandler
+    public void init(FMLInitializationEvent event) {
+        // Automatically register vanilla woods
+//        BiblioWoodRegistry.init();
+    }
 
 //	@Mod.EventBusSubscriber(modid=MODID)
 //	public static class RegisterTheThings

@@ -8,7 +8,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.IItemRenderer;
 import org.lwjgl.opengl.GL11;
 
-public class TileEntityCookieJarRenderer extends TileEntityBiblioRenderer implements IItemRenderer {
+public class TileEntityCookieJarRenderer extends TileEntityBiblioRenderer {
    private ModelCookieJar cookieJar = new ModelCookieJar();
    private int Count = 0;
 
@@ -35,15 +35,6 @@ public class TileEntityCookieJarRenderer extends TileEntityBiblioRenderer implem
         for (int i = 0; i < count; i++) {
             cookieJar.renderCookie(i);
         }
-    }
-    @Override
-    public boolean handleRenderType(ItemStack item, ItemRenderType type) {
-        return true;
-    }
-
-    @Override
-    public boolean shouldUseRenderHelper(ItemRenderType type, ItemStack item, ItemRendererHelper helper) {
-        return true;
     }
 
     @Override

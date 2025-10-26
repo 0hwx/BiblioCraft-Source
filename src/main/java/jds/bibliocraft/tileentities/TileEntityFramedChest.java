@@ -13,7 +13,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
 
-public class TileEntityFramedChest extends BiblioTileEntity implements ITickable
+public class TileEntityFramedChest extends BiblioTileEntity
 {
 
     private boolean openChest = false;
@@ -132,7 +132,7 @@ public class TileEntityFramedChest extends BiblioTileEntity implements ITickable
     }
 
 	@Override
-    public void tick()
+    public void updateEntity()
     {
 
         ++this.ticksSinceSync;

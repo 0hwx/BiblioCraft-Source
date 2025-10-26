@@ -1,9 +1,9 @@
 newmtl Default
 Kd 1.00 1.00 1.00
-map_Kd minecraft:blocks/planks_oak
+map_Kd planks_oak.png
 newmtl cloth
 Kd 1.00 1.00 1.00
-map_Kd minecraft:blocks/wool_colored_red
+map_Kd wool_colored_red.png
 newmtl carpet
 Kd 1.00 1.00 1.00
-map_Kd minecraft:blocks/wool_colored_white
+map_Kd wool_colored_white.png

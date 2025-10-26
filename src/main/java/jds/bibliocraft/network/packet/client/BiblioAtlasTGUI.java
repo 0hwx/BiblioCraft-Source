@@ -6,6 +6,7 @@ import io.netty.buffer.ByteBuf;
 import jds.bibliocraft.network.packet.Utils;
 import jds.bibliocraft.tileentities.TileEntityMapFrame;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.item.ItemStack;
 import cpw.mods.fml.common.network.ByteBufUtils;
@@ -62,7 +63,7 @@ public class BiblioAtlasTGUI implements IMessage {
     @SideOnly(Side.CLIENT)
     public static void handleAtlas(ItemStack atlas, int posX, int posY, int posZ)
     {
-        EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+        EntityClientPlayerMP player = Minecraft.getMinecraft().thePlayer;
         final TileEntityMapFrame tile = (TileEntityMapFrame) player.worldObj.getTileEntity(posX, posY, posZ);
         if (tile != null)
         {

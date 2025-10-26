@@ -259,7 +259,7 @@
 //		IModel model = null;
 //		try
 //		{
-//			model = ModelLoaderRegistry.getModel(modelLocation);
+//			model = ModelLoaderRegistry.setModel(modelLocation);
 //			model = model.process(ImmutableMap.of("flip-v", "true"));
 //		}
 //		catch (Exception e)

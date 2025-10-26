@@ -1,7 +1,6 @@
 package jds.bibliocraft.blocks;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 import cpw.mods.fml.client.registry.RenderingRegistry;
@@ -15,7 +14,6 @@ import net.minecraft.block.BlockContainer;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -53,8 +51,6 @@ public abstract class BiblioBlock extends BlockContainer
 		}
 
 		setBlockName("BiblioCraft:" + name);
-//		setUnlocalizedName(name);
-		//setUnlocalizedName("bibliocraft:" + name);
 	}
 
 	@Override
@@ -170,8 +166,6 @@ public abstract class BiblioBlock extends BlockContainer
     {
         ArrayList<ItemStack> retern = new ArrayList<ItemStack>();
         Random rand = world instanceof World ? world.rand : new Random();
-
-        TileEntity tile = world.getTileEntity(x, y, z);
         int count = quantityDropped(metadata, fortune, rand);
         for(int i = 0; i < count; i++)
         {
@@ -282,7 +276,7 @@ public abstract class BiblioBlock extends BlockContainer
 	@Override
 	public int damageDropped(int meta)
 	{
-		return meta;
+        return meta;
 	}
 
 
@@ -315,7 +309,7 @@ public abstract class BiblioBlock extends BlockContainer
     public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase player, ItemStack itemStack)
     {
     	TileEntity tile = world.getTileEntity(x, y, z);
-    	if (tile != null && tile instanceof BiblioTileEntity)
+    	if (tile != null && tile instanceof BiblioTileEntity tileEntity)
     	{
 	        int angle = MathHelper.floor_double(player.rotationYaw * 4.0F / 360.0F + 0.5D) & 3;
 	        ++angle;
@@ -456,84 +450,6 @@ public abstract class BiblioBlock extends BlockContainer
 		}
 		return returnValue;
 	}
-
-//    @Override
-//    protected BlockStateContainer createBlockState()
-//    {
-//    	//return new BlockStateContainer(this, new IProperty[0]);
-//    	return new ExtendedBlockState(this, new IProperty[0], new IUnlistedProperty[]{OBJModel.OBJProperty.INSTANCE});
-//    }
-//
-//    @Override
-//    public IBlockState getStateFromMeta(int meta)
-//    {
-//    	return  this.getDefaultState();
-//    }
-//
-//    @Override
-//    public int getMetaFromState(IBlockState state)
-//    {
-//    	return 0;
-//    }
-
-//    @Override
-//    public IBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos)
-//    {
-//    	ExtendedBlockState exstate = new ExtendedBlockState(this, new IProperty[0], new IUnlistedProperty[]{OBJModel.OBJProperty.INSTANCE});
-//    	exstate = getExtendedBlockStateAlternate(exstate);
-//    	IExtendedBlockState newState = ((IExtendedBlockState) exstate.getBaseState());
-//    	OBJModel.OBJState partList = new OBJModel.OBJState(Lists.newArrayList(OBJModel.Group.ALL), true);
-//    	TileEntity tile = world.getTileEntity(pos);
-//    	if (tile != null && tile instanceof BiblioTileEntity)
-//    	{
-//    		BiblioTileEntity biblioTile = (BiblioTileEntity)tile;
-//    		List<String> modelParts = getModelParts(biblioTile);
-//    		TRSRTransformation transform = new TRSRTransformation(biblioTile.getAngle());
-//    		switch (biblioTile.getShiftPosition())
-//    		{
-//	    		case HALF_SHIFT:
-//	    		{
-//	    			transform = transform.compose(new TRSRTransformation(new Vector3f(0.25f, 0.0f, 0.0f), new Quat4f(0.0f, 0.0f, 0.0f, 1.0f), new Vector3f(1.0f, 1.0f, 1.0f), new Quat4f(0.0f, 0.0f, 0.0f, 1.0f)));
-//	    			break;
-//    			}
-//	    		case FULL_SHIFT:
-//	    		{
-//	    			transform = transform.compose(new TRSRTransformation(new Vector3f(0.5f, 0.0f, 0.0f), new Quat4f(0.0f, 0.0f, 0.0f, 1.0f), new Vector3f(1.0f, 1.0f, 1.0f), new Quat4f(0.0f, 0.0f, 0.0f, 1.0f)));
-//	    			break;
-//	    		}
-//	    		default: break;
-//    		}
-//    		transform = getAdditionalTransforms(transform, biblioTile);
-//    		partList = new OBJModel.OBJState(modelParts, true, transform);
-//    		newState = newState.withProperty(OBJModel.OBJProperty.INSTANCE, partList);
-//    		newState = getIExtendedBlockStateAlternate(biblioTile, newState);
-//    	}
-//
-//    	return getFinalBlockstate(state, newState);
-//    }
-//
-//    public abstract IBlockState getFinalBlockstate(IBlockState state, IBlockState newState);
-//
-//    public abstract TRSRTransformation getAdditionalTransforms(TRSRTransformation transform, BiblioTileEntity tile);
-//
-//    /** This can be used to change the default extended block state for adding additional properties */
-//    public abstract ExtendedBlockState getExtendedBlockStateAlternate(ExtendedBlockState state);
-//
-//    /** Allows changing and adding properties to the IExtendedBlockState that is to be returned */
-//    public abstract IExtendedBlockState getIExtendedBlockStateAlternate(BiblioTileEntity biblioTile, IExtendedBlockState state);
-//
-//    @SideOnly(Side.CLIENT)
-//    @Override
-//    public boolean canRenderInLayer(IBlockState state, BlockRenderLayer layer)
-//    {
-//    	boolean output = false;
-//    	if (layer == layer.CUTOUT)
-//    	{
-//    		output = true;
-//    	}
-//        return output;
-//    }
-
 
     public static boolean isFrontOfBlock(ForgeDirection face, ForgeDirection angle)
     {

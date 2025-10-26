@@ -45,12 +45,6 @@ public class BlockLabel extends BiblioWoodBlock
 		return new TileEntityLabel();
 	}
 
-//	@Override
-//	public List<String> getModelParts(BiblioTileEntity tile)
-//	{
-////		List<String> modelParts = Lists.newArrayList(OBJModel.Group.ALL);
-//		return List.of();
-//	}
 
 	@Override
 	public void additionalPlacementCommands(BiblioTileEntity biblioTile, EntityLivingBase player)
@@ -59,39 +53,25 @@ public class BlockLabel extends BiblioWoodBlock
 
 	}
 
-//	@Override
-//	public TRSRTransformation getAdditionalTransforms(TRSRTransformation transform, BiblioTileEntity tile)
-//	{
-//		transform = transform.compose(new TRSRTransformation(new Vector3f(-0.0f, 0.0f, -0.0f),
-//			     new Quat4f(0.0f, 1.0f, 0.0f, 1.0f),
-//			     new Vector3f(1.0f, 1.0f, 1.0f),
-//			     new Quat4f(0.0f, 1.0f, 0.0f, 1.0f)));
-//		return transform;
-//	}
 
     @Override
-	public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z)
+	public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z) // todo fix the bounding box
 	{
-		AxisAlignedBB output = this.getBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
+
 		TileEntity tile = world.getTileEntity(x, y, z);
 		if (tile != null && tile instanceof TileEntityLabel)
 		{
 			TileEntityLabel labelTile = (TileEntityLabel) tile;
 			switch (labelTile.getAngle())
 			{
-				case SOUTH:{output = this.getBlockBounds(0.94F, 0.12F, 0.28F, 1.0F, 0.38F, 0.72F);break;}
-				case WEST:{output = this.getBlockBounds(0.28F, 0.12F, 0.94F, 0.72F, 0.38F, 1.0F);break;}
-				case NORTH:{output = this.getBlockBounds(0.0F, 0.12F, 0.28F, 0.06F, 0.38F, 0.72F);break;}
-				case EAST:{output = this.getBlockBounds(0.28F, 0.12F, 0.0F, 0.72F, 0.38F, 0.06F);break;}
-				default:break;
+				case SOUTH:{this.setBlockBounds(0.94F, 0.125F, 0.22F, 1.0F, 0.436F, 0.78F);break;}
+				case WEST:{this.setBlockBounds(0.22F, 0.125F, 0.94F, 0.78F, 0.436F, 1.0F);break;}
+				case NORTH:{this.setBlockBounds(0.0F, 0.125F, 0.22F, 0.06F, 0.436F, 0.78F);break;}
+				case EAST:{this.setBlockBounds(0.22F, 0.125F, 0.0F, 0.78F, 0.436F, 0.06F);break;}
+//				default: break;
 			}
 		}
-		return output;
+		return super.getCollisionBoundingBoxFromPool(world, x, y, z);
 	}
 
-//	@Override
-//	public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z)
-//    {
-//        return null;
-//    }
 }

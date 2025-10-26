@@ -1,10 +1,16 @@
 package jds.bibliocraft.entity;
 
+import com.google.common.collect.Lists;
 import jds.bibliocraft.tileentities.TileEntitySeat;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class EntitySeat extends Entity
 {
@@ -42,36 +48,36 @@ public class EntitySeat extends Entity
 	@Override
     public void onEntityUpdate()
     {
-//    	if (counter > 10)
-//    	{
-//
-//	    	if (this.getPassengers() != null && this.getPassengers().size() > 0)
-//	    	{
-//	    		counter = 0;
-//	    	}
-//	    	else
-//	    	{
-//	    		if (this.seatTile == null)
-//	    		{
-//	    			TileEntity tile = this.world.getTileEntity(new BlockPos((int)(this.lastTickPosX-0.5), (int)this.lastTickPosY-1, (int)(this.lastTickPosZ-0.5)));
-//	    			if (tile != null && tile instanceof TileEntitySeat)
-//	    			{
-//	    				this.seatTile = (TileEntitySeat)tile;
-//	    			}
-//	    		}
-//
-//	    		if (seatTile != null)
-//	    		{
-//	    			seatTile.setSitter(false);
-//	    		}
-//	    		this.isDead = true;
-//	    	}
-//    	}
-//    	else
-//    	{
-//    		counter++;
-//    	}
-    	super.onEntityUpdate();
+    	if (counter > 10)
+    	{
+
+	    	if (this.getPassengers() != null && this.getPassengers().size() > 0)
+	    	{
+	    		counter = 0;
+	    	}
+	    	else
+	    	{
+	    		if (this.seatTile == null)
+	    		{
+	    			TileEntity tile = this.worldObj.getTileEntity((int)(this.lastTickPosX-0.5), (int)this.lastTickPosY-1, (int)(this.lastTickPosZ-0.5));
+	    			if (tile != null && tile instanceof TileEntitySeat)
+	    			{
+	    				this.seatTile = (TileEntitySeat)tile;
+	    			}
+	    		}
+
+	    		if (seatTile != null)
+	    		{
+	    			seatTile.setSitter(false);
+	    		}
+	    		this.isDead = true;
+	    	}
+    	}
+    	else
+    	{
+    		counter++;
+    	}
+//    	super.onEntityUpdate();
     }
 
 
@@ -84,4 +90,14 @@ public class EntitySeat extends Entity
 	@Override
 	protected void writeEntityToNBT(NBTTagCompound nbt) { }
 
+    public List<EntityLivingBase> getPassengers() {
+        List<EntityLivingBase> list = new ArrayList<EntityLivingBase>();
+        if (riddenByEntity instanceof EntityLivingBase) {
+            list.add((EntityLivingBase) riddenByEntity);
+            if (this != null && this.riddenByEntity != null) {
+                list.add((EntityLivingBase) this.riddenByEntity);
+            }
+        }
+        return list;
+    }
 }

@@ -71,13 +71,13 @@
 //		this.cache = new ModelCache();
 //	}
 //
-//	private void getModel(IBlockState state, int attempt)
+//	private void setModel(IBlockState state, int attempt)
 //	{
 //		if (this.model == null || (this.model != null && !this.model.toString().contains("obj.OBJModel")))
 //		{
 //	         try
 //	         {
-//	             this.model = ModelLoaderRegistry.getModel(new ResourceLocation(this.modelLocation));
+//	             this.model = ModelLoaderRegistry.setModel(new ResourceLocation(this.modelLocation));
 //	             model = ((IModel)model).process(ImmutableMap.of("flip-v", "true"));
 //	             gotOBJ = true;
 //	         }
@@ -87,7 +87,7 @@
 //	             gotOBJ = false;
 //	             if (attempt < 6)
 //	             {
-//	            	 getModel(state, attempt + 1);
+//	            	 setModel(state, attempt + 1);
 //	            	 return;
 //	             }
 //	         }
@@ -168,7 +168,7 @@
 //				this.metalType = EnumMetalType.IRON;
 //			}
 //		}
-//		getModel(null);
+//		setModel(null);
 //		return this;
 //	}
 //
@@ -176,7 +176,7 @@
 //	@Override
 //	public IBakedModel handleBlockState(IBlockState state)
 //	{
-//		getModel(state);
+//		setModel(state);
 //		return this;
 //	}
 ///*
@@ -343,7 +343,7 @@
 //	@Override
 //	public List<BakedQuad> getQuads(IBlockState state, EnumFacing side, long rand)
 //	{
-//		getModel(state, 0);
+//		setModel(state, 0);
 //		try
 //		{
 //			List<BakedQuad> q = this.baseModel.getQuads(state, side, rand);
@@ -396,7 +396,7 @@
 //					metalType = EnumMetalType.IRON;
 //				}
 //			}
-//			getModel(null, 0);
+//			setModel(null, 0);
 //			return wrapper;
 //		}
 //	}

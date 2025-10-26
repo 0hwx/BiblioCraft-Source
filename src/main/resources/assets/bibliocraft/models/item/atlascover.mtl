@@ -3,4 +3,4 @@ Kd 1.00 1.00 1.00
 map_Kd bibliocraft:gui/atlas_cover
 newmtl pin
 Kd 1.00 1.00 1.00
-map_Kd minecraft:blocks/wool_colored_white
+map_Kd wool_colored_white.png

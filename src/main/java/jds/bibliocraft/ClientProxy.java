@@ -2,9 +2,11 @@ package jds.bibliocraft;
 
 import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.client.registry.RenderingRegistry;
+import jds.bibliocraft.blocks.BlockBell;
 import jds.bibliocraft.blocks.BlockBookcase;
 import jds.bibliocraft.blocks.BlockBookcaseCreative;
 import jds.bibliocraft.blocks.BlockCookieJar;
+import jds.bibliocraft.blocks.BlockDiscRack;
 import jds.bibliocraft.blocks.BlockFancyWorkbench;
 import jds.bibliocraft.blocks.BlockFurniturePaneler;
 import jds.bibliocraft.blocks.BlockLabel;
@@ -24,7 +26,6 @@ import jds.bibliocraft.rendering.TileEntityCookieJarRenderer;
 import jds.bibliocraft.rendering.TileEntityDeskRenderer;
 import jds.bibliocraft.rendering.TileEntityDinnerPlateRenderer;
 import jds.bibliocraft.rendering.TileEntityDiscRackRenderer;
-import jds.bibliocraft.rendering.TileEntityFancySignRenderer;
 import jds.bibliocraft.rendering.TileEntityFancyWorkbenchRenderer;
 import jds.bibliocraft.rendering.TileEntityFramedChestRenderer;
 import jds.bibliocraft.rendering.TileEntityFurniturePanelerRenderer;
@@ -34,12 +35,15 @@ import jds.bibliocraft.rendering.TileEntityPaintPressRenderer;
 import jds.bibliocraft.rendering.TileEntityPaintingRenderer;
 import jds.bibliocraft.rendering.TileEntityPotionShelfRenderer;
 import jds.bibliocraft.rendering.TileEntityPrintPressRenderer;
+import jds.bibliocraft.rendering.TileEntitySeatRenderer;
 import jds.bibliocraft.rendering.TileEntityShelfRenderer;
 import jds.bibliocraft.rendering.TileEntitySwordPedestalRenderer;
 import jds.bibliocraft.rendering.TileEntityTableRenderer;
 import jds.bibliocraft.rendering.TileEntityToolRackRenderer;
 import jds.bibliocraft.rendering.TileEntityTypeWriterRenderer;
+import jds.bibliocraft.rendering.tesr.TESRBell;
 import jds.bibliocraft.tileentities.TileEntityArmorStand;
+import jds.bibliocraft.tileentities.TileEntityBell;
 import jds.bibliocraft.tileentities.TileEntityBookcase;
 import jds.bibliocraft.tileentities.TileEntityCase;
 import jds.bibliocraft.tileentities.TileEntityClipboard;
@@ -58,6 +62,7 @@ import jds.bibliocraft.tileentities.TileEntityPaintPress;
 import jds.bibliocraft.tileentities.TileEntityPainting;
 import jds.bibliocraft.tileentities.TileEntityPotionShelf;
 import jds.bibliocraft.tileentities.TileEntityPrintPress;
+import jds.bibliocraft.tileentities.TileEntitySeat;
 import jds.bibliocraft.tileentities.TileEntityShelf;
 import jds.bibliocraft.tileentities.TileEntitySwordPedestal;
 import jds.bibliocraft.tileentities.TileEntityTable;
@@ -85,7 +90,8 @@ public class ClientProxy extends CommonProxy
 		if (!Config.disablerenderers)
 		{
 			if (Config.enableGenericshelf){
-				ClientRegistry.bindTileEntitySpecialRenderer(TileEntityShelf.class, new TileEntityShelfRenderer());}
+                registerTileEntityAndItemRenderers1(BlockShelf.instance ,TileEntityShelf.class, new TileEntityShelfRenderer());
+            }
 			if (Config.enableClipboard)
 			{
 				ClientRegistry.bindTileEntitySpecialRenderer(TileEntityClipboard.class, new TileEntityClipboardRenderer());
@@ -94,9 +100,9 @@ public class ClientProxy extends CommonProxy
 			if (Config.enableFurniturePaneler){
 				ClientRegistry.bindTileEntitySpecialRenderer(TileEntityFurniturePaneler.class, new TileEntityFurniturePanelerRenderer());}
 			if (Config.enableWoodLabel){
-				ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLabel.class, new TileEntityLabelRenderer());}
+                registerTileEntityAndItemRenderers(BlockLabel.instance, TileEntityLabel.class, new TileEntityLabelRenderer());}
 			if (Config.enableToolrack){
-                registerTileEntityAndItemRenderers(BlockToolRack.instance, TileEntityToolRack.class, new TileEntityToolRackRenderer());
+                registerTileEntityAndItemRenderers1(BlockToolRack.instance, TileEntityToolRack.class, new TileEntityToolRackRenderer());
             }
 			if (Config.enableWeaponcase){
 				ClientRegistry.bindTileEntitySpecialRenderer(TileEntityCase.class, new TileEntityCaseRenderer());}
@@ -120,15 +126,16 @@ public class ClientProxy extends CommonProxy
 			if (Config.enableSwordPedestal){
 				ClientRegistry.bindTileEntitySpecialRenderer(TileEntitySwordPedestal.class, new TileEntitySwordPedestalRenderer());}
 			if (Config.enableDiscRack){
-				ClientRegistry.bindTileEntitySpecialRenderer(TileEntityDiscRack.class, new TileEntityDiscRackRenderer());}
+                registerTileEntityAndItemRenderers(BlockDiscRack.instance, TileEntityDiscRack.class, new TileEntityDiscRackRenderer());}
 			if (Config.enablePainting)
 			{
 				ClientRegistry.bindTileEntitySpecialRenderer(TileEntityPainting.class, new TileEntityPaintingRenderer());
 				ClientRegistry.bindTileEntitySpecialRenderer(TileEntityPaintPress.class,  new TileEntityPaintPressRenderer());
 			}
 			if (Config.enableFancySign){
-				ClientRegistry.bindTileEntitySpecialRenderer(TileEntityFancySign.class, new TileEntityFancySignRenderer());}
+				ClientRegistry.bindTileEntitySpecialRenderer(TileEntityFancySign.class, new TileEntityPaintPressRenderer.TileEntityFancySignRenderer());}
 			if (Config.enableSeat){
+
 				RenderingRegistry.registerEntityRenderingHandler(EntitySeat.class, new EntitySeatRenderer());}
 			if (Config.enablePrintpressTypeMachine){
 				ClientRegistry.bindTileEntitySpecialRenderer(TileEntityPrintPress.class, new TileEntityPrintPressRenderer());}
@@ -138,7 +145,7 @@ public class ClientProxy extends CommonProxy
 			}
 
             if (Config.enableFancyWorkbench){
-                registerTileEntityAndItemRenderers(BlockFancyWorkbench.instance, TileEntityFancyWorkbench.class, new TileEntityFancyWorkbenchRenderer());
+                registerTileEntityAndItemRenderers1(BlockFancyWorkbench.instance, TileEntityFancyWorkbench.class, new TileEntityFancyWorkbenchRenderer());
 			}
             if (Config.enableCookieJar){
                 registerTileEntityAndItemRenderers(BlockCookieJar.instance, TileEntityCookieJar.class, new TileEntityCookieJarRenderer());
@@ -148,8 +155,11 @@ public class ClientProxy extends CommonProxy
 
 		if (Config.enableBookcase)
 		{
-            registerTileEntityAndItemRenderers(BlockBookcase.instance, TileEntityBookcase.class, new TileEntityBookcaseRenderer());
-            registerTileEntityAndItemRenderers(BlockBookcaseCreative.instance, TileEntityBookcase.class, new TileEntityBookcaseRenderer()); // TODO: Fix this to only render books in the creative bookcase
+            MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(BlockBookcase.instance), BlockBookcase.instance);
+            MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(BlockBookcaseCreative.instance), BlockBookcaseCreative.instance);
+
+//            registerTileEntityAndItemRenderers1(BlockBookcase.instance, TileEntityBookcase.class, new TileEntityBookcaseRenderer());
+//            registerTileEntityAndItemRenderers1(BlockBookcaseCreative.instance, TileEntityBookcase.class, new TileEntityBookcaseRenderer()); // TODO: Fix this to only render books in the creative bookcase
 		}
 		if (Config.enableGenericshelf)
 		{
@@ -207,6 +217,7 @@ public class ClientProxy extends CommonProxy
 		}
 		if (Config.enableSeat)
 		{
+            registerTileEntityAndItemRenderers(BlockSeat.instance, TileEntitySeat.class, new TileEntitySeatRenderer());
 			Item item = Item.getItemFromBlock(BlockSeat.instance);
 //			for (int i = 0; i <= BlockLoader.NUMBER_OF_WOODS; i++)
 //			{
@@ -407,11 +418,10 @@ public class ClientProxy extends CommonProxy
 //			}
 //			ModelLoader.setCustomStateMapper(BlockArmorStand.instance, BiblioBlockStateMapper.instance);
 		}
-//		if (Config.enableDeskBell)
-//		{
-//			ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(BlockBell.instance), 0, ModelBell.modelResourceLocation);
-//			ModelLoader.setCustomStateMapper(BlockBell.instance, BiblioBlockStateMapper.instance);
-//		}
+		if (Config.enableDeskBell)
+		{
+            registerTileEntityAndItemRenderers(BlockBell.instance, TileEntityBell.class, new TESRBell());
+		}
 //		if (Config.enableCookieJar)
 //		{
 //			ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(BlockCookieJar.instance), 0, ModelCookieJar.modelResourceLocation);
@@ -515,6 +525,12 @@ public class ClientProxy extends CommonProxy
     {
         ClientRegistry.bindTileEntitySpecialRenderer(tileEntityClass, specialRenderer);
         MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(block), (IItemRenderer) specialRenderer);
+    }
+
+    private static void registerTileEntityAndItemRenderers1(Block block , Class <? extends TileEntity> tileEntityClass, TileEntitySpecialRenderer specialRenderer)
+    {
+        ClientRegistry.bindTileEntitySpecialRenderer(tileEntityClass, specialRenderer);
+        MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(block), (IItemRenderer) block);
     }
 
 	@SideOnly(Side.CLIENT)

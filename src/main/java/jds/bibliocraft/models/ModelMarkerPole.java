@@ -51,13 +51,13 @@
 //		this.wrapper = this;
 //	}
 //
-//	private void getModel(IBlockState state)
+//	private void setModel(IBlockState state)
 //	{
 //	   if (this.model == null || (this.model != null && !this.model.toString().contains("obj.OBJModel")))
 //        {
 //	         try
 //	         {
-//	             this.model = ModelLoaderRegistry.getModel(new ResourceLocation("bibliocraft:block/markerpole.obj"));
+//	             this.model = ModelLoaderRegistry.setModel(new ResourceLocation("bibliocraft:block/markerpole.obj"));
 //	         }
 //	         catch (Exception e)
 //	         {
@@ -190,7 +190,7 @@
 //	@Override
 //	public List<BakedQuad> getQuads(IBlockState state, EnumFacing side, long rand)
 //	{
-//		getModel(state);
+//		setModel(state);
 //		try
 //		{
 //			List<BakedQuad> q = this.baseModel.getQuads(state, side, rand);
@@ -219,7 +219,7 @@
 //		@Override
 //		public IBakedModel handleItemState(@Nonnull IBakedModel originalModel, ItemStack stack, @Nonnull World world, @Nonnull EntityLivingBase entity)
 //		{
-//			getModel(null);
+//			setModel(null);
 //			return wrapper;
 //		}
 //	}

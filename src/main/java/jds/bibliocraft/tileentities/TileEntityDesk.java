@@ -20,7 +20,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.storage.MapData;
 import net.minecraftforge.common.util.ForgeDirection;
 
-public class TileEntityDesk extends BiblioTileEntity implements ITickable, ISidedInventory
+public class TileEntityDesk extends BiblioTileEntity implements ISidedInventory
 {
 	public int leftStack;
 	public int rightStack;
@@ -277,7 +277,7 @@ public class TileEntityDesk extends BiblioTileEntity implements ITickable, ISide
 
 	int count = 0;
 	@Override
-	public void tick()
+	public void updateEntity()
 	{
 		if (!this.worldObj.isRemote)
 		{

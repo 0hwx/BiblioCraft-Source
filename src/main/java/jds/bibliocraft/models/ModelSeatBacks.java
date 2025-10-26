@@ -240,7 +240,7 @@
 //	        {
 //		         try
 //		         {
-//		            model = ModelLoaderRegistry.getModel(new ResourceLocation("bibliocraft:block/seat.obj"));
+//		            model = ModelLoaderRegistry.setModel(new ResourceLocation("bibliocraft:block/seat.obj"));
 //		            model = model.process(ImmutableMap.of("flip-v", "true"));
 //		            gotOBJ = true;
 //		         }

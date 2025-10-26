@@ -1,18 +1,30 @@
 package jds.bibliocraft.blocks;
 
-import java.util.List;
-
-import com.google.common.collect.Lists;
-
 import jds.bibliocraft.BiblioCraft;
 import jds.bibliocraft.containers.ContainerWeaponRack;
+import jds.bibliocraft.rendering.isbrh.obj.EnumObjModels;
+import jds.bibliocraft.rendering.isbrh.obj.ObjBuilder;
+import jds.bibliocraft.rendering.isbrh.obj.ObjContext;
 import jds.bibliocraft.tileentities.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityToolRack;
+import jds.bibliocraft.utils.BiblioWoodRegistry;
+import net.minecraft.block.Block;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.IIcon;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.client.IItemRenderer;
+import net.minecraftforge.client.model.AdvancedModelLoader;
+import net.minecraftforge.client.model.obj.WavefrontObject;
 import net.minecraftforge.common.util.ForgeDirection;
+import org.lwjgl.opengl.GL11;
 
 
 public class BlockToolRack extends BiblioWoodBlock
@@ -20,7 +32,7 @@ public class BlockToolRack extends BiblioWoodBlock
 	public static final String name = "ToolRack";
 	public static final BlockToolRack instance = new BlockToolRack();
 
-	public BlockToolRack()
+    public BlockToolRack()
 	{
 		super(name, true);
 	}
@@ -63,12 +75,6 @@ public class BlockToolRack extends BiblioWoodBlock
 		return new TileEntityToolRack();
 	}
 
-//	@Override
-//	public List<String> getModelParts(BiblioTileEntity tile)
-//	{
-////		List<String> modelParts = Lists.newArrayList(OBJModel.Group.ALL);
-//		return List.of();
-//	}
 
 	@Override
 	public void additionalPlacementCommands(BiblioTileEntity biblioTile, EntityLivingBase player)
@@ -77,9 +83,61 @@ public class BlockToolRack extends BiblioWoodBlock
 
 	}
 
-//	@Override
-//	public TRSRTransformation getAdditionalTransforms(TRSRTransformation transform, BiblioTileEntity tile)
-//	{
-//		return transform;
-//	}
+    @Override
+    public void renderItem(IItemRenderer.ItemRenderType type, ItemStack item, Object... data) {
+        switch (type) {
+            case INVENTORY:
+                renderItemToolRack(0, -0.5D, -0.25D,180.0D, item.getItemDamage());
+                return;
+            case EQUIPPED_FIRST_PERSON:
+                renderItemToolRack(-0.25D, 0.25D, 0.25D, 45.0D, item.getItemDamage());
+                return;
+            case EQUIPPED:
+                renderItemToolRack(-0.5D, 0, 0.25D, 90.0D, item.getItemDamage());
+                return;
+            default:
+                renderItemToolRack(0, -0.5D, -0.25D, 0, item.getItemDamage());
+        }
+    }
+
+
+    @Override
+    public boolean renderWorldBlock(IBlockAccess world, int x, int y, int z, Block block, Tessellator tes) {
+        tes.setBrightness(block.getMixedBrightnessForBlock(world, x, y, z));
+        tes.setColorOpaque_F(1, 1, 1);
+        tes.addTranslation(x + 0.5F, y, z + 0.5F);
+        BiblioTileEntity tile = (BiblioTileEntity)world.getTileEntity(x, y, z);
+        ObjContext ctx = new ObjContext(world, x, y, z, tile.getAngle(), tile.getVertPosition(), tile.getShiftPosition());
+        ObjBuilder obj = new ObjBuilder(tes).setContext(ctx);
+
+        renderToolRack(obj, world.getBlockMetadata(x, y, z));
+
+//        tes.addTranslation(-x - .5F, -y - .5F, -z - .5F);
+        return true;
+    }
+
+
+    public void renderItemToolRack(double x, double y, double z, double rotate, int meta) {
+        final Tessellator tes = Tessellator.instance;
+        RenderHelper.disableStandardItemLighting();
+        GL11.glRotated(rotate, 0.0D, 1.0D, 0.0D);
+        GL11.glTranslated(x, y, z);
+        ObjContext ctx = new ObjContext(null, x, y, z);
+        ObjBuilder obj = new ObjBuilder(tes).setContext(ctx);
+        obj.start();
+        renderToolRack(obj , meta);
+        obj.end();
+        RenderHelper.enableStandardItemLighting();
+    }
+
+    public void renderToolRack(ObjBuilder obj , int meta) {
+        String[] Wood = {"bottom","top","left","right","center"};
+        String[] nub = {"nub0","nub1","nub2","nub3","nub4","nub5","nub6","nub7"};
+
+        IIcon woodIcon = BiblioWoodRegistry.getIcon(meta);
+        IIcon metalIcon = Blocks.iron_block.getIcon(0,0);
+        obj.setModel(EnumObjModels.TOOL_RACK);
+        obj.renderPart(Wood, woodIcon);
+        obj.renderPart(nub, metalIcon);
+    }
 }

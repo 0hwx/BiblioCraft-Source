@@ -1,0 +1,6 @@
+# Made in Blockbench 4.12.3
+newmtl iron_block
+map_Kd iron_block.png
+newmtl stone
+map_Kd stone.png
+newmtl none

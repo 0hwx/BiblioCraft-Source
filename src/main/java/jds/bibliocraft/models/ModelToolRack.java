@@ -7,7 +7,7 @@ import net.minecraftforge.client.model.IModelCustom;
 
 public class ModelToolRack
 {
-    private IModelCustom model = AdvancedModelLoader.loadModel(new ResourceLocation("bibliocraft", "models/block/toolrack.obj"));
+    public static IModelCustom model = AdvancedModelLoader.loadModel(new ResourceLocation("bibliocraft", "models/block/toolrack.obj"));
 
 	public ModelToolRack() {}
 

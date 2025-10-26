@@ -49,6 +49,7 @@ import net.minecraft.tileentity.TileEntityDispenser;
 import net.minecraft.tileentity.TileEntityEnderChest;
 import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
@@ -61,23 +62,23 @@ public class ItemDrill extends Item
 	private TileEntity tile1;
 	private TileEntity tile2;
 
-	private static String sSelectedPainting1 = I18n.format("screwgun.selected.painting1");
-	private static String sSelectedPainting2 = I18n.format("screwgun.selected.painting2");
+	private static String sSelectedPainting1 = StatCollector.translateToLocal("screwgun.selected.painting1");
+	private static String sSelectedPainting2 = StatCollector.translateToLocal("screwgun.selected.painting2");
 
-	private static String sSelectedClock1 = I18n.format("screwgun.selected.clock1");
-	private static String sSelectedClock2 = I18n.format("screwgun.selected.clock2");
+	private static String sSelectedClock1 = StatCollector.translateToLocal("screwgun.selected.clock1");
+	private static String sSelectedClock2 = StatCollector.translateToLocal("screwgun.selected.clock2");
 
-	private static String sSelectedSeat1 = I18n.format("screwgun.firstSeat");
-	private static String sSelectedSeat2 = I18n.format("screwgun.secondSeat");
+	private static String sSelectedSeat1 = StatCollector.translateToLocal("screwgun.firstSeat");
+	private static String sSelectedSeat2 = StatCollector.translateToLocal("screwgun.secondSeat");
 
-	private static String sSelectedDesk1 = I18n.format("screwgun.selected.desk1");
-	private static String sSelectedDesk2 = I18n.format("screwgun.selected.desk2");
+	private static String sSelectedDesk1 = StatCollector.translateToLocal("screwgun.selected.desk1");
+	private static String sSelectedDesk2 = StatCollector.translateToLocal("screwgun.selected.desk2");
 
-	private static String sSelectedChest1 = I18n.format("screwgun.selected.chest1");
-	private static String sSelectedChest2 = I18n.format("screwgun.selected.chest2");
+	private static String sSelectedChest1 = StatCollector.translateToLocal("screwgun.selected.chest1");
+	private static String sSelectedChest2 = StatCollector.translateToLocal("screwgun.selected.chest2");
 
-	//private static String sConnected = I18n.format("drill.connected");
-	private static String sFailed = I18n.format("drill.failed");
+	//private static String sConnected = StatCollector.translateToLocal("drill.connected");
+	private static String sFailed = StatCollector.translateToLocal("drill.failed");
 
 	public boolean showText = false;
 	public boolean showTextChanged = false;
@@ -1209,7 +1210,7 @@ public class ItemDrill extends Item
 						{
 							// should do this in the packet handler
 							// send a packet here
-							//player.addChatMessage(new ChatComponentText(I18n.format("screwgun.secondSeat")));
+							//player.addChatMessage(new ChatComponentText(StatCollector.translateToLocal("screwgun.secondSeat")));
 							//this.showTextString = this.sSelectedSeat2;
 							this.sendPacketToClient(this.sSelectedSeat2, (EntityPlayerMP)player);
 							//System.out.println("we got the Second tile");

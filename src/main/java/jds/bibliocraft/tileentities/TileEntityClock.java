@@ -8,7 +8,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 
-public class TileEntityClock extends BiblioTileEntity implements ITickable
+public class TileEntityClock extends BiblioTileEntity
 {
 
 	//private int clockType = 0; // 0 = small, 1 = large bottom, 2, = large top
@@ -77,7 +77,7 @@ public class TileEntityClock extends BiblioTileEntity implements ITickable
 
 
     @Override
-    public void tick()
+    public void updateEntity()
     {
     	if (this.getVertPosition() != EnumVertPosition.FLOOR)
     	{

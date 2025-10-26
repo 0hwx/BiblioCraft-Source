@@ -28,7 +28,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 
 
-public class TileEntityTypeMachine extends BiblioTileEntity implements ITickable
+public class TileEntityTypeMachine extends BiblioTileEntity
 {
 	public String nameofbook = I18n.format("typesetting.bookSelect");
 	public boolean bookIsSaved;
@@ -878,7 +878,7 @@ public class TileEntityTypeMachine extends BiblioTileEntity implements ITickable
 //	}
 
 	@Override
-	public void tick()
+	public void updateEntity()
 	{
 		if (!worldObj.isRemote)
 		{

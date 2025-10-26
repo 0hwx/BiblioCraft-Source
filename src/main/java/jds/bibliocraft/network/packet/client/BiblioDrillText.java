@@ -3,6 +3,7 @@ package jds.bibliocraft.network.packet.client;
 import io.netty.buffer.ByteBuf;
 import jds.bibliocraft.items.ItemDrill;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.item.ItemStack;
 import cpw.mods.fml.common.network.ByteBufUtils;
@@ -32,7 +33,7 @@ public class BiblioDrillText implements IMessage {
         @Override
         public IMessage onMessage(BiblioDrillText message, MessageContext ctx) {
             Minecraft.getMinecraft().func_152344_a(() -> {
-                EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+                EntityClientPlayerMP player = Minecraft.getMinecraft().thePlayer;
                 ItemStack playerhand = player.getHeldItem();
                 if (playerhand != null && playerhand.getItem() instanceof ItemDrill)
                 {

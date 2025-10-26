@@ -12,6 +12,7 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
 
 
+
 public class BlockBell extends BiblioSimpleBlock
 {
 	public static final BlockBell instance = new BlockBell();
@@ -52,4 +53,6 @@ public class BlockBell extends BiblioSimpleBlock
 	{
 		return true;
 	}
+
+
 }

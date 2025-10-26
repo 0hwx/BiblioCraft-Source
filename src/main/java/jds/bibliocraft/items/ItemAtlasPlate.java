@@ -24,7 +24,7 @@ public class ItemAtlasPlate extends Item
 		setMaxStackSize(1);
 		setUnlocalizedName(name);
 		setCreativeTab(BlockLoader.biblioTab);
-		setUnlocalizedName(name);
+//		setUnlocalizedName(name);
 	}
 
 	@Override

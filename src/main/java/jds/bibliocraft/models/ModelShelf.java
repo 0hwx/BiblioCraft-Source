@@ -1,20 +1,21 @@
-//package jds.bibliocraft.models;
-//
-//import jds.bibliocraft.blocks.BlockShelf;
-//import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-//
-//public class ModelShelf extends BiblioModelWood
-//{
-//	public static final ModelResourceLocation modelResourceLocation = new ModelResourceLocation("bibliocraft:" + BlockShelf.name);
-//
-//	public ModelShelf()
-//	{
-//		super("bibliocraft:block/shelf.obj");
-//	}
-//
-//	@Override
-//	public String getTextureLocation(String resourceLocation, String textureLocation)
-//	{
-//		return textureLocation;
-//	}
-//}
+package jds.bibliocraft.models;
+
+
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.model.AdvancedModelLoader;
+import net.minecraftforge.client.model.IModelCustom;
+import net.minecraftforge.client.model.obj.WavefrontObject;
+
+public class ModelShelf
+{
+    public WavefrontObject model = (WavefrontObject) AdvancedModelLoader.loadModel(new ResourceLocation("bibliocraft", "models/block/shelf.obj"));
+
+    public ModelShelf() {}
+
+    public void renderShelf() {
+        this.model.renderPart("shelf");
+    }
+    public void renderShelfTop() {
+        this.model.renderPart("shelftop");
+    }
+}

@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableMap;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.world.World;
+import net.minecraftforge.client.IItemRenderer;
 import net.minecraftforge.common.util.ForgeDirection;
 import org.lwjgl.opengl.GL11;
 
@@ -32,7 +33,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.storage.MapData;
 
 
-public abstract class TileEntityBiblioRenderer extends TileEntitySpecialRenderer
+public abstract class TileEntityBiblioRenderer extends TileEntitySpecialRenderer implements IItemRenderer
 {
 	private static final ResourceLocation RES_MAP_BACKGROUND = new ResourceLocation("textures/map/map_background.png");
 	Minecraft mc = Minecraft.getMinecraft();
@@ -45,7 +46,6 @@ public abstract class TileEntityBiblioRenderer extends TileEntitySpecialRenderer
 	public double globalX;
 	public double globalY;
 	public double globalZ;
-	public Tessellator tessellator; // todo check it causes problems
 
 	private RenderItem itemRenderer;
 	private RenderManager renderManager = RenderManager.instance;
@@ -65,11 +65,26 @@ public abstract class TileEntityBiblioRenderer extends TileEntitySpecialRenderer
 		}
 		xshift = 0.0f;
 		zshift = 0.0f;
-	    if (this.itemRenderer == null || this.tessellator == null)
+	    if (this.itemRenderer == null)
 	    {
-	    	this.itemRenderer = RenderItem.getInstance();
-	    	this.tessellator = Tessellator.instance;
+            itemRenderer = new RenderItem() {
 
+                @Override
+                public byte getMiniBlockCount(ItemStack stack, byte original) {
+                    return 1;
+                }
+
+                @Override
+                public boolean shouldBob() {
+                    return false;
+                }
+
+                @Override
+                public boolean shouldSpreadItems() {
+                    return false;
+                }
+            };
+            this.itemRenderer.setRenderManager(this.renderManager);
 	    }
 	    float halfShift = 0.25f;
 	    float fullShift = 0.5f;
@@ -170,7 +185,7 @@ public abstract class TileEntityBiblioRenderer extends TileEntitySpecialRenderer
         renderSlotItem(stack, x, y, z, scale, 0);
     }
 
-    public void renderSlotItem(ItemStack stack, double x, double y, double z, float scale, float rotate)
+    public void renderSlotItem(ItemStack stack , double x, double y, double z, float scale, float rotate)
     {
         if (stack != null && stack.stackSize != 0)
         {
@@ -229,7 +244,6 @@ public abstract class TileEntityBiblioRenderer extends TileEntitySpecialRenderer
             }
             GL11.glScalef(scale, scale, scale);
             GL11.glRotatef(rotate, 1.0F, 0.0F, 0.0F);
-            this.itemRenderer.setRenderManager(this.renderManager);
             this.itemRenderer.doRender(entityItem, 0.0D, 0.0D, 0.0D, 0.0F, 0.0F);
             GL11.glPopMatrix();
         }
@@ -342,4 +356,18 @@ public abstract class TileEntityBiblioRenderer extends TileEntitySpecialRenderer
 	{
 
 	}
+
+    @Override
+    public boolean handleRenderType(ItemStack item, ItemRenderType type) {
+        return true;
+    }
+
+    @Override
+    public boolean shouldUseRenderHelper(ItemRenderType type, ItemStack item, ItemRendererHelper helper) {
+        return true;
+    }
+
+    @Override
+    public void renderItem(ItemRenderType type, ItemStack item, Object... data) {
+    }
 }

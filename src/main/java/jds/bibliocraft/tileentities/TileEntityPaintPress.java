@@ -7,7 +7,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
-public class TileEntityPaintPress extends BiblioTileEntity implements ITickable
+public class TileEntityPaintPress extends BiblioTileEntity
 {
 	public int selectedPaintingType = 0;
 	public String selectedPaintingTitle = "blank";
@@ -167,7 +167,7 @@ public class TileEntityPaintPress extends BiblioTileEntity implements ITickable
     }
 
     @Override
-    public void tick()
+    public void updateEntity()
     {
 
     		if (this.cycleLid)

@@ -12,10 +12,6 @@ public class BlockBookcaseCreative extends BlockBookcase
 	public BlockBookcaseCreative()
 	{
 		super(name);
-		//setUnlocalizedName(name);
-		//setUnlocalizedName(BlockBookcase.name);
-		//setUnlocalizedName(name);
-		//setUnlocalizedName("bibliocraft:" + name);
 	}
 
 	@Override

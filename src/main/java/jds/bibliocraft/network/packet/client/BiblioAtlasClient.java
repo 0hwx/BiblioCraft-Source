@@ -2,6 +2,7 @@ package jds.bibliocraft.network.packet.client;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.item.ItemStack;
 import cpw.mods.fml.common.network.ByteBufUtils;
@@ -31,7 +32,7 @@ public class BiblioAtlasClient implements IMessage {
         @Override
         public IMessage onMessage(BiblioAtlasClient message, MessageContext ctx) {
             Minecraft.getMinecraft().func_152344_a(() -> {
-                EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+                EntityClientPlayerMP player = Minecraft.getMinecraft().thePlayer;
                 // TODO: current item might have changed (on server) before we set it? not sure.
                 player.inventory.setInventorySlotContents(player.inventory.currentItem, message.atlas);
             });

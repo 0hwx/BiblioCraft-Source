@@ -29,7 +29,7 @@ import net.minecraft.nbt.NBTTagString;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 
-public class TileEntityTypewriter extends BiblioTileEntity implements ITickable
+public class TileEntityTypewriter extends BiblioTileEntity
 {
 	private BookGenUtil bookgen;
 	public int bookWriteCounts = 0;
@@ -190,7 +190,7 @@ public class TileEntityTypewriter extends BiblioTileEntity implements ITickable
     private int counter = 0;
 
     @Override
-    public void tick()
+    public void updateEntity()
     {
     	if (counter == 100 && !this.worldObj.isRemote)
     	{

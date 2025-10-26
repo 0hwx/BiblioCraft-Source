@@ -54,7 +54,7 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraftforge.common.util.ForgeDirection;
 
 
-public class TileEntitySeat extends BiblioTileEntity implements ITickable
+public class TileEntitySeat extends BiblioTileEntity
 {
 	public int hasBack;
 	public boolean northConnect;
@@ -76,7 +76,7 @@ public class TileEntitySeat extends BiblioTileEntity implements ITickable
 	}
 
 	 @Override
-    public void tick()
+    public void updateEntity()
     {
 		if (!hasSitter)
 		{

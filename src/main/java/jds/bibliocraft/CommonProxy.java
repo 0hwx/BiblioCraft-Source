@@ -187,6 +187,11 @@ public class CommonProxy
     public static final ResourceLocation IRON = new ResourceLocation("textures/blocks/iron_block.png");
     public static final ResourceLocation COOKIE = new ResourceLocation("textures/items/cookie.png");
 
+    public static final ResourceLocation Bell = new ResourceLocation("bibliocraft", "textures/models/bell.png");
+
+
+    public static final ResourceLocation DiscRack = new ResourceLocation("bibliocraft", "textures/models/discrack.png");
+
 
     public static final ResourceLocation CRAFTINGTOP = new ResourceLocation("textures/blocks/crafting_table_top.png");
     public static final ResourceLocation WORKBENCH_SIDES = new ResourceLocation("bibliocraft","textures/models/benchsides.png");
@@ -314,21 +319,21 @@ public class CommonProxy
             case 1:
                 return BLACKWOOL;
             case 2:
-                return new ResourceLocation("textures/blocks/wool_colours.png");
+                return new ResourceLocation("textures/blocks/wool_colored_brown.png");
             case 3:
-                return new ResourceLocation("textures/blocks/wool_colours.png");
+                return new ResourceLocation("textures/blocks/wool_colored_brown.png");
             case 4:
-                return new ResourceLocation("textures/blocks/wool_colours.png");
+                return new ResourceLocation("textures/blocks/wool_colored_brown.png");
             case 5:
-                return new ResourceLocation("textures/blocks/wool_colours.png");
+                return new ResourceLocation("textures/blocks/wool_colored_brown.png");
             case 6:
-                return new ResourceLocation("textures/blocks/wool_colours.png");
+                return new ResourceLocation("textures/blocks/wool_colored_brown.png");
             case 7:
-                return new ResourceLocation("textures/blocks/wool_colours.png");
+                return new ResourceLocation("textures/blocks/wool_colored_brown.png");
             case 8:
-                return new ResourceLocation("textures/blocks/wool_colours.png");
+                return new ResourceLocation("textures/blocks/wool_colored_brown.png");
             default:
-                return new ResourceLocation("textures/blocks/wool_colours.png");
+                return new ResourceLocation("textures/blocks/wool_colored_brown.png");
         }
     }
 }

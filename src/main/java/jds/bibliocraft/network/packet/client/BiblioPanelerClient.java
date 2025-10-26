@@ -6,6 +6,7 @@ import jds.bibliocraft.network.BiblioNetworking;
 import jds.bibliocraft.network.packet.server.BiblioPaneler;
 import jds.bibliocraft.tileentities.TileEntityFurniturePaneler;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -54,7 +55,7 @@ public class BiblioPanelerClient implements IMessage {
         @Override
         public IMessage onMessage(BiblioPanelerClient message, MessageContext ctx) {
             Minecraft.getMinecraft().func_152344_a(() -> {
-                EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+                EntityClientPlayerMP player = Minecraft.getMinecraft().thePlayer;
                 String panelTextureName = "none";
                 if (message.panels != null) {
                     panelTextureName = BiblioRenderHelper.getBlockTextureString(message.panels);

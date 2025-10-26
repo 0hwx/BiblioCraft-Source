@@ -1,21 +1,25 @@
 package jds.bibliocraft.blocks;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.google.common.collect.Lists;
 
 import jds.bibliocraft.BiblioCraft;
+import jds.bibliocraft.rendering.isbrh.obj.EnumObjModels;
+import jds.bibliocraft.rendering.isbrh.obj.ObjBuilder;
+import jds.bibliocraft.rendering.isbrh.obj.ObjContext;
 import jds.bibliocraft.tileentities.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityShelf;
+import jds.bibliocraft.utils.BiblioWoodRegistry;
 import net.minecraft.block.Block;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.IIcon;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-
+import net.minecraftforge.client.IItemRenderer;
+import org.lwjgl.opengl.GL11;
 
 
 public class BlockShelf extends BiblioWoodBlock
@@ -85,22 +89,6 @@ public class BlockShelf extends BiblioWoodBlock
 		return new TileEntityShelf();
 	}
 
-//	@Override
-//	public List<String> getModelParts(BiblioTileEntity tile)
-//	{
-////		List<String> modelParts = Lists.newArrayList(OBJModel.Group.ALL);
-////		if (tile instanceof TileEntityShelf)
-////		{
-////			TileEntityShelf shelf = (TileEntityShelf)tile;
-////	    	boolean hasTop = shelf.getTop();
-////	    	if (!hasTop)
-////	    	{
-////	    		modelParts = new ArrayList<String>();
-////	    		modelParts.add("shelf_bottom");
-////	    	}
-////		}
-//		return List.of();
-//	}
 
 	private boolean checkIfIsBackOfBlock(int angle, int face)
 	{
@@ -138,13 +126,60 @@ public class BlockShelf extends BiblioWoodBlock
 		    }
 		}
 	}
-    public void registerBlockIcons(IIconRegister icon) {
-        this.blockIcon = icon.registerIcon("planks_spruce");
+    @Override
+    public void renderItem(IItemRenderer.ItemRenderType type, ItemStack item, Object... data) {
+        switch (type) {
+            case INVENTORY:
+                renderItemShelf(0, -0.5D, -0.25D,180.0D, item.getItemDamage());
+                return;
+            case EQUIPPED_FIRST_PERSON:
+                renderItemShelf(-0.25D, 0.25D, 0.25D, 45.0D, item.getItemDamage());
+                return;
+            case EQUIPPED:
+                renderItemShelf(-0.5D, 0, 0.25D, 90.0D, item.getItemDamage());
+                return;
+            default:
+                renderItemShelf(0, -0.5D, -0.25D,0, item.getItemDamage());
+        }
     }
 
-//	@Override
-//	public TRSRTransformation getAdditionalTransforms(TRSRTransformation transform, BiblioTileEntity tile)
-//	{
-//		return transform;
-//	}
+
+    @Override
+    public boolean renderWorldBlock(IBlockAccess world, int x, int y, int z, Block block,Tessellator tes) {
+        tes.setBrightness(block.getMixedBrightnessForBlock(world, x, y, z));
+        tes.setColorOpaque_F(1, 1, 1);
+        tes.addTranslation(x + 0.5F, y, z + 0.5F);
+        TileEntityShelf tile = (TileEntityShelf)world.getTileEntity(x, y, z);
+        ObjContext ctx = new ObjContext(world, x, y, z, tile.getAngle(), tile.getVertPosition(), tile.getShiftPosition());
+        ObjBuilder obj = new ObjBuilder(tes).setContext(ctx);
+
+        renderShelf(obj, world.getBlockMetadata(x, y, z), tile.getTop());
+
+//        tes.addTranslation(-x - .5F, -y - .5F, -z - .5F);
+        return true;
+    }
+
+
+    public void renderItemShelf(double x, double y, double z, double rotate, int meta) {
+        final Tessellator tes = Tessellator.instance;
+        RenderHelper.disableStandardItemLighting();
+        GL11.glRotated(rotate, 0.0D, 1.0D, 0.0D);
+        GL11.glTranslated(x, y, z);
+        ObjContext ctx = new ObjContext(null, x, y, z);
+        ObjBuilder obj = new ObjBuilder(tes).setContext(ctx);
+        obj.start();
+        renderShelf(obj , meta,true);
+        obj.end();
+        RenderHelper.enableStandardItemLighting();
+    }
+
+    public void renderShelf(ObjBuilder obj , int meta,boolean top) {
+        IIcon woodIcon = BiblioWoodRegistry.getIcon(meta);
+        obj.setModel(EnumObjModels.SHELF);
+
+        if (top){
+            obj.renderPart("shelftop", woodIcon);
+        }
+        obj.renderPart("shelf", woodIcon);
+    }
 }

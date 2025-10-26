@@ -9,6 +9,7 @@ import jds.bibliocraft.items.ItemClipboard;
 import jds.bibliocraft.items.ItemRecipeBook;
 import jds.bibliocraft.network.packet.Utils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -76,7 +77,7 @@ public class BiblioDeskOpenGui implements IMessage {
     @SideOnly(Side.CLIENT)
     public static void handleBook(ItemStack book, int x, int y, int z, Item signedtest, boolean canCraft)
     {
-        EntityPlayer player = Minecraft.getMinecraft().thePlayer;
+        EntityClientPlayerMP player = Minecraft.getMinecraft().thePlayer;
         if (signedtest instanceof ItemWritableBook) {
             Utils.openWritingGUI(player, book, x, y, z, false);
             // signedtest.onItemRightClick(book, world, player);

@@ -3,6 +3,7 @@ package jds.bibliocraft.network.packet.client;
 import io.netty.buffer.ByteBuf;
 import jds.bibliocraft.items.ItemRecipeBook;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.item.ItemStack;
 import cpw.mods.fml.common.network.ByteBufUtils;
@@ -36,7 +37,7 @@ public class BiblioRecipeText implements IMessage {
         @Override
         public IMessage onMessage(BiblioRecipeText message, MessageContext ctx) {
             Minecraft.getMinecraft().func_152344_a(() -> {
-                EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+                EntityClientPlayerMP player = Minecraft.getMinecraft().thePlayer;
                 ItemStack currentBook = player.inventory.getStackInSlot(message.currentSlot);
                 if (currentBook != null) {
                     if (currentBook.getItem() instanceof ItemRecipeBook) {

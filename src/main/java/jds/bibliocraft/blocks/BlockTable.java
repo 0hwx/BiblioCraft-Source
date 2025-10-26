@@ -1,11 +1,5 @@
 package jds.bibliocraft.blocks;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.vecmath.Quat4f;
-import javax.vecmath.Vector3f;
-
 import jds.bibliocraft.BiblioCraft;
 import jds.bibliocraft.helpers.EnumColor;
 import jds.bibliocraft.items.ItemDrill;
@@ -172,112 +166,6 @@ public class BlockTable extends BiblioWoodBlock
 		return new TileEntityTable();
 	}
 
-//	@Override
-//	public List<String> getModelParts(BiblioTileEntity tile)
-//	{
-//		List<String> modelParts = new ArrayList<String>();
-//		modelParts.add("monoleg");
-//		modelParts.add("tableBevel01");
-//		modelParts.add("tableBevel02");
-//		modelParts.add("tableBevel03");
-//		modelParts.add("tableBevel04");
-//
-//		if (tile instanceof TileEntityTable)
-//		{
-//			TileEntityTable table = (TileEntityTable)tile;
-//			modelParts = new ArrayList<String>();
-//			if (table.getMonoleg())
-//				modelParts.add("monoleg");
-//			if (table.getLeg1())
-//				modelParts.add("leg01");
-//			if (table.getLeg2())
-//				modelParts.add("leg02");
-//			if (table.getLeg3())
-//				modelParts.add("leg03");
-//			if (table.getLeg4())
-//				modelParts.add("leg04");
-//			if (table.getTop1())
-//			{
-//				modelParts.add("tableBevel01");
-//				if (table.isClothSlotFull())
-//					modelParts.add("bevCloth001");
-//			}
-//			else
-//			{
-//				modelParts.add("tableSquare01");
-//				if (table.isClothSlotFull())
-//				{
-//					modelParts.add("squareCloth01");
-//					if (table.getExpSide1())
-//						modelParts.add("squareClothSide001a");
-//					if (table.getExpSide4())
-//						modelParts.add("squareClothSide001b");
-//				}
-//			}
-//			if (table.getTop2())
-//			{
-//				modelParts.add("tableBevel02");
-//				if (table.isClothSlotFull())
-//					modelParts.add("bevCloth004");
-//			}
-//			else
-//			{
-//				modelParts.add("tableSquare02");
-//				if (table.isClothSlotFull())
-//				{
-//					modelParts.add("squareCloth004");
-//					if (table.getExpSide1())
-//						modelParts.add("squareClothSide004b");
-//					if (table.getExpSide3())
-//						modelParts.add("squareClothSide004a");
-//				}
-//			}
-//			if (table.getTop3())
-//			{
-//				modelParts.add("tableBevel03");
-//				if (table.isClothSlotFull())
-//					modelParts.add("bevCloth003");
-//			}
-//			else
-//			{
-//				modelParts.add("tableSquare03");
-//				if (table.isClothSlotFull())
-//				{
-//					modelParts.add("squareCloth003");
-//					if (table.getExpSide2())
-//						modelParts.add("squareClothSide003a");
-//					if (table.getExpSide3())
-//						modelParts.add("squareClothSide003b");
-//				}
-//			}
-//			if (table.getTop4())
-//			{
-//				modelParts.add("tableBevel04");
-//				if (table.isClothSlotFull())
-//				{
-//					modelParts.add("bevCloth002");
-//				}
-//			}
-//			else
-//			{
-//				modelParts.add("tableSquare04");
-//				if (table.isClothSlotFull())
-//				{
-//					modelParts.add("squareCloth002");
-//					if (table.getExpSide2())
-//						modelParts.add("squareClothSide002b");
-//					if (table.getExpSide4())
-//						modelParts.add("squareClothSide002a");
-//				}
-//			}
-//			if (table.isCarpetFull())
-//			{
-//				modelParts.add("carpet");
-//			}
-//		}
-//
-//		return modelParts;
-//	}
 
 	@Override
 	public void additionalPlacementCommands(BiblioTileEntity biblioTile, EntityLivingBase player)
@@ -289,15 +177,6 @@ public class BlockTable extends BiblioWoodBlock
 		}
 	}
 
-//	@Override
-//	public TRSRTransformation getAdditionalTransforms(TRSRTransformation transform, BiblioTileEntity tile)
-//	{
-//		transform = transform.compose(new TRSRTransformation(new Vector3f(-0.0f, 0.0f, -0.0f),
-//			     new Quat4f(0.0f, 1.0f, 0.0f, 1.0f),
-//			     new Vector3f(1.0f, 1.0f, 1.0f),
-//			     new Quat4f(0.0f, 1.0f, 0.0f, 1.0f)));
-//		return transform;
-//	}
 
 	@Override
     public boolean isSideSolid(IBlockAccess world, int x, int y, int z, ForgeDirection side)

@@ -6,13 +6,14 @@ import net.minecraft.enchantment.EnumEnchantmentType;
 import net.minecraft.item.ItemBook;
 import net.minecraft.item.ItemStack;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.util.StatCollector;
 
 public class EnchantmentReading extends Enchantment
 {
 	public EnchantmentReading()
 	{
 		super(150,5, EnumEnchantmentType.armor_head);
-		this.setName(I18n.format("enchant.reading"));
+		this.setName(StatCollector.translateToLocal("enchant.reading"));
 //		this.setUnlocalizedName("bibliocraft.readingench");
 	}
 
@@ -51,7 +52,7 @@ public class EnchantmentReading extends Enchantment
 	@Override
 	public String getName()
 	{
-		return I18n.format("enchant.reading");
+		return StatCollector.translateToLocal("enchant.reading");
 	}
 
 }

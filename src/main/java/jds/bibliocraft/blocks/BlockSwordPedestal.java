@@ -72,22 +72,6 @@ public class BlockSwordPedestal extends BiblioColorBlock
 		return new TileEntitySwordPedestal();
 	}
 
-//	@Override
-//	public List<String> getModelParts(BiblioTileEntity tile)
-//	{
-////		List<String> modelParts = Lists.newArrayList(OBJModel.Group.ALL);
-//		return List.of();
-//	}
-
-//	@Override
-//	public TRSRTransformation getAdditionalTransforms(TRSRTransformation transform, BiblioTileEntity tile)
-//	{
-//		transform = transform.compose(new TRSRTransformation(new Vector3f(0.0f, 0.0f, 0.0f),
-//				   new Quat4f(0.0f, 1.0f, 0.0f, 1.0f),
-//				   new Vector3f(1.0f, 1.0f, 1.0f),
-//				   new Quat4f(0.0f, 1.0f, 0.0f, 1.0f)));
-//		return transform;
-//	}
 
     @Override
 	public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z)

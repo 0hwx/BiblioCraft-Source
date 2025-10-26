@@ -24,7 +24,7 @@ import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.oredict.OreDictionary;
 
 
-public class TileEntityPrintPress extends BiblioTileEntity implements ITickable, ISidedInventory
+public class TileEntityPrintPress extends BiblioTileEntity implements ISidedInventory
 {
 	public int furnaceCookTime = 0;
 	public int furnaceBurnTime = 0;
@@ -249,7 +249,7 @@ public class TileEntityPrintPress extends BiblioTileEntity implements ITickable,
     }
 
     @Override
-    public void tick()
+    public void updateEntity()
     {
         boolean burnCheck = this.furnaceBurnTime > 0;
         boolean isDirty = false;

@@ -19,6 +19,8 @@ import jds.bibliocraft.tileentities.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityCase;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockCarpet;
+import net.minecraft.client.renderer.RenderBlocks;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -101,6 +103,7 @@ public class BlockCase extends BiblioWoodBlock
 	{
 		return new TileEntityCase();
 	}
+
 
 //	@Override
 //	public List<String> getModelParts(BiblioTileEntity tile)

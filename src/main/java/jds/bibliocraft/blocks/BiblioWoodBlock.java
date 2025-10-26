@@ -1,6 +1,5 @@
 package jds.bibliocraft.blocks;
 
-import java.util.Arrays;
 import java.util.List;
 
 import cpw.mods.fml.relauncher.Side;
@@ -8,10 +7,14 @@ import cpw.mods.fml.relauncher.SideOnly;
 import jds.bibliocraft.BlockLoader;
 import jds.bibliocraft.Config;
 
+import jds.bibliocraft.api.render.IISBRH;
 import jds.bibliocraft.states.TextureState;
 import jds.bibliocraft.tileentities.BiblioTileEntity;
+import jds.bibliocraft.utils.BiblioWoodRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.renderer.RenderBlocks;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
@@ -21,31 +24,26 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.client.IItemRenderer;
+import net.minecraftforge.client.model.obj.WavefrontObject;
 
-public abstract class BiblioWoodBlock extends BiblioBlock
+public abstract class BiblioWoodBlock extends BiblioBlock implements IISBRH,IItemRenderer
 {
 	private boolean isHalfBlock = false;
-    private IIcon[] icons = new IIcon[EnumWoodType.values().length];
+    private IIcon[] icons = new IIcon[50];
 	public BiblioWoodBlock(String name, boolean isHalfBlock)
 	{
 		super(Material.wood, soundTypeWood, BlockLoader.biblioTab, name);
 		this.isHalfBlock = isHalfBlock;
 	}
 
-
-    @Override
-    public int damageDropped(int meta) {
-        return meta;
-    }
-
     @Override
     public void getSubBlocks(Item itemIn, CreativeTabs tab, List list) {
-        for (int x = 0; x <= BlockLoader.NUMBER_OF_WOODS; x++) {
-            list.add(new ItemStack(this, 1, x));
+        for (BiblioWoodRegistry.WoodEntry wood : BiblioWoodRegistry.getRegisteredWoods().values()) {
+            list.add(new ItemStack(this, 1, wood.meta));
         }
     }
 
@@ -72,16 +70,53 @@ public abstract class BiblioWoodBlock extends BiblioBlock
 
     @Override
     public IIcon getIcon(int side, int meta) {
-        EnumWoodType wood = EnumWoodType.getEnum(meta);
-        return icons[wood.getID()];
+        IIcon icon = BiblioWoodRegistry.getIcon(meta);
+        return icon != null ? icon : super.getIcon(side, meta);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public IIcon getIcon(IBlockAccess world, int x, int y, int z, int side) {
+        int meta = world.getBlockMetadata(x, y, z);
+        BiblioWoodRegistry.WoodEntry wood = BiblioWoodRegistry.getWood(meta);
+        if (wood == null) {
+            return super.getIcon(world, x, y, z, side);
+        }
+
+        return BiblioWoodRegistry.getIcon(meta);
     }
 
     @Override
     public void registerBlockIcons(IIconRegister iconRegister) {
-        for (EnumWoodType wood : EnumWoodType.values()) {
-            icons[wood.getID()] = iconRegister.registerIcon(wood.getTextureString());
-        }
+        BiblioWoodRegistry.registerIcons(iconRegister);
     }
+
+    @Override
+    public boolean renderWorldBlock(IBlockAccess world, int x, int y, int z, Block block,Tessellator tessellator) {
+        return false;
+    }
+
+    @Override
+    public boolean handleRenderType(ItemStack item, IItemRenderer.ItemRenderType type) {
+        return true;
+    }
+
+    @Override
+    public boolean shouldUseRenderHelper(IItemRenderer.ItemRenderType type, ItemStack item, IItemRenderer.ItemRendererHelper helper) {
+        return true;
+    }
+
+    @Override
+    public void renderItem(IItemRenderer.ItemRenderType type, ItemStack item, Object... data) {
+    }
+
+    @Override
+    public int getRenderType()
+    {
+        return IISBRH.RenderId;
+    }
+
+
     public TextureState addAdditionTextureStateInformation(BiblioTileEntity tile, TextureState state)
     {
     	return state;
@@ -99,13 +134,13 @@ public abstract class BiblioWoodBlock extends BiblioBlock
 	public abstract void additionalPlacementCommands(BiblioTileEntity biblioTile, EntityLivingBase player);
 
     public static enum EnumWoodType {
-        OAK(0, "oak", "minecraft:blocks/planks_oak"),
-        SPRUCE(1, "spruce", "minecraft:blocks/planks_spruce"),
-        BIRCH(2, "birch", "minecraft:blocks/planks_birch"),
-        JUNGLE(3, "jungle", "minecraft:blocks/planks_jungle"),
-        ACACIA(4, "acacia", "minecraft:blocks/planks_acacia"),
-        DARKOAK(5, "darkoak", "minecraft:blocks/planks_big_oak"),
-        FRAME(6, "framed", "bibliocraft:blocks/frame");
+        OAK(0, "oak", "planks_oak"),
+        SPRUCE(1, "spruce", "planks_spruce"),
+        BIRCH(2, "birch", "planks_birch"),
+        JUNGLE(3, "jungle", "planks_jungle"),
+        ACACIA(4, "acacia", "planks_acacia"),
+        DARKOAK(5, "darkoak", "planks_big_oak"),
+        FRAME(6, "framed", "bibliocraft:frame");
 
         private int ID;
         private String name;
@@ -165,11 +200,11 @@ public abstract class BiblioWoodBlock extends BiblioBlock
 			}
 			switch (biblioTile.getAngle())
 			{
-				case SOUTH:{this.setBlockBounds(0.0F-shift, 0.0F, 0.0F, 0.5F-shift, 1.0F, 1.0F); break;}
-				case WEST:{this.setBlockBounds(0.0F, 0.0F, 0.0F-shift, 1.0F, 1.0F, 0.5F-shift); break;}
-				case NORTH:{this.setBlockBounds(0.5F+shift, 0.0F, 0.0F, 1.0F+shift, 1.0F, 1.0F); break;}
-				case EAST:{this.setBlockBounds(0.0F, 0.0F, 0.5F+shift, 1.0F, 1.0F, 1.0F+shift); break;}
-				default: {this.setBlockBounds(0.5F+shift, 0.0F, 0.0F, 1.0F+shift, 1.0F, 1.0F); break;}
+                case SOUTH:{this.setBlockBounds(0.5F-shift, 0.0F, 0.0F, 1.0F-shift, 1.0F, 1.0F); break;}
+                case WEST:{this.setBlockBounds(0.0F, 0.0F, 0.5F-shift, 1.0F, 1.0F, 1.0F-shift); break;}
+                case NORTH:{this.setBlockBounds(0.0F+shift, 0.0F, 0.0F, 0.5F+shift, 1.0F, 1.0F); break;}
+                case EAST:{this.setBlockBounds(0.0F, 0.0F, 0.0F+shift, 1.0F, 1.0F, 0.5F+shift); break;}
+                default: {this.setBlockBounds(0.0F+shift, 0.0F, 0.0F, 0.5F+shift, 1.0F, 1.0F); break;}
 			}
 		}
 		return super.getCollisionBoundingBoxFromPool(world, x, y, z);

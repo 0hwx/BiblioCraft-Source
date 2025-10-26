@@ -15,7 +15,7 @@ import net.minecraft.network.Packet;
 import net.minecraft.world.World;
 import net.minecraft.world.storage.MapData;
 
-public class TileEntityTable extends BiblioTileEntity implements ITickable
+public class TileEntityTable extends BiblioTileEntity
 {
 	public boolean leg1 = false;
 	public boolean leg2 = false;
@@ -347,7 +347,7 @@ public class TileEntityTable extends BiblioTileEntity implements ITickable
 	}
 
 	@Override
-	public void tick()
+	public void updateEntity()
 	{
 		if (!this.worldObj.isRemote)
 		{

@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import jds.bibliocraft.gui.GuiRecipeBook;
 import jds.bibliocraft.items.ItemRecipeBook;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
@@ -53,7 +54,7 @@ public class BiblioOpenBook implements IMessage {
 	@SideOnly(Side.CLIENT)
     public static void openBook(boolean canCraft)
     {
-        EntityPlayer player = Minecraft.getMinecraft().thePlayer;
+        EntityClientPlayerMP player = Minecraft.getMinecraft().thePlayer;
 
         ItemStack stackMain = player.getHeldItem();
 

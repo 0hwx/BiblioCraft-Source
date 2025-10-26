@@ -117,7 +117,7 @@ public class TileEntityTypeWriterRenderer extends TileEntityBiblioRenderer
 //			IModel model = null;
 //			try
 //			{
-//				model = ModelLoaderRegistry.getModel(modelLocation);
+//				model = ModelLoaderRegistry.setModel(modelLocation);
 //			}
 //			catch (Exception e)
 //			{
@@ -138,7 +138,7 @@ public class TileEntityTypeWriterRenderer extends TileEntityBiblioRenderer
 //			IModel model = null;
 //			try
 //			{
-//				model = ModelLoaderRegistry.getModel(modelLocation);
+//				model = ModelLoaderRegistry.setModel(modelLocation);
 //			}
 //			catch (Exception e)
 //			{
@@ -226,5 +226,5 @@ public class TileEntityTypeWriterRenderer extends TileEntityBiblioRenderer
 			return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(returnValue);
 		}
 	};
-    
+
 }

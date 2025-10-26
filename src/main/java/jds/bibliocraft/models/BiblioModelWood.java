@@ -3,7 +3,6 @@
 //import java.util.ArrayList;
 //import java.util.List;
 //
-//import javax.annotation.Nonnull;
 //import javax.vecmath.Matrix4f;
 //import javax.vecmath.Quat4f;
 //import javax.vecmath.Vector3f;
@@ -13,331 +12,164 @@
 //import com.google.common.collect.ImmutableMap;
 //import com.google.common.collect.Lists;
 //
+//import cpw.mods.fml.relauncher.Side;
+//import cpw.mods.fml.relauncher.SideOnly;
+//import net.minecraft.client.renderer.texture.IIconRegister;
+//import net.minecraft.client.renderer.texture.TextureMap;
+//import net.minecraft.util.IIcon;
+//import net.minecraft.util.ResourceLocation;
+//
+//import jds.bibliocraft.helpers.ModelCache;
+//import net.minecraft.util.IIcon;
 //import net.minecraftforge.client.model.AdvancedModelLoader;
 //import net.minecraftforge.client.model.IModelCustom;
 //import org.apache.commons.lang3.tuple.Pair;
 //
 //import jds.bibliocraft.blocks.BiblioWoodBlock;
 //import jds.bibliocraft.blocks.BiblioWoodBlock.EnumWoodType;
-//import jds.bibliocraft.helpers.ModelCache;
 //
 //import jds.bibliocraft.states.TextureState;
-//import net.minecraft.block.state.IBlockState;
 //import net.minecraft.client.Minecraft;
-//import net.minecraft.client.renderer.block.model.BakedQuad;
-//import net.minecraft.client.renderer.block.model.IBakedModel;
-//import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
-//import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
-//import net.minecraft.client.renderer.block.model.ItemOverride;
-//import net.minecraft.client.renderer.block.model.ItemOverrideList;
 //import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-//import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 //import net.minecraft.entity.EntityLivingBase;
 //import net.minecraft.item.ItemStack;
 //import net.minecraft.nbt.NBTTagCompound;
-//import net.minecraft.util.EnumFacing;
+//import net.minecraft.util.Direction;
 //import net.minecraft.util.ResourceLocation;
 //import net.minecraft.world.World;
-//import net.minecraftforge.client.model.IModel;
-//import net.minecraftforge.client.model.ModelLoaderRegistry;
-//import net.minecraftforge.client.model.obj.OBJModel;
-//import net.minecraftforge.common.model.TRSRTransformation;
-//import net.minecraftforge.common.property.IExtendedBlockState;
 //
-//public abstract class BiblioModelWood implements IModelCustom// ,ISmartBlockModel, ISmartItemModel, IPerspectiveAwareModel
-//{
-//	private IModelCustom model = null;
-//	private String modelLocation = " ";
-//	private String textureLocation = "none";
-//	private String customTextureLocation = "none";
-//	private EnumWoodType wood = EnumWoodType.FRAME;
-//	private boolean gotOBJ = false;
+//@SideOnly(Side.CLIENT)
+//public abstract class BiblioModelWood implements IModelCustom {
+//    private IModelCustom model = null;
+//    private String modelLocation = " ";
+//    private String textureLocation = "none";
+//    private String customTextureLocation = "none";
+//    private EnumWoodType wood = EnumWoodType.FRAME;
+//    private ModelCache cache;
+//    private boolean gotOBJ = false;
+//    protected IIcon texture;
 //
-//	public BiblioModelWood(String modelLoc)
-//	{
-//		this.modelLocation = modelLoc;
-//	}
+//    public BiblioModelWood(String modelLoc) {
+//        this.modelLocation = modelLoc;
+//        this.cache = new ModelCache();
+//    }
 //
-//	private void getModel(IBlockState state, boolean isBlock, int attempt)
-//	{
-//	   if (this.model == null || (this.model != null && !this.model.toString().contains("obj.OBJModel")))
-//        {
-//	         try
-//	         {
-//	        	 // TODO sometimes this gets casut in a loop and casues a circular dependency error
-//	        	 //[jds.bibliocraft.models.BiblioModelWood:getModel:91]: Failed to load model. net.minecraftforge.client.model.ModelLoaderRegistry$LoaderException:
-//	        	 //circular model dependencies, stack: [bibliocraft:block/shelf.obj, bibliocraft:block/table.obj, bibliocraft:block/case.obj]
-//	        	 //
-//	             this.model = AdvancedModelLoader.loadModel(new ResourceLocation(this.modelLocation));
-//	             gotOBJ = true;
-//	         }
-//	         catch (Exception e)
-//	         {
-//	             this.model = AdvancedModelLoader.loadModel(new ResourceLocation("missing"));
-//	             gotOBJ = false;
-//	             // TODO I could just recursivly call this?, that seems dangourous. I'll do it 6 times then error.
-//	             if (attempt < 6)
-//	             {
-//	            	 getModel(state, isBlock, attempt + 1);
-//	            	 return;
-//	             }
-//	             else
-//	             {
-//	            	 //System.out.println("Failed to load model. " + e);
-//	             }
-//	         }
+//    private void setModel(int metadata, boolean isBlock, int attempt) {
+//        if (this.model == null || (this.model != null && !this.model.getType().equals("obj"))) {
+//            try {
+//                this.model = AdvancedModelLoader.loadModel(new ResourceLocation(this.modelLocation));
+//                gotOBJ = true;
+//            } catch (Exception e) {
+//                this.model = AdvancedModelLoader.loadModel(new ResourceLocation("bibliocraft:models/missing.obj"));
+//                gotOBJ = false;
+//                if (attempt < 6) {
+//                    setModel(metadata, isBlock, attempt + 1);
+//                    return;
+//                }
+//            }
 //        }
-//	    OBJModel.OBJState modelState = new OBJModel.OBJState(getDefaultVisiableModelParts(), true);
-//		if (state != null && state instanceof IExtendedBlockState)
-//		{
-//			IExtendedBlockState exState = (IExtendedBlockState)state;
-//			if (exState.getUnlistedNames().contains(OBJModel.OBJProperty.INSTANCE))
-//			{
-//				modelState = exState.getValue(OBJModel.OBJProperty.INSTANCE);
-//			}
-//			if (exState.getUnlistedNames().contains(TextureProperty.instance))
-//			{
-//				TextureState texString = (TextureState)exState.getValue(TextureProperty.instance);
-//				loadAdditionalTextureStateStuff(texString);
-//				if (texString != null)
-//					customTextureLocation = texString.getTextureString();
-//			}
-//			getAdditionalBlockStateStuff(exState);
-//			wood = (EnumWoodType)state.getValue(BiblioWoodBlock.WOOD_TYPE);
-//		}
-//		else
-//		{
-//			loadAdditionalTextureStateStuff(null);
-//		}
-//		try
-//		{
-//			switch (wood)
-//			{
-//				case OAK: {textureLocation = "minecraft:blocks/planks_oak"; break;}
-//				case SPRUCE: {textureLocation = "minecraft:blocks/planks_spruce"; break;}
-//				case BIRCH: {textureLocation = "minecraft:blocks/planks_birch"; break;}
-//				case JUNGLE: {textureLocation = "minecraft:blocks/planks_jungle"; break;}
-//				case ACACIA: {textureLocation = "minecraft:blocks/planks_acacia"; break;}
-//				case DARKOAK: {textureLocation = "minecraft:blocks/planks_big_oak"; break;}
-//				case FRAME:
-//				{
-//					//System.out.println(customTextureLocation.length());
-//					if (customTextureLocation.contains("none") || customTextureLocation.contains("minecraft:white") || customTextureLocation.length() == 0)
-//					{
-//						textureLocation = "bibliocraft:blocks/frame";
-//					}
-//					else
-//					{
-//						textureLocation = customTextureLocation;
-//					}
-//					break;
-//				}
-//				default: {textureLocation = "minecraft:blocks/planks_oak"; break;}
-//			}
-//		}
-//		catch(NullPointerException e)
-//		{
-//			System.out.println("Null pointer thrown on obtaining the texture " + e);
-//		}
-//	}
 //
-//	public void loadAdditionalTextureStateStuff(TextureState state) { }
+//        if (metadata != -1) {
+//            wood = EnumWoodType.getEnum(metadata);
+//            loadAdditionalTextureData(metadata);
+//        } else {
+//            loadAdditionalTextureData(-1);
+//        }
 //
+//        try {
+//            switch (wood) {
+//                case OAK:
+//                    textureLocation = "textures/blocks/planks_oak";
+//                    break;
+//                case SPRUCE:
+//                    textureLocation = "textures/blocks/planks_spruce";
+//                    break;
+//                case BIRCH:
+//                    textureLocation = "textures/blocks/planks_birch";
+//                    break;
+//                case JUNGLE:
+//                    textureLocation = "textures/blocks/planks_jungle";
+//                    break;
+//                case ACACIA:
+//                    textureLocation = "textures/blocks/planks_acacia";
+//                    break;
+//                case DARKOAK:
+//                    textureLocation = "textures/blocks/planks_big_oak";
+//                    break;
+//                case FRAME:
+//                    if (customTextureLocation.contains("none") || customTextureLocation.contains("minecraft:white") || customTextureLocation.length() == 0) {
+//                        textureLocation = "bibliocraft:textures/blocks/frame";
+//                    } else {
+//                        textureLocation = customTextureLocation;
+//                    }
+//                    break;
+//                default:
+//                    textureLocation = "textures/blocks/planks_oak";
+//                    break;
+//            }
+//        } catch (NullPointerException e) {
+//            System.out.println("Null pointer thrown on obtaining the texture " + e);
+//        }
 //
-//	protected Function<ResourceLocation, TextureAtlasSprite> textureGetter = new Function<ResourceLocation, TextureAtlasSprite>()
-//	{
-//		@Override
-//		public TextureAtlasSprite apply(ResourceLocation location)
-//		{
-//			return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(getTextureLocation(location.toString(), textureLocation));
-//		}
-//	};
+//        try {
+//            if (cache.hasModel(textureLocation)) {
+//                this.baseModel = cache.getCurrentMatch();
+//            } else {
+//                if (gotOBJ) {
+//                    cache.addToCache(this.model, textureLocation);
+//                }
+//                this.baseModel = this.model;
+//            }
+//        } catch (NullPointerException e) {
+//            System.out.println("null pointer exception thrown in attempt to load model(s) " + e);
+//        }
+//    }
 //
-//	@Override
-//	public boolean isAmbientOcclusion()
-//	{
-//		return false;
-//	}
+//    public void loadAdditionalTextureData(int metadata) {
+//    }
 //
-//	@Override
-//	public boolean isGui3d()
-//	{
-//		return true;
-//	}
+//    public abstract String getTextureLocation(String resourceLocation, String textureLocation);
 //
-//	@Override
-//	public boolean isBuiltInRenderer()
-//	{
-//		return false;
-//	}
+//    public void registerIcons(IIconRegister register) {
+//        this.texture = register.registerIcon(textureLocation);
+//    }
 //
-//	@Override
-//	public TextureAtlasSprite getParticleTexture()
-//	{
-//		try
-//		{
-//			return this.baseModel.getParticleTexture();
-//		}
-//		catch (NullPointerException e)
-//		{
-//			return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite("minecraft:blocks/planks_oak");
-//		}
-//	}
+//    public IIcon getIcon() {
+//        return this.texture;
+//    }
 //
-//	@Override
-//	public ItemCameraTransforms getItemCameraTransforms()
-//	{
-//		return ItemCameraTransforms.DEFAULT;
-//	}
+//    public boolean hasCustomInventoryRendering() {
+//        return true;
+//    }
 //
-//	@Override
-//	public Pair<? extends IBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType)
-//	{
-//		TRSRTransformation 	transform = new TRSRTransformation(new Vector3f(0.0f, 0.0f, 0.0f),
-//															   new Quat4f(0.0f, 0.0f, 0.0f, 1.0f),
-//															   new Vector3f(1.0f, 1.0f, 1.0f),
-//															   new Quat4f(0.0f, 0.0f, 0.0f, 1.0f));
+//    public void renderItem() {
+//        // Implement custom item rendering here
+//    }
 //
-//		switch (cameraTransformType)
-//		{
-//			case FIRST_PERSON_RIGHT_HAND:
-//			{
-//				transform = new TRSRTransformation(new Vector3f(0.0f, 0.1f, -0.1f),
-//												   new Quat4f(0.0f, 1.0f, 0.0f, 1.0f),
-//												   new Vector3f(0.65f, 0.65f, 0.65f),
-//												   new Quat4f(0.0f, 1.0f, 0.0f, 1.0f));
-//				break;
-//			}
-//			case FIRST_PERSON_LEFT_HAND:
-//			{
-//				transform = new TRSRTransformation(new Vector3f(0.0f, 0.1f, -0.1f),
-//												   new Quat4f(0.0f, 0.0f, 0.0f, 1.0f),
-//												   new Vector3f(0.65f, 0.65f, 0.65f),
-//												   new Quat4f(0.0f, 0.0f, 0.0f, 1.0f));
-//				transform = getTweakedLeftHandTransform(transform);
-//				break;
-//			}
-//			case THIRD_PERSON_RIGHT_HAND:
-//			{
-//				transform = new TRSRTransformation(new Vector3f(-0.15f, 0.15f, -0.05f),
-//												   new Quat4f(0.0f, -1.5f, 0.0f, 1.0f),
-//												   new Vector3f(0.5f, 0.5f, 0.5f),
-//												   new Quat4f(0.0f, 0.0f, 0.0f, 1.0f));
+//    public void renderBlock() {
+//        // Implement custom block rendering here
+//    }
 //
-//				break;
-//			}
-//			case THIRD_PERSON_LEFT_HAND:
-//			{
-//				transform = new TRSRTransformation(new Vector3f(-0.15f, 0.15f, -0.05f),
-//												   new Quat4f(0.0f, 0.5f, 0.0f, 1.0f),
-//												   new Vector3f(0.5f, 0.5f, 0.5f),
-//												   new Quat4f(0.0f, 0.0f, 0.0f, 1.0f));
-//				transform = getTweakedLeftHandTransform(transform);
-//				break;
-//			}
-//			case GUI:
-//			{
-//				transform = new TRSRTransformation(new Vector3f(0.1f, -0.05f, 0.0f),
-//												   new Quat4f(0.0f, -0.42f, 0.0f, 1.0f),
-//												   new Vector3f(0.7f, 0.7f, 0.7f),
-//												   new Quat4f(0.2f, -0.0f, -0.2f, 1.0f));
-//				transform = getTweakedGUITransform(transform);
-//				break;
-//			}
-//			case GROUND:
-//			{
-//				transform = new TRSRTransformation(new Vector3f(0.15f, 0.0f, 0.0f),
-//												   new Quat4f(0.0f, 0.0f, 0.0f, 1.0f),
-//												   new Vector3f(0.45f, 0.45f, 0.45f),
-//												   new Quat4f(0.0f, 0.0f, 0.0f, 1.0f));
-//				break;
-//			}
-//			case FIXED: //  this is when it is on shelves
-//			{
-//				transform = new TRSRTransformation(new Vector3f(0.0f, 0.1f, -0.2f),
-//												   new Quat4f(0.0f, 1.0f, 0.0f, 1.0f),
-//												   new Vector3f(0.7f, 0.7f, 0.7f),
-//												   new Quat4f(0.0f, 0.0f, 0.0f, 1.0f));
-//				break;
-//			}
-//			case NONE:
-//			{
-//				transform = new TRSRTransformation(new Vector3f(0.0f, 0.0f, 0.0f),
-//												   new Quat4f(0.0f, 0.0f, 0.0f, 1.0f),
-//												   new Vector3f(1.0f, 1.0f, 1.0f),
-//												   new Quat4f(0.0f, 0.0f, 0.0f, 1.0f));
-//			}
-//			default: break;
-//		}
-//		transform = getTweakedMasterTransform(transform);
-//		return Pair.of(this, transform.getMatrix());
-//	}
+//    public IIcon getParticleIcon() {
+//        try {
+//            return this.texture != null ? this.texture :
+//                ((TextureMap)Minecraft.getMinecraft().getTextureManager()
+//                    .getTexture(TextureMap.locationBlocksTexture)).getAtlasSprite("textures/blocks/planks_oak");
+//        } catch (NullPointerException e) {
+//            return ((TextureMap)Minecraft.getMinecraft().getTextureManager()
+//                .getTexture(TextureMap.locationBlocksTexture)).getAtlasSprite("textures/blocks/planks_oak");
+//        }
+//    }
 //
-//	public TRSRTransformation getTweakedMasterTransform(TRSRTransformation transform)
-//	{
-//		return transform;
-//	}
-//
-//	public TRSRTransformation getTweakedLeftHandTransform(TRSRTransformation transform)
-//	{
-//		return transform;
-//	}
-//
-//	public TRSRTransformation getTweakedGUITransform(TRSRTransformation transform)
-//	{
-//		return transform;
-//	}
-//
-//	@Override
-//	public List<BakedQuad> getQuads(IBlockState state, EnumFacing side, long rand)
-//	{
-//		getModel(state, true, 0);
-//		try
-//		{
-//			List<BakedQuad> q = this.baseModel.getQuads(state, side, rand);
-//			return q;
-//		}
-//		catch (NullPointerException e)
-//		{
-//			return new ArrayList<BakedQuad>();
-//		}
-//	}
-//
-//	@Override
-//	public ItemOverrideList getOverrides()
-//	{
-//		return overrides;
-//	}
-//
-//	private void setCustomTextureString(String input)
-//	{
-//		this.customTextureLocation = input;
-//	}
-//
-//	private class CustomItemOverrideList extends ItemOverrideList
-//	{
-//		private CustomItemOverrideList()
-//		{
-//			super(ImmutableList.<ItemOverride>of());
-//		}
-//
-//		@Nonnull
-//		@Override
-//		public IBakedModel handleItemState(@Nonnull IBakedModel originalModel, ItemStack stack, @Nonnull World world, @Nonnull EntityLivingBase entity)
-//		{
-//			wood = EnumWoodType.getEnum(stack.getItemDamage());
-//			customTextureLocation = "none";
-//			if (stack != null)
-//			{
-//
-//				NBTTagCompound tags = stack.getTagCompound();
-//				if (tags != null && tags.hasKey("renderTexture"))
-//				{
-//					customTextureLocation = tags.getString("renderTexture");
-//				}
-//			}
-//			getModel(null, false, 0);
-//			return wrapper;
-//		}
-//	}
+//    protected void updateModel(ItemStack stack) {
+//        if (stack != null) {
+//            wood = EnumWoodType.getEnum(stack.getItemDamage());
+//            customTextureLocation = "none";
+//            NBTTagCompound tags = stack.getTagCompound();
+//            if (tags != null && tags.hasKey("renderTexture")) {
+//                customTextureLocation = tags.getString("renderTexture");
+//            }
+//            setModel(stack.getItemDamage(), false, 0);
+//        }
+//    }
 //}

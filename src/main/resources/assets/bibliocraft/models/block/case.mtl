@@ -1,12 +1,12 @@
 newmtl Default
 Kd 1.00 1.00 1.00
-map_Kd minecraft:blocks/planks_oak
+map_Kd planks_oak.png
 newmtl inside
 Kd 1.00 1.00 1.00
-map_Kd minecraft:blocks/wool_colored_white
+map_Kd wool_colored_white.png
 newmtl latch
 Kd 1.00 1.00 1.00
-map_Kd minecraft:blocks/iron_block
+map_Kd iron_block.png
 newmtl glass
 Kd 1.00 1.00 1.00
-map_Kd minecraft:blocks/glass
+map_Kd glass.png

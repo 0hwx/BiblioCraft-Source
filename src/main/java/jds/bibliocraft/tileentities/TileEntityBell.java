@@ -2,11 +2,12 @@ package jds.bibliocraft.tileentities;
 
 import jds.bibliocraft.CommonProxy;
 import jds.bibliocraft.blocks.BlockBell;
+
 import net.minecraft.client.renderer.texture.ITickable;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
-public class TileEntityBell extends BiblioTileEntity implements ITickable
+public class TileEntityBell extends BiblioTileEntity
 {
 	private int redstone = 0;
 	private int counter = 0;
@@ -73,7 +74,7 @@ public class TileEntityBell extends BiblioTileEntity implements ITickable
 //	}
 
 	@Override
-    public void tick()
+    public void updateEntity()
 	{
 		if (counter >= 2)
 		{

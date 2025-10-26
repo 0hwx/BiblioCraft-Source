@@ -22,7 +22,7 @@ import net.minecraft.world.storage.MapData;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.ForgeDirection;
 
-public class TileEntityMapFrame extends BiblioTileEntity implements ITickable//TileEntity implements ISidedInventory
+public class TileEntityMapFrame extends BiblioTileEntity//TileEntity implements ISidedInventory
 {
 	public int mapRotation;
 	public boolean topFrame = false;
@@ -665,7 +665,7 @@ public class TileEntityMapFrame extends BiblioTileEntity implements ITickable//T
 	}
 
 	@Override
-	public void tick()
+	public void updateEntity()
 	{
 		if (!this.worldObj.isRemote)
 		{

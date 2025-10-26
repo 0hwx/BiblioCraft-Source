@@ -251,7 +251,7 @@
 //			{
 //		         try
 //		         {
-//		             model = ModelLoaderRegistry.getModel(new ResourceLocation("bibliocraft:item/atlas.obj"));
+//		             model = ModelLoaderRegistry.setModel(new ResourceLocation("bibliocraft:item/atlas.obj"));
 //		             model = model.process(ImmutableMap.of("flip-v", "true"));
 //		             gotOBJ = true;
 //		         }
@@ -282,7 +282,7 @@
 //	    			modelParts.add(part);
 //	    	        try
 //	    	        {
-//	    	        	model = ModelLoaderRegistry.getModel(new ResourceLocation("bibliocraft:item/atlas.obj"));
+//	    	        	model = ModelLoaderRegistry.setModel(new ResourceLocation("bibliocraft:item/atlas.obj"));
 //	    	        }
 //	    	        catch (Exception e)
 //	    	        {

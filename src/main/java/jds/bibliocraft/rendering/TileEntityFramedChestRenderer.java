@@ -1,16 +1,11 @@
 package jds.bibliocraft.rendering;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.google.common.base.Function;
-import com.google.common.collect.ImmutableMap;
 
 import jds.bibliocraft.CommonProxy;
-import jds.bibliocraft.models.ModelClipboard;
 import jds.bibliocraft.models.ModelFramedChest;
 import net.minecraft.block.Block;
-import net.minecraft.item.ItemStack;
+import net.minecraft.client.renderer.RenderHelper;
 import org.lwjgl.opengl.GL11;
 
 import jds.bibliocraft.blocks.BiblioWoodBlock.EnumWoodType;
@@ -18,113 +13,117 @@ import jds.bibliocraft.tileentities.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityFramedChest;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.util.ResourceLocation;
 
-public class TileEntityFramedChestRenderer extends TileEntityBiblioRenderer
-{
-//	private IBakedModel smallLid;
+public class TileEntityFramedChestRenderer extends TileEntityBiblioRenderer {
+    //	private IBakedModel smallLid;
 //	private IBakedModel largeLidLeft;
 //	private IBakedModel largeLidRight;
 //	private IBakedModel latch;
     private ModelFramedChest model = new ModelFramedChest();
     private String customTextureString = "none";
-	private EnumWoodType wood = EnumWoodType.OAK;
-	private ResourceLocation modelLocation = new ResourceLocation("bibliocraft:block/framedchest.obj");
-	private Block state;
+    private EnumWoodType wood = EnumWoodType.OAK;
+    private ResourceLocation modelLocation = new ResourceLocation("bibliocraft:block/framedchest.obj");
+    private Block state;
 
-	@Override
-	public void renderTileEntityAt(BiblioTileEntity tile, double x, double y, double z, float tick)
-	{
-		if (tile instanceof TileEntityFramedChest)
-		{
-			TileEntityFramedChest chest = (TileEntityFramedChest)tile;
-			if (state == null)
-			{
-				state = chest.getWorldObj().getBlock(chest.xCoord, chest.yCoord, chest.zCoord);
-			}
-            GL11.glPushMatrix();
-            GL11.glTranslated(x + (double) 0.5F, y, z + (double) 0.5F);
-            switch (this.getAngle()) {
-                case NORTH: // west
-                    GL11.glRotatef(180.0F, 0.0F, 1.0F, 0.0F);
-                    break;
-                case SOUTH: //east
-                    GL11.glRotatef(0.0F, 0.0F, 1.0F, 0.0F);
-                    break;
-                case WEST://south
-                    GL11.glRotatef(-90.0F, 0.0F, 1.0F, 0.0F);
-                    break;
-                case EAST://north
-                    GL11.glRotatef(90.0F, 0.0F, 1.0F, 0.0F);
-                    break;
+    @Override
+    public void renderTileEntityAt(BiblioTileEntity tile, double x, double y, double z, float tick) {
+        if (tile instanceof TileEntityFramedChest) {
+            TileEntityFramedChest chest = (TileEntityFramedChest) tile;
+            if (state == null) {
+                state = chest.getWorldObj().getBlock(chest.xCoord, chest.yCoord, chest.zCoord);
             }
-            GL11.glTranslated(0.5F, 1.0F,  -0.5F);
-            GL11.glRotatef(180.0F, 0.0F, 0.0F, 1.0F);
+            GL11.glPushMatrix();
+//            GL11.glTranslated(0.5F, 1.0F,  -0.5F);
+//            GL11.glRotatef(180.0F, 0.0F, 0.0F, 1.0F);
             initModels(chest);
-            bindTexture(CommonProxy.TEST_BLOCK);
-            this.model.renderFramedChest();
-
-
-			float lid = chest.getPrevLidAngle() + (chest.getLidAngle() - chest.getPrevLidAngle()) * tick;
-			lid = 1.0F - lid;
-			lid = 1.0F - lid * lid * lid;
-			lid = lid * 90.0f;
-			//System.out.println(chest.getLidAngle());
+            this.bindTexture(new ResourceLocation(customTextureString));
+            float lid = chest.getPrevLidAngle() + (chest.getLidAngle() - chest.getPrevLidAngle()) * tick;
+            lid = 1.0F - lid;
+            lid = 1.0F - lid * lid * lid;
+            lid = lid * 90.0f;
+            renderPart(chest, 1,0,0, lid);
+//			System.out.println(chest.getLidAngle());
 //			if (chest.getIsDouble())
 //			{
 //				if (chest.getIsLeft())
 //				{
-//					renderPart(largeLidLeft, 1.0, 0.625, 0.05, lid);
-//					renderPart(latch, 1.5, 0.625, 0.05, lid);
+////					renderPart(largeLidLeft, 1.0, 0.625, 0.05, lid);
+////					renderPart(latch, 1.5, 0.625, 0.05, lid);
 //				}
 //				else
 //				{
-//					renderPart(largeLidRight, 1.0, 0.625, 0.05, lid);
+////					renderPart(largeLidRight, 1.0, 0.625, 0.05, lid);
 //				}
 //			}
 //			else
 //			{
-//				renderPart(smallLid, 1.0, 0.625, 0.05, lid);
-//				renderPart(latch, 1.0, 0.625, 0.05, lid);
+//                String[] lidPart = {"small_lid", "small_lid_item"};
+//				renderPart(lidPart, 1,  0.625, 0.05, lid);
+////				renderPart("small_lid", 1,   0.625,  0.05, lid);
+////				renderPart("latch", 1,  0.625,  0.05, lid);
 //			}
-			renderSlotItem(chest.getLabelStack(), 0.5, 0.23, 0.93, 0.5f);
+            renderSlotItem(chest.getLabelStack(), x, y + 0.23, z + 0.93, 0.5f);
             GL11.glPopMatrix();
-		}
+        }
 
-	}
+    }
 
-	private ResourceLocation initModels(TileEntityFramedChest chest)
-	{
-		wood = EnumWoodType.getEnum(chest.getBlockMetadata());
-		//customTextureString = ;
-		switch (wood)
-		{
-			case OAK: {customTextureString = "minecraft:blocks/planks_oak"; break;}
-			case SPRUCE: {customTextureString = "minecraft:blocks/planks_spruce"; break;}
-			case BIRCH: {customTextureString = "minecraft:blocks/planks_birch"; break;}
-			case JUNGLE: {customTextureString = "minecraft:blocks/planks_jungle"; break;}
-			case ACACIA: {customTextureString = "minecraft:blocks/planks_acacia"; break;}
-			case DARKOAK: {customTextureString = "minecraft:blocks/planks_big_oak"; break;}
-			case FRAME:
-			{
-				if (chest.getCustomTextureString().contains("none") || chest.getCustomTextureString().contains("minecraft:white"))
-				{
-					customTextureString = "bibliocraft:blocks/frame";
-				}
-				else
-				{
-					customTextureString = chest.getCustomTextureString();
-				}
-				break;
-			}
-			default: {customTextureString = "minecraft:blocks/planks_oak"; break;}
-		}
+    private void renderFramedChest(double x, double y, double z, double rotate) {
+        this.model.SmallChest();
+        GL11.glRotated(rotate, 1.0D, 0.0D, 0.0D);
+        this.model.SmallLidItem();
+        this.bindTexture(CommonProxy.IRON);
+        this.model.latchItem();
+
+    }
+
+    private ResourceLocation initModels(TileEntityFramedChest chest) {
+        wood = EnumWoodType.getEnum(chest.getBlockMetadata());
+        //customTextureString = ;
+        switch (wood) {
+            case OAK: {
+                customTextureString = "textures/blocks/planks_oak.png";
+                break;
+            }
+            case SPRUCE: {
+                customTextureString = "textures/blocks/planks_spruce.png";
+                break;
+            }
+            case BIRCH: {
+                customTextureString = "textures/blocks/planks_birch.png";
+                break;
+            }
+            case JUNGLE: {
+                customTextureString = "textures/blocks/planks_jungle.png";
+                break;
+            }
+            case ACACIA: {
+                customTextureString = "textures/blocks/planks_acacia.png";
+                break;
+            }
+            case DARKOAK: {
+                customTextureString = "textures/blocks/planks_big_oak.png";
+                break;
+            }
+            case FRAME: {
+                if (chest.getCustomTextureString().contains("none") || chest.getCustomTextureString().contains("minecraft:white")) {
+                    customTextureString = "bibliocraft:textures/blocks/frame";
+                } else {
+                    customTextureString = chest.getCustomTextureString();
+                }
+                break;
+            }
+            default: {
+                customTextureString = "textures/blocks/planks_oak.png";
+                break;
+            }
+        }
 
 //		IModel model = null;
 //		try
 //		{
-//			model = ModelLoaderRegistry.getModel(modelLocation);
+//			model = ModelLoaderRegistry.setModel(modelLocation);
 //		}
 //		catch (Exception e)
 //		{
@@ -151,64 +150,69 @@ public class TileEntityFramedChestRenderer extends TileEntityBiblioRenderer
         return null;
     }
 
-	protected Function<ResourceLocation, TextureAtlasSprite> textureGetter = new Function<ResourceLocation, TextureAtlasSprite>()
-	{
-		@Override
-		public TextureAtlasSprite apply(ResourceLocation location)
-		{
-			String returnValue = location.toString();
-			if (returnValue.contentEquals("minecraft:blocks/planks_oak"))
-			{
-				returnValue = customTextureString;
-			}
-			return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(returnValue);
-		}
-	};
+    protected Function<ResourceLocation, TextureAtlasSprite> textureGetter = new Function<ResourceLocation, TextureAtlasSprite>() {
+        @Override
+        public TextureAtlasSprite apply(ResourceLocation location) {
+            String returnValue = location.toString();
+            if (returnValue.contentEquals("minecraft:blocks/planks_oak")) {
+                returnValue = customTextureString;
+            }
+            return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(returnValue);
+        }
+    };
 
 
-//	private void renderPart(IBakedModel model, double x, double y, double z, float rotation)
-//	{
-//		switch (this.getAngle())
-//		{
-//			case SOUTH:
-//			{
-//				double tx = x;
-//				x = -z;
-//				z = tx;
-//				break;
-//			}
-//			case WEST:
-//			{
-//				x *= -1;
-//				z *= -1;
-//				break;
-//			}
-//			case NORTH:
-//			{
-//				double tx = x;
-//				x = z;
-//				z = -tx;
-//				break;
-//			}
-//			case EAST:
-//			{
-//				break;
-//			}
-//			default: break;
-//		}
-//
-//		GL11.glPushMatrix();
-//		RenderHelper.disableStandardItemLighting();
-//		GL11.glTranslated(this.globalX + this.xshift + x, this.globalY + y, this.globalZ + this.zshift + z);
-//		GL11.glRotatef(degreeAngle - 90.0f, 0.0F, 1.0F, 0.0F);
-//		GL11.glRotatef(rotation, 0.0f, 0.0f, 1.0f);
-//	    worldRenderer.begin(GL11.GL_QUADS, Attributes.DEFAULT_BAKED_FORMAT);
-//		for (BakedQuad quad :  model.getQuads(null, null, 0))
-//		{
-//			LightUtil.renderQuadColor(worldRenderer, quad, 0xFFFFFFFF);
-//		}
-//		tessellator.draw();
-//		RenderHelper.enableStandardItemLighting();
-//		GL11.glPopMatrix();
-//	}
+    private void renderPart(TileEntityFramedChest chest, double x, double y, double z, float rotation) {
+        // Handle rotation based on angle
+        switch (this.getAngle()) {
+            case SOUTH: {
+                double tx = x;
+                x = -z;
+                z = tx;
+                break;
+            }
+            case WEST: {
+                x *= -1;
+                z *= -1;
+                break;
+            }
+            case NORTH: {
+                double tx = x;
+                x = z;
+                z = -tx;
+                break;
+            }
+            case EAST:
+            default:
+                break;
+        }
+
+        // Setup transform
+        GL11.glTranslated(this.globalX + this.xshift + x, this.globalY + y, this.globalZ + this.zshift + z);
+        GL11.glRotatef(degreeAngle - 90.0f, 0.0F, 1.0F, 0.0F);
+
+        // Render chest components
+        if (chest.getIsDouble()) {
+            if (chest.getIsLeft()) {
+                this.model.LargeChestLeft();
+                GL11.glRotatef(rotation, 0.0f, 0.0f, 1.0f);
+                GL11.glTranslated(0.05, 0.62, 0.0);
+                this.model.LargeLidLeft();
+            } else {
+                this.model.LargeChestRight();
+                GL11.glRotatef(rotation, 0.0f, 0.0f, 1.0f);
+                GL11.glTranslated(0.05, 0.62, 0.0);
+                this.model.LargeLidRight();
+                GL11.glTranslated(0.0, 0.0, 0.5);
+                this.bindTexture(CommonProxy.IRON);
+                this.model.latch();
+            }
+        } else {
+            this.model.SmallChest();
+            GL11.glRotatef(rotation, 0.0f, 0.0f, 1.0f);
+            this.model.SmallLidItem();
+            this.bindTexture(CommonProxy.IRON);
+            this.model.latchItem();
+        }
+    }
 }
