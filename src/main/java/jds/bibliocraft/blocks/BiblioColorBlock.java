@@ -43,13 +43,9 @@ public abstract class BiblioColorBlock extends BiblioBlock
     }
 
     @Override
-    public int getRenderType() {
-        return 3; // Standard block rendering
+    public void setCustomBlockBounds(BiblioTileEntity biblioTile, float shift)
+    {
+
     }
 
-    @Override
-    public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase entity, ItemStack stack) {
-        int meta = stack.getItemDamage();
-        world.setBlockMetadataWithNotify(x, y, z, meta, 2);
-    }
 }

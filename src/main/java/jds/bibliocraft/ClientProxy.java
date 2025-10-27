@@ -14,6 +14,8 @@ import jds.bibliocraft.blocks.BlockPotionShelf;
 import jds.bibliocraft.blocks.BlockSeat;
 import jds.bibliocraft.blocks.BlockShelf;
 import jds.bibliocraft.blocks.BlockToolRack;
+import jds.bibliocraft.blocks.BlockTypeWriter;
+import jds.bibliocraft.blocks.blockitems.BlockItemTypewriter;
 import jds.bibliocraft.entity.EntitySeat;
 import jds.bibliocraft.entity.EntitySeatRenderer;
 import jds.bibliocraft.events.RenderClipboardText;
@@ -89,6 +91,9 @@ public class ClientProxy extends CommonProxy
 
 		if (!Config.disablerenderers)
 		{
+
+            registerTileEntityAndItemRenderers1(BlockTypeWriter.instance, TileEntityTypewriter.class, new TileEntityTypeWriterRenderer());
+
 			if (Config.enableGenericshelf){
                 registerTileEntityAndItemRenderers1(BlockShelf.instance ,TileEntityShelf.class, new TileEntityShelfRenderer());
             }

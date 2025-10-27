@@ -214,7 +214,8 @@ public class ItemDrill extends Item
 						tile instanceof TileEntityShelf ||
 						tile instanceof TileEntityPotionShelf ||
 						tile instanceof TileEntityToolRack ||
-						tile instanceof TileEntityBookcase)
+						tile instanceof TileEntityBookcase ||
+                        tile instanceof TileEntityTypewriter)
 					{
 						returnValue = setShiftPosition((BiblioTileEntity)tile, true);
 					}

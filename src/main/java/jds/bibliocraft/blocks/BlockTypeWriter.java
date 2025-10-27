@@ -1,21 +1,30 @@
 package jds.bibliocraft.blocks;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.vecmath.Quat4f;
-import javax.vecmath.Vector3f;
-
+import jds.bibliocraft.rendering.isbrh.obj.EnumObjModels;
+import jds.bibliocraft.rendering.isbrh.obj.ObjBuilder;
+import jds.bibliocraft.rendering.isbrh.obj.ObjContext;
 import jds.bibliocraft.tileentities.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityTypewriter;
+import jds.bibliocraft.utils.BiblioWoodRegistry;
+import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.IIcon;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.client.IItemRenderer;
 import net.minecraftforge.common.util.ForgeDirection;
+import org.lwjgl.opengl.GL11;
+
+import java.util.List;
 
 public class BlockTypeWriter extends BiblioColorBlock
 {
@@ -24,7 +33,7 @@ public class BlockTypeWriter extends BiblioColorBlock
 
 	public BlockTypeWriter()
 	{
-		super(Material.iron, soundTypeMetal, name);
+		super(Material.rock, soundTypeMetal, name);
 	}
 
 	@Override
@@ -121,41 +130,136 @@ public class BlockTypeWriter extends BiblioColorBlock
 		return new TileEntityTypewriter();
 	}
 
-//	@Override
-//	public List<String> getModelParts(BiblioTileEntity tile)
-//	{
-//		List<String> modelParts = new ArrayList<String>();
-//		modelParts.add("base");
-//		return modelParts;
-//	}
+    @Override
+    public void setCustomBlockBounds(BiblioTileEntity biblioTile, float shift)
+    {
+        switch (biblioTile.getAngle())
+        {
+            case SOUTH: { this.setBlockBounds(0.5F - shift, 0, 0.25F, 1F -shift, 0.3F, 0.75F); break; }
+            case WEST:  { this.setBlockBounds(0.25F, 0, 0.5F -shift, 0.75F, 0.3F, 1F -shift); break; }
+            case NORTH: { this.setBlockBounds(0F +shift, 0.0F, 0.25F, 0.5F +shift, 0.3F, 0.75F); break; }
+            case EAST:  { this.setBlockBounds(0.25F, 0.0F, 0F +shift, 0.75F, 0.3F, 0.5F +shift); break; }
+            default:    { this.setBlockBounds(0F +shift, 0.0F, 0.25F, 0.5F +shift, 0.3F, 0.75F); break; } // Default case
+        }
+    }
 
-//	@Override
-//	public TRSRTransformation getAdditionalTransforms(TRSRTransformation transform, BiblioTileEntity tile)
-//	{
-//		transform = transform.compose(new TRSRTransformation(new Vector3f(0.09f, 0.0f, 0.0f),
-//				   new Quat4f(0.0f, 1.0f, 0.0f, 1.0f),
-//				   new Vector3f(1.0f, 1.0f, 1.0f),
-//				   new Quat4f(0.0f, 1.0f, 0.0f, 1.0f)));
-//		return transform;
-//	}
+    private IIcon[] baseIcon = new IIcon[16];
+    private IIcon[] paperIcon = new IIcon[16];
+    private IIcon paperBlankIcon;
 
     @Override
-	public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z)
-	{
-		AxisAlignedBB output = this.getBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
-		TileEntity tile = world.getTileEntity(x, y, z);
-		if (tile != null && tile instanceof BiblioTileEntity)
-		{
-			BiblioTileEntity biblioTile = (BiblioTileEntity)tile;
-			switch (biblioTile.getAngle())
-			{
-				case SOUTH:{output = this.getBlockBounds(0.05F, 0.0F, 0.25F, 0.55F, 0.3F, 0.75F); break;}
-				case WEST:{output = this.getBlockBounds(0.25F, 0.0F, 0.05F, 0.75F, 0.3F, 0.55F); break;}
-				case NORTH:{output = this.getBlockBounds(0.45F, 0.0F, 0.25F, 0.95F, 0.3F, 0.75F); break;}
-				case EAST:{output = this.getBlockBounds(0.25F, 0.0F, 0.45F, 0.75F, 0.3F, 0.95F); break;}
-				default:break;
-			}
-		}
-		return output;
-	}
+    public IIcon getIcon(int side, int meta) {
+        IIcon icon = baseIcon[meta];
+        return icon != null ? icon : super.getIcon(side, meta);
+    }
+
+    @Override
+    public void registerBlockIcons(IIconRegister iconRegister) {
+        for (int i = 0; i < 16; i++){
+            baseIcon[i] = iconRegister.registerIcon("bibliocraft:typewriter/typewriter" + i);
+            paperIcon[i] = iconRegister.registerIcon("bibliocraft:typewriter/typewriter_paper_" + i);
+        }
+        paperBlankIcon = iconRegister.registerIcon("bibliocraft:typewriter/typewriter_paper_blank");
+    }
+
+
+    @Override
+    public void renderItem(IItemRenderer.ItemRenderType type, ItemStack item, Object... data) {
+        switch (type) {
+            case INVENTORY:
+                renderItemTypeWriter(0, -0.5D, -0.5D,180.0D, item.getItemDamage());
+                return;
+            case EQUIPPED_FIRST_PERSON:
+                renderItemTypeWriter(-0.25D, 0.5D, 0.25D, 45.0D, item.getItemDamage());
+                return;
+            case EQUIPPED:
+                renderItemTypeWriter(-0.5D, 0, 0.25D, 90.0D, item.getItemDamage());
+                return;
+            default:
+                renderItemTypeWriter(0, -0.5D, -0.25D, 0, item.getItemDamage());
+        }
+    }
+
+
+    @Override
+    public boolean renderWorldBlock(IBlockAccess world, int x, int y, int z, Block block, Tessellator tes) {
+        tes.setBrightness(block.getMixedBrightnessForBlock(world, x, y, z));
+        tes.setColorOpaque_F(1, 1, 1);
+        tes.addTranslation(x + 0.5F, y, z + 0.5F);
+        TileEntityTypewriter tile = (TileEntityTypewriter)world.getTileEntity(x, y, z);
+        ObjContext ctx = new ObjContext(world, x, y, z, tile.getAngle(), tile.getVertPosition(), tile.getShiftPosition());
+        ObjBuilder obj = new ObjBuilder(tes).setContext(ctx);
+
+        renderTypeWriter(obj,tes, world.getBlockMetadata(x, y, z),false, tile);
+
+        return true;
+    }
+
+
+    public void renderItemTypeWriter(double x, double y, double z, double rotate, int meta) {
+        final Tessellator tes = Tessellator.instance;
+        double scale = 2D;
+        RenderHelper.disableStandardItemLighting();
+        GL11.glRotated(rotate, 0.0D, 1.0D, 0.0D);
+        GL11.glTranslated(x, y, z);
+        GL11.glScaled(scale, scale, scale);
+        ObjContext ctx = new ObjContext(null, x, y, z);
+        ObjBuilder obj = new ObjBuilder(tes).setContext(ctx);
+        obj.start();
+        renderTypeWriter(obj ,tes, meta,true, null);
+        obj.end();
+        RenderHelper.enableStandardItemLighting();
+    }
+
+    public void renderTypeWriter(ObjBuilder obj ,Tessellator tes, int meta , boolean isItem,TileEntityTypewriter tile) {
+        String[] paper = {"paperLine1","paperLine2","paperLine3","paperLine4","paperLine5","paperLine6","paperLine7"};
+        String base = "base";
+        String slide = "slide";
+        obj.setModel(EnumObjModels.TYPEWRITER);
+        obj.renderPart(base, baseIcon[meta]);
+
+        if (isItem) {
+            obj.renderPart(paper[4], paperBlankIcon);
+            obj.renderPart(slide, baseIcon[meta]);
+
+        }
+
+        if (tile != null) {
+            int paperWriteCount = tile.getBookWriteCount();
+            float slideOffset = paperWriteCount / 100F;
+
+            if (paperWriteCount > 0) slideOffset -= 0.07F;
+
+            switch (tile.getAngle()){
+                case SOUTH:{ tes.addTranslation(0, 0, -slideOffset); break; }
+                case WEST:{ tes.addTranslation(slideOffset, 0, 0); break; }
+                case NORTH:{ tes.addTranslation(0, 0, slideOffset); break; }
+                case EAST:{ tes.addTranslation(-slideOffset, 0, 0); break; }
+                default: break;
+            }
+
+
+            if (tile.getHasPaper()) {
+                int paperIndex = getPaperIndexFromCount(paperWriteCount);
+                IIcon paperIconToUse = paperWriteCount > 0 ? paperIcon[paperWriteCount] : paperBlankIcon;
+                obj.renderPart(paper[paperIndex], paperIconToUse);
+            }
+        }
+        obj.renderPart(slide, baseIcon[meta]);
+    }
+
+    /**
+     * Calculates the paperLine index (0-6) from the write count (0-15).
+     * This is non-linear to handle 3-count groups:
+     * - paperLine3 (index 2) handles counts 5, 6, 7
+     */
+    private int getPaperIndexFromCount(int paperWriteCount) {
+        if (paperWriteCount >= 14) return 6; // paperLine7 (14, 15)
+        if (paperWriteCount >= 12) return 5; // paperLine6 (12, 13)
+        if (paperWriteCount >= 10) return 4; // paperLine5 (10, 11)
+        if (paperWriteCount >= 8)  return 3; // paperLine4 (8, 9)
+        if (paperWriteCount >= 5)  return 2; // paperLine3 (5, 6, 7)
+        if (paperWriteCount >= 3)  return 1; // paperLine2 (3, 4)
+        return 0; // paperLine1 (1, 2)
+    }
 }

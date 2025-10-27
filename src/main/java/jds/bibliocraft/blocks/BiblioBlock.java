@@ -1,9 +1,13 @@
 package jds.bibliocraft.blocks;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import cpw.mods.fml.client.registry.RenderingRegistry;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import jds.bibliocraft.api.render.IISBRH;
 import jds.bibliocraft.helpers.CustomBlockItemDataPack;
 import jds.bibliocraft.items.ItemDrill;
 import jds.bibliocraft.items.ItemLock;
@@ -13,7 +17,9 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 
 import net.minecraft.block.material.Material;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -29,11 +35,13 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.StatCollector;
 import net.minecraft.util.Vec3;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.client.IItemRenderer;
 import net.minecraftforge.common.util.ForgeDirection;
 
 
-public abstract class BiblioBlock extends BlockContainer
+public abstract class BiblioBlock extends BlockContainer implements IISBRH, IItemRenderer
 {
 	//private boolean hasCustomWoods = false;
 
@@ -280,18 +288,6 @@ public abstract class BiblioBlock extends BlockContainer
 	}
 
 
-//    @Deprecated
-//    public void addCollisionBoxToList(Block state, World worldIn, int x, int y, int z, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn)
-//    {
-//        addCollisionBoxToList(x, y, z, entityBox, collidingBoxes, state.getCollisionBoundingBoxFromPool(worldIn, x, y, z));
-//    }
-
-//    @Override
-//    public void addCollisionBoxesToList(World world, int x, int y, int z, AxisAlignedBB mask, List<AxisAlignedBB> collidingBoxes, Entity collidingEntity)
-//    {
-//        this.setBlockBoundsBasedOnState(world, x, y, z);
-//        super.addCollisionBoxesToList(world,  x, y, z, mask, collidingBoxes, collidingEntity);
-//	}
 
     public ForgeDirection getFacing(int angle)
     {
@@ -403,20 +399,70 @@ public abstract class BiblioBlock extends BlockContainer
     public boolean isOpaqueCube() { return false; }
 
     @Override
-   public boolean renderAsNormalBlock() {
+    public boolean renderAsNormalBlock() {
         return false;
     }
-/*
+
+
     @Override
-    public boolean isFullyOpaque() { return false; }
-*/
+    public boolean renderWorldBlock(IBlockAccess world, int x, int y, int z, Block block, Tessellator tessellator) {
+        return false;
+    }
+
+    @Override
+    public boolean handleRenderType(ItemStack item, IItemRenderer.ItemRenderType type) {
+        return true;
+    }
+
+    @Override
+    public boolean shouldUseRenderHelper(IItemRenderer.ItemRenderType type, ItemStack item, IItemRenderer.ItemRendererHelper helper) {
+        return true;
+    }
+
+    @Override
+    public void renderItem(IItemRenderer.ItemRenderType type, ItemStack item, Object... data) {
+    }
+
     @Override
     public int getRenderType()
     {
-        return RenderingRegistry.getNextAvailableRenderId();
+        return IISBRH.RenderId;
     }
 
-	@Override
+    @Override
+    public void addCollisionBoxesToList(World world, int x, int y, int z, AxisAlignedBB mask, List list, Entity collider) {
+        this.setBlockBoundsBasedOnState(world,x,y,z);
+        super.addCollisionBoxesToList(world, x, y, z, mask, list, collider);
+    }
+
+    @Override
+    public void setBlockBoundsBasedOnState(IBlockAccess world, int x, int y, int z)
+    {
+        TileEntity tile = world.getTileEntity(x, y, z);
+        if (tile != null && tile instanceof BiblioTileEntity biblioTile)
+        {
+            float shift = 0.0f;
+            switch (biblioTile.getShiftPosition())
+            {
+                case NO_SHIFT:   { shift = 0.0f; break; }
+                case HALF_SHIFT: { shift = 0.25f; break; }
+                case FULL_SHIFT: { shift = 0.5f; break; }
+            }
+
+            // Call the abstract method for the subclass to handle the rest
+            setCustomBlockBounds(biblioTile, shift);
+        }
+        else
+        {
+            // Always have a default case
+            super.setBlockBoundsBasedOnState(world, x, y, z);
+        }
+    }
+
+    public abstract void setCustomBlockBounds(BiblioTileEntity biblioTile, float shift);
+
+
+    @Override
 	public ForgeDirection[] getValidRotations(World worldObj, int x, int y, int z)
 	{
         ForgeDirection[] axises = new ForgeDirection[]{ForgeDirection.UP, ForgeDirection.DOWN};
@@ -503,13 +549,6 @@ public abstract class BiblioBlock extends BlockContainer
  		 return slot;
  	}
 
- 	  public AxisAlignedBB getBlockBounds(float x1, float y1, float z1, float x2, float y2, float z2)
- 	  {
-           this.setBlockBounds(x1, y1, z1, x2, y2, z2);
- 		  return AxisAlignedBB.getBoundingBox(x1, y1, z1, x2, y2, z2);
- 	  }
-
-
 
     /**
      * Rotate this Facing around the Y axis clockwise (NORTH => EAST => SOUTH => WEST => NORTH)
@@ -544,5 +583,11 @@ public abstract class BiblioBlock extends BlockContainer
             default:
                 throw new IllegalStateException("Unable to get CCW facing of " + this);
         }
+    }
+
+    public AxisAlignedBB getBlockBounds(float x1, float y1, float z1, float x2, float y2, float z2)
+    {
+        this.setBlockBounds(x1, y1, z1, x2, y2, z2);
+        return AxisAlignedBB.getBoundingBox(x1, y1, z1, x2, y2, z2);
     }
 }

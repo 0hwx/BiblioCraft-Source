@@ -83,6 +83,11 @@ public class BlockMarkerPole extends BiblioBlock
 		return stack;
 	}
 
+    @Override
+    public void setCustomBlockBounds(BiblioTileEntity biblioTile, float shift) {
+
+    }
+
 //	@Override
 //	public ExtendedBlockState getExtendedBlockStateAlternate(ExtendedBlockState state)
 //	{

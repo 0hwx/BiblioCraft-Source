@@ -30,7 +30,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.IItemRenderer;
 import net.minecraftforge.client.model.obj.WavefrontObject;
 
-public abstract class BiblioWoodBlock extends BiblioBlock implements IISBRH,IItemRenderer
+public abstract class BiblioWoodBlock extends BiblioBlock
 {
 	private boolean isHalfBlock = false;
 	public BiblioWoodBlock(String name, boolean isHalfBlock)
@@ -90,30 +90,6 @@ public abstract class BiblioWoodBlock extends BiblioBlock implements IISBRH,IIte
         BiblioWoodRegistry.registerIcons(iconRegister);
     }
 
-    @Override
-    public boolean renderWorldBlock(IBlockAccess world, int x, int y, int z, Block block,Tessellator tessellator) {
-        return false;
-    }
-
-    @Override
-    public boolean handleRenderType(ItemStack item, IItemRenderer.ItemRenderType type) {
-        return true;
-    }
-
-    @Override
-    public boolean shouldUseRenderHelper(IItemRenderer.ItemRenderType type, ItemStack item, IItemRenderer.ItemRendererHelper helper) {
-        return true;
-    }
-
-    @Override
-    public void renderItem(IItemRenderer.ItemRenderType type, ItemStack item, Object... data) {
-    }
-
-    @Override
-    public int getRenderType()
-    {
-        return IISBRH.RenderId;
-    }
 
 
     public TextureState addAdditionTextureStateInformation(BiblioTileEntity tile, TextureState state)
@@ -179,32 +155,16 @@ public abstract class BiblioWoodBlock extends BiblioBlock implements IISBRH,IIte
     }
 
     @Override
-    public void setBlockBoundsBasedOnState(IBlockAccess world, int x, int y, int z)
+    public void setCustomBlockBounds(BiblioTileEntity biblioTile, float shift)
     {
-        TileEntity tile = world.getTileEntity(x, y, z);
-        if (this.isHalfBlock && tile != null && tile instanceof BiblioTileEntity)
+        // This is your specific bounding box logic for the typewriter
+        switch (biblioTile.getAngle())
         {
-            BiblioTileEntity biblioTile = (BiblioTileEntity)tile;
-            float shift = 0.0f;
-            switch (biblioTile.getShiftPosition())
-            {
-                case NO_SHIFT:   { shift = 0.0f; break; }
-                case HALF_SHIFT: { shift = 0.25f; break; }
-                case FULL_SHIFT: { shift = 0.5f; break; }
-            }
-
-            switch (biblioTile.getAngle())
-            {
-                case SOUTH: { this.setBlockBounds(0.5F-shift, 0.0F, 0.0F, 1.0F-shift, 1.0F, 1.0F); break; }
-                case WEST:  { this.setBlockBounds(0.0F, 0.0F, 0.5F-shift, 1.0F, 1.0F, 1.0F-shift); break; }
-                case NORTH: { this.setBlockBounds(0.0F+shift, 0.0F, 0.0F, 0.5F+shift, 1.0F, 1.0F); break; }
-                case EAST:  { this.setBlockBounds(0.0F, 0.0F, 0.0F+shift, 1.0F, 1.0F, 0.5F+shift); break; }
-                default:    { this.setBlockBounds(0.0F+shift, 0.0F, 0.0F, 0.5F+shift, 1.0F, 1.0F); break; }
-            }
-        }
-        else
-        {
-            super.setBlockBoundsBasedOnState(world, x, y, z);
+            case SOUTH: { this.setBlockBounds(0.5F-shift, 0.0F, 0.0F, 1.0F-shift, 1.0F, 1.0F); break; }
+            case WEST:  { this.setBlockBounds(0.0F, 0.0F, 0.5F-shift, 1.0F, 1.0F, 1.0F-shift); break; }
+            case EAST:  { this.setBlockBounds(0.0F, 0.0F, 0.0F+shift, 1.0F, 1.0F, 0.5F+shift); break; }
+            case NORTH:
+            default:    { this.setBlockBounds(0.0F+shift, 0.0F, 0.0F, 0.5F+shift, 1.0F, 1.0F); break; }
         }
     }
 

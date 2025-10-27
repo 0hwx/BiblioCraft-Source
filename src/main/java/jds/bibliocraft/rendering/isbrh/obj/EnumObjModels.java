@@ -9,7 +9,11 @@ public enum EnumObjModels {
     SHELF("shelf", "bibliocraft:models/block/shelf.obj"),
     FANCY_WORKBENCH("fancy_workbench", "bibliocraft:models/block/fancyworkbench.obj"),
     BOOKCASE("bookcase", "bibliocraft:models/block/bookcase.obj"),
-    TABLE("table", "bibliocraft:models/block/table.obj");
+    TABLE("table", "bibliocraft:models/block/table.obj"),
+
+
+    TYPEWRITER("typewriter", "bibliocraft:models/blocks/typewriter.obj"),
+    ;
 
     private final String name;
     private final ResourceLocation path;

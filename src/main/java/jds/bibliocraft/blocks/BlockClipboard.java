@@ -134,25 +134,16 @@ public class BlockClipboard extends BiblioBlock
 		return stack;
 	}
 
-
-
-	@Override
-	public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z)
-	{
-		TileEntity tile = world.getTileEntity(x, y, z);
-		if (tile != null && tile instanceof TileEntityClipboard)
-		{
-			TileEntityClipboard clipboard = (TileEntityClipboard)tile;
-			switch (clipboard.getAngle())
-			{
-				case SOUTH:{this.setBlockBounds(0.97F, 0.08F, 0.15F, 1.0F, 0.92F, 0.85F); break;}
-				case WEST:{this.setBlockBounds(0.15F, 0.08F, 0.97F, 0.85F, 0.92F, 1.0F); break;}
-				case NORTH:{this.setBlockBounds(0.0F, 0.08F, 0.15F, 0.03F, 0.92F, 0.85F); break;}
-				case EAST:{this.setBlockBounds(0.15F, 0.08F, 0.0F, 0.85F, 0.92F, 0.03F); break;}
-				default: break;
-			}
-		}
-	    return super.getCollisionBoundingBoxFromPool(world, x, y, z);
-	}
+    @Override
+    public void setCustomBlockBounds(BiblioTileEntity biblioTile, float shift) {
+        switch (biblioTile.getAngle())
+        {
+            case SOUTH:{this.setBlockBounds(0.97F, 0.08F, 0.15F, 1.0F, 0.92F, 0.85F); break;}
+            case WEST:{this.setBlockBounds(0.15F, 0.08F, 0.97F, 0.85F, 0.92F, 1.0F); break;}
+            case NORTH:{this.setBlockBounds(0.0F, 0.08F, 0.15F, 0.03F, 0.92F, 0.85F); break;}
+            case EAST:{this.setBlockBounds(0.15F, 0.08F, 0.0F, 0.85F, 0.92F, 0.03F); break;}
+            default: break;
+        }
+    }
 
 }

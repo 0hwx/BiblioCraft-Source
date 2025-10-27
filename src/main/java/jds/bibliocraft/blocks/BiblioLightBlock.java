@@ -96,4 +96,9 @@ public abstract class BiblioLightBlock extends BiblioBlock
 		return stack;
 	}
 
+    @Override
+    public void setCustomBlockBounds(BiblioTileEntity biblioTile, float shift)
+    {
+
+    }
 }

@@ -29,4 +29,9 @@ public abstract class BiblioSimpleBlock extends BiblioBlock
 		return stack;
 	}
 
+    @Override
+    public void setCustomBlockBounds(BiblioTileEntity biblioTile, float shift)
+    {
+
+    }
 }

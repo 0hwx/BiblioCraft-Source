@@ -1,0 +1,18 @@
+# Made in Blockbench 4.12.3
+newmtl paper_1
+map_Kd typewriter_paper_1.png
+newmtl paper_4
+map_Kd typewriter_paper_4.png
+newmtl paper_3
+map_Kd typewriter_paper_3.png
+newmtl paper_2
+map_Kd typewriter_paper_2.png
+newmtl paper_7
+map_Kd typewriter_paper_7.png
+newmtl paper_6
+map_Kd typewriter_paper_6.png
+newmtl typewriter
+map_Kd typewriter0.png
+newmtl paper_5
+map_Kd typewriter_paper_5.png
+newmtl none
