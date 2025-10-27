@@ -33,7 +33,6 @@ import net.minecraftforge.client.model.obj.WavefrontObject;
 public abstract class BiblioWoodBlock extends BiblioBlock implements IISBRH,IItemRenderer
 {
 	private boolean isHalfBlock = false;
-    private IIcon[] icons = new IIcon[50];
 	public BiblioWoodBlock(String name, boolean isHalfBlock)
 	{
 		super(Material.wood, soundTypeWood, BlockLoader.biblioTab, name);
@@ -178,37 +177,36 @@ public abstract class BiblioWoodBlock extends BiblioBlock implements IISBRH,IIte
             return OAK;
         }
     }
-    @SideOnly(Side.CLIENT)
+
     @Override
-    public AxisAlignedBB getSelectedBoundingBoxFromPool(World worldIn, int x, int y, int z)
+    public void setBlockBoundsBasedOnState(IBlockAccess world, int x, int y, int z)
     {
-        return this.getCollisionBoundingBoxFromPool(worldIn, x, y, z);
+        TileEntity tile = world.getTileEntity(x, y, z);
+        if (this.isHalfBlock && tile != null && tile instanceof BiblioTileEntity)
+        {
+            BiblioTileEntity biblioTile = (BiblioTileEntity)tile;
+            float shift = 0.0f;
+            switch (biblioTile.getShiftPosition())
+            {
+                case NO_SHIFT:   { shift = 0.0f; break; }
+                case HALF_SHIFT: { shift = 0.25f; break; }
+                case FULL_SHIFT: { shift = 0.5f; break; }
+            }
+
+            switch (biblioTile.getAngle())
+            {
+                case SOUTH: { this.setBlockBounds(0.5F-shift, 0.0F, 0.0F, 1.0F-shift, 1.0F, 1.0F); break; }
+                case WEST:  { this.setBlockBounds(0.0F, 0.0F, 0.5F-shift, 1.0F, 1.0F, 1.0F-shift); break; }
+                case NORTH: { this.setBlockBounds(0.0F+shift, 0.0F, 0.0F, 0.5F+shift, 1.0F, 1.0F); break; }
+                case EAST:  { this.setBlockBounds(0.0F, 0.0F, 0.0F+shift, 1.0F, 1.0F, 0.5F+shift); break; }
+                default:    { this.setBlockBounds(0.0F+shift, 0.0F, 0.0F, 0.5F+shift, 1.0F, 1.0F); break; }
+            }
+        }
+        else
+        {
+            super.setBlockBoundsBasedOnState(world, x, y, z);
+        }
     }
-	@Override
-	public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z)
-	{
-    	TileEntity tile = world.getTileEntity(x, y, z);
-		if (this.isHalfBlock && tile != null && tile instanceof BiblioTileEntity)
-		{
-			BiblioTileEntity biblioTile = (BiblioTileEntity)tile;
-			float shift = 0.0f;
-			switch (biblioTile.getShiftPosition())
-			{
-				case NO_SHIFT: { shift = 0.0f; break; }
-				case HALF_SHIFT: { shift = 0.25f; break; }
-				case FULL_SHIFT: { shift = 0.5f; break; }
-			}
-			switch (biblioTile.getAngle())
-			{
-                case SOUTH:{this.setBlockBounds(0.5F-shift, 0.0F, 0.0F, 1.0F-shift, 1.0F, 1.0F); break;}
-                case WEST:{this.setBlockBounds(0.0F, 0.0F, 0.5F-shift, 1.0F, 1.0F, 1.0F-shift); break;}
-                case NORTH:{this.setBlockBounds(0.0F+shift, 0.0F, 0.0F, 0.5F+shift, 1.0F, 1.0F); break;}
-                case EAST:{this.setBlockBounds(0.0F, 0.0F, 0.0F+shift, 1.0F, 1.0F, 0.5F+shift); break;}
-                default: {this.setBlockBounds(0.0F+shift, 0.0F, 0.0F, 0.5F+shift, 1.0F, 1.0F); break;}
-			}
-		}
-		return super.getCollisionBoundingBoxFromPool(world, x, y, z);
-	}
 
 	@Override
 	public int getLightValue(IBlockAccess world, int x, int y, int z)
