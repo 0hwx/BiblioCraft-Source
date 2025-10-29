@@ -6,7 +6,14 @@ import net.minecraftforge.client.model.obj.WavefrontObject;
 
 public enum EnumObjModels {
     TOOL_RACK("tool_rack", "bibliocraft:models/block/tool_rack.obj"),
+
+
     SHELF("shelf", "bibliocraft:models/block/shelf.obj"),
+    POTION_SHELF("potion_shelf","bibliocraft:models/blocks/potion_shelf.obj"),
+
+    LABEL("label","bibliocraft:models/blocks/label.obj"),
+
+
     FANCY_WORKBENCH("fancy_workbench", "bibliocraft:models/block/fancyworkbench.obj"),
     BOOKCASE("bookcase", "bibliocraft:models/block/bookcase.obj"),
     TABLE("table", "bibliocraft:models/block/table.obj"),

@@ -421,7 +421,7 @@ public class BlockBookcase extends BiblioWoodBlock
         ObjContext ctx = new ObjContext(world, x, y, z, tile.getAngle(), tile.getVertPosition(), tile.getShiftPosition());
         ObjBuilder obj = new ObjBuilder(tes).setContext(ctx);
 
-        renderBookcase(obj, world.getBlockMetadata(x, y, z), tile.getCheckedBooks(), false);
+        renderBookcase(obj, tile.getExtendedMeta(), tile.getCheckedBooks(), false);
         return true;
     }
 
@@ -429,13 +429,16 @@ public class BlockBookcase extends BiblioWoodBlock
     public void renderItemBookcase(double x, double y, double z, double rotate, ItemStack stack) {
         final Tessellator tes = Tessellator.instance;
         int meta = stack.getItemDamage();
+        int[] count = new int[]{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+        Block creativeBookCase = Block.getBlockFromItem(stack.getItem());
+        if (creativeBookCase instanceof BlockBookcaseCreative) count = new int[]{1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1};
         RenderHelper.disableStandardItemLighting();
         GL11.glRotated(rotate, 0.0D, 1.0D, 0.0D);
         GL11.glTranslated(x, y, z);
         ObjContext ctx = new ObjContext(null, x, y, z);
         ObjBuilder obj = new ObjBuilder(tes).setContext(ctx);
         obj.start();
-        renderBookcase(obj , meta,null, true);
+        renderBookcase(obj , meta,count, false);
         obj.end();
         RenderHelper.enableStandardItemLighting();
     }

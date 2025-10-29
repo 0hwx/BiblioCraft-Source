@@ -1,5 +1,7 @@
 package jds.bibliocraft.blocks;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import jds.bibliocraft.BiblioCraft;
 import jds.bibliocraft.containers.ContainerWeaponRack;
 import jds.bibliocraft.rendering.isbrh.obj.EnumObjModels;
@@ -30,7 +32,7 @@ import org.lwjgl.opengl.GL11;
 public class BlockToolRack extends BiblioWoodBlock
 {
 	public static final String name = "ToolRack";
-	public static final BlockToolRack instance = new BlockToolRack();
+    public static final Block instance = new BlockToolRack();
 
     public BlockToolRack()
 	{
@@ -107,10 +109,10 @@ public class BlockToolRack extends BiblioWoodBlock
         tes.setColorOpaque_F(1, 1, 1);
         tes.addTranslation(x + 0.5F, y, z + 0.5F);
         BiblioTileEntity tile = (BiblioTileEntity)world.getTileEntity(x, y, z);
+        if (tile == null) return false;
         ObjContext ctx = new ObjContext(world, x, y, z, tile.getAngle(), tile.getVertPosition(), tile.getShiftPosition());
         ObjBuilder obj = new ObjBuilder(tes).setContext(ctx);
-
-        renderToolRack(obj, world.getBlockMetadata(x, y, z));
+        renderToolRack(obj, tile.getExtendedMeta());
 
 //        tes.addTranslation(-x - .5F, -y - .5F, -z - .5F);
         return true;

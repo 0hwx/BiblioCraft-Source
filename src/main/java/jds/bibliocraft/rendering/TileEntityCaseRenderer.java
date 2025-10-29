@@ -47,12 +47,12 @@ public class TileEntityCaseRenderer extends TileEntityBiblioRenderer
         GL11.glRotatef(180.0F, 0.0F, 0.0F, 1.0F);
         this.bindTexture(WoolColourTexture(this.WoolColor));
         this.model.rendercase_inside();
-        this.bindTexture(BiblioWoodRegistry.getResource(meta));
+//        this.bindTexture(BiblioWoodRegistry.getResource(meta));
         this.model.rendercase_bottom();
 
         if (this.openLid)
         {
-            this.bindTexture(BiblioWoodRegistry.getResource(meta));
+//            this.bindTexture(BiblioWoodRegistry.getResource(meta));
             this.model.renderlid_wood_open();
             this.bindTexture(CommonProxy.GLASS);
             this.model.renderlid_glass_open();
@@ -61,7 +61,7 @@ public class TileEntityCaseRenderer extends TileEntityBiblioRenderer
         }
         else
         {
-            this.bindTexture(BiblioWoodRegistry.getResource(meta));
+//            this.bindTexture(BiblioWoodRegistry.getResource(meta));
             this.model.rendercase_lid_wood();
             this.bindTexture(CommonProxy.GLASS);
             this.model.rendercase_lid_glass();

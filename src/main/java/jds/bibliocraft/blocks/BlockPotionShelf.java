@@ -2,14 +2,25 @@ package jds.bibliocraft.blocks;
 
 import jds.bibliocraft.BiblioCraft;
 import jds.bibliocraft.Config;
+import jds.bibliocraft.rendering.isbrh.obj.EnumObjModels;
+import jds.bibliocraft.rendering.isbrh.obj.ObjBuilder;
+import jds.bibliocraft.rendering.isbrh.obj.ObjContext;
 import jds.bibliocraft.tileentities.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityPotionShelf;
+import jds.bibliocraft.utils.BiblioWoodRegistry;
+import net.minecraft.block.Block;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.IIcon;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.client.IItemRenderer;
 import net.minecraftforge.common.util.ForgeDirection;
+import org.lwjgl.opengl.GL11;
 
 public class BlockPotionShelf  extends BiblioWoodBlock
 {
@@ -141,4 +152,70 @@ public class BlockPotionShelf  extends BiblioWoodBlock
 		}
 		return 0;
 	}
+
+    @Override
+    public void setCustomBlockBounds(BiblioTileEntity biblioTile, float shift)
+    {
+        switch (biblioTile.getAngle())
+        {
+            case SOUTH: { this.setBlockBounds(0.75F-shift, 0.0F, 0.0F, 1.0F-shift, 1.0F, 1.0F); break; }
+            case WEST:  { this.setBlockBounds(0.0F, 0.0F, 0.75F-shift, 1.0F, 1.0F, 1.0F-shift); break; }
+            case EAST:  { this.setBlockBounds(0.0F, 0.0F, 0.0F+shift, 1.0F, 1.0F, 0.25F+shift); break; }
+            case NORTH:
+            default:    { this.setBlockBounds(0.0F+shift, 0.0F, 0.0F, 0.25F+shift, 1.0F, 1.0F); break; }
+        }
+    }
+
+    @Override
+    public void renderItem(IItemRenderer.ItemRenderType type, ItemStack item, Object... data) {
+        switch (type) {
+            case INVENTORY:
+                renderItemPotionShelf(0, -0.5D, -0.25D,180.0D, item.getItemDamage());
+                return;
+            case EQUIPPED_FIRST_PERSON:
+                renderItemPotionShelf(-0.25D, 0.25D, 0.25D, 45.0D, item.getItemDamage());
+                return;
+            case EQUIPPED:
+                renderItemPotionShelf(-0.5D, 0, 0.25D, 90.0D, item.getItemDamage());
+                return;
+            default:
+                renderItemPotionShelf(0, -0.5D, -0.25D,0, item.getItemDamage());
+        }
+    }
+
+
+    @Override
+    public boolean renderWorldBlock(IBlockAccess world, int x, int y, int z, Block block, Tessellator tes) {
+        tes.setBrightness(block.getMixedBrightnessForBlock(world, x, y, z));
+        tes.setColorOpaque_F(1, 1, 1);
+        tes.addTranslation(x + 0.5F, y, z + 0.5F);
+        TileEntityPotionShelf tile = (TileEntityPotionShelf)world.getTileEntity(x, y, z);
+        ObjContext ctx = new ObjContext(world, x, y, z, tile.getAngle(), tile.getVertPosition(), tile.getShiftPosition());
+        ObjBuilder obj = new ObjBuilder(tes).setContext(ctx);
+
+        renderPotionShelf(obj, tile.getExtendedMeta());
+
+        return true;
+    }
+
+
+    public void renderItemPotionShelf(double x, double y, double z, double rotate, int meta) {
+        final Tessellator tes = Tessellator.instance;
+        RenderHelper.disableStandardItemLighting();
+        GL11.glRotated(rotate, 0.0D, 1.0D, 0.0D);
+        GL11.glTranslated(x, y, z);
+        ObjContext ctx = new ObjContext(null, x, y, z);
+        ObjBuilder obj = new ObjBuilder(tes).setContext(ctx);
+        obj.start();
+        renderPotionShelf(obj , meta);
+        obj.end();
+        RenderHelper.enableStandardItemLighting();
+    }
+
+    public void renderPotionShelf(ObjBuilder obj , int meta) {
+        IIcon woodIcon = BiblioWoodRegistry.getIcon(meta);
+        String[] shelf = {"left","right","bottom","middle","top",};
+        obj.setModel(EnumObjModels.POTION_SHELF);
+        obj.renderPart(shelf, woodIcon);
+    }
 }

@@ -4,7 +4,7 @@ import java.util.List;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import jds.bibliocraft.blocks.BiblioWoodBlock.EnumWoodType;
+import jds.bibliocraft.tileentities.BiblioTileEntity;
 import jds.bibliocraft.utils.BiblioWoodRegistry;
 import net.minecraft.block.Block;
 
@@ -15,6 +15,10 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
+
+import javax.annotation.Nullable;
 
 
 public class BiblioWoodBlockItem extends ItemBlock
@@ -26,6 +30,45 @@ public class BiblioWoodBlockItem extends ItemBlock
         super(block);
         this.block = block;
         setHasSubtypes(true);
+    }
+
+    @Override
+    public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side,
+                                float hitX, float hitY, float hitZ, int metadata) {
+        return placeWood(stack, player, world, x, y, z, metadata);
+    }
+
+    public static boolean placeWood(ItemStack stack, @Nullable EntityPlayer player, World world, int x, int y, int z,
+                                    int metadata) {
+        Block block = Block.getBlockFromItem(stack.getItem());
+        return placeWood(stack, stack.getItemDamage(), block, player, world, x, y, z, metadata);
+    }
+
+    public static boolean placeWood(ItemStack stack, int extendedMeta, Block block, @Nullable EntityPlayer player,
+                                    World world, int x, int y, int z, int metadata) {
+        boolean placed = world.setBlock(x, y, z, block, metadata, 3);
+        if (!placed) {
+            return false;
+        }
+
+        Block worldBlock = world.getBlock(x, y, z);
+        if (!Block.isEqualTo(block, worldBlock)) {
+            return false;
+        }
+
+        TileEntity tile = world.getTileEntity(x, y, z);
+        if (!(tile instanceof BiblioTileEntity)) {
+            world.setBlockToAir(x, y, z);
+            return false;
+        }
+
+        if (player != null) {
+            worldBlock.onBlockPlacedBy(world, x, y, z, player, stack);
+            worldBlock.onPostBlockPlaced(world, x, y, z, metadata);
+        }
+
+        ((BiblioTileEntity) tile).setExtendedMeta(extendedMeta);
+        return true;
     }
 
     @Override

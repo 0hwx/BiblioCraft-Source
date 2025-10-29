@@ -105,14 +105,14 @@ public class ClientProxy extends CommonProxy
 			if (Config.enableFurniturePaneler){
 				ClientRegistry.bindTileEntitySpecialRenderer(TileEntityFurniturePaneler.class, new TileEntityFurniturePanelerRenderer());}
 			if (Config.enableWoodLabel){
-                registerTileEntityAndItemRenderers(BlockLabel.instance, TileEntityLabel.class, new TileEntityLabelRenderer());}
+                registerTileEntityAndItemRenderers1(BlockLabel.instance, TileEntityLabel.class, new TileEntityLabelRenderer());}
 			if (Config.enableToolrack){
                 registerTileEntityAndItemRenderers1(BlockToolRack.instance, TileEntityToolRack.class, new TileEntityToolRackRenderer());
             }
 			if (Config.enableWeaponcase){
 				ClientRegistry.bindTileEntitySpecialRenderer(TileEntityCase.class, new TileEntityCaseRenderer());}
 			if (Config.enablePotionshelf){
-                registerTileEntityAndItemRenderers(BlockPotionShelf.instance, TileEntityPotionShelf.class, new TileEntityPotionShelfRenderer());
+                registerTileEntityAndItemRenderers1(BlockPotionShelf.instance, TileEntityPotionShelf.class, new TileEntityPotionShelfRenderer());
             }
 			if (Config.enableClock){
 				ClientRegistry.bindTileEntitySpecialRenderer(TileEntityClock.class, new TileEntityClockRenderer());}
@@ -204,7 +204,7 @@ public class ClientProxy extends CommonProxy
 		}
 		if (Config.enableToolrack)
 		{
-			Item item = Item.getItemFromBlock(BlockToolRack.instance);
+//			Item item = Item.getItemFromBlock(BlockToolRack.instance);
 //			for (int i = 0; i <= BlockLoader.NUMBER_OF_WOODS; i++)
 //			{
 //				ModelLoader.setCustomModelResourceLocation(item, i, ModelToolRack.modelResourceLocation);

@@ -12,7 +12,7 @@ import net.minecraftforge.client.model.obj.WavefrontObject;
 
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
 
-@ThreadSafeISBRH(perThread = false)
+//@ThreadSafeISBRH(perThread = false)
 public class SimpleModelRenderer implements ISimpleBlockRenderingHandler {
 
     public SimpleModelRenderer() {

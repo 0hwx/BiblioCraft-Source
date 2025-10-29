@@ -52,7 +52,7 @@ public class ObjBuilder {
     }
 
     public void renderPart(String[] partName, IIcon icon) {
-        if (model == null || context == null) return;
+        if (model == null || context == null || icon == null ) return;
         for (GroupObject group : model.groupObjects) {
             for (String part : partName) {
                 if (group.name.equalsIgnoreCase(part)) {
@@ -64,7 +64,7 @@ public class ObjBuilder {
 
 
     public void renderPart(String partName, IIcon icon) {
-        if (model == null || context == null) return;
+        if (model == null || context == null || icon == null ) return;
         for (GroupObject group : model.groupObjects) {
             if (group.name.equalsIgnoreCase(partName)) {
                 renderGroup(group, icon);

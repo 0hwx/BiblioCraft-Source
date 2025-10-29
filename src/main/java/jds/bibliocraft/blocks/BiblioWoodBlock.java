@@ -1,5 +1,6 @@
 package jds.bibliocraft.blocks;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import cpw.mods.fml.relauncher.Side;
@@ -11,8 +12,10 @@ import jds.bibliocraft.api.render.IISBRH;
 import jds.bibliocraft.states.TextureState;
 import jds.bibliocraft.tileentities.BiblioTileEntity;
 import jds.bibliocraft.utils.BiblioWoodRegistry;
+import jds.bibliocraft.utils.ParticleHelper;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.IIconRegister;
@@ -25,6 +28,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.IIcon;
+import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.client.IItemRenderer;
@@ -33,10 +37,14 @@ import net.minecraftforge.client.model.obj.WavefrontObject;
 public abstract class BiblioWoodBlock extends BiblioBlock
 {
 	private boolean isHalfBlock = false;
+    private final ParticleHelper.Callback particleCallback;
+
 	public BiblioWoodBlock(String name, boolean isHalfBlock)
 	{
 		super(Material.wood, soundTypeWood, BlockLoader.biblioTab, name);
 		this.isHalfBlock = isHalfBlock;
+
+        particleCallback = new ParticleHelper.DefaultCallback(this);
 	}
 
     @Override
@@ -49,23 +57,61 @@ public abstract class BiblioWoodBlock extends BiblioBlock
 	@Override
 	public ItemStack getPickBlockExtras(ItemStack stack, World world, int x, int y, int z)
 	{
-		TileEntity wtile = world.getTileEntity(x, y, z);
-		if (wtile != null && wtile instanceof BiblioTileEntity)
-		{
-			BiblioTileEntity tile = (BiblioTileEntity)wtile;
-			if (tile.getBlockMetadata() == 6)
-			{
-				String customTexture = tile.getCustomTextureString();
-				if (!customTexture.equals("none") || !customTexture.equals(""))
-				{
-					NBTTagCompound tags = new NBTTagCompound();
-					tags.setString("renderTexture", customTexture);
-					stack.setTagCompound(tags);
-				}
-			}
-		}
-		return stack;
+        BiblioTileEntity tile = (BiblioTileEntity) world.getTileEntity(x, y, z);
+        if (tile == null) {
+            return null;
+        }
+
+//        if (tile.getBlockMetadata() == 6)
+//			{
+//				String customTexture = tile.getCustomTextureString();
+//				if (!customTexture.equals("none") || !customTexture.equals(""))
+//				{
+//					NBTTagCompound tags = new NBTTagCompound();
+//					tags.setString("renderTexture", customTexture);
+//					stack.setTagCompound(tags);
+//				}
+//			}
+
+        ItemStack itemStack = new ItemStack(this, 1);
+        itemStack.setItemDamage(tile.getExtendedMeta());
+        return itemStack;
 	}
+
+    /* DROP HANDLING */
+    // Hack: When harvesting we need to get the drops in onBlockHarvested,
+    // because Mojang destroys the block and tile before calling getDrops.
+    private final ThreadLocal<ArrayList<ItemStack>> drops = new ThreadLocal<>();
+
+    @Override
+    public void onBlockHarvested(World world, int x, int y, int z, int meta, EntityPlayer playerProfile) {
+        drops.set(getDrops(world, x, y, z));
+    }
+
+    @Override
+    public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune) {
+        ArrayList<ItemStack> ret = drops.get();
+        drops.remove();
+
+        // not harvested, get drops normally
+        if (ret == null) {
+            ret = getDrops(world, x, y, z);
+        }
+
+        return ret;
+    }
+
+    public ArrayList<ItemStack> getDrops(World world, int x, int y, int z) {
+        ArrayList<ItemStack> drops = new ArrayList<>();
+
+        ItemStack stack = getPickBlockExtras(null, world, x, y, z);
+        if (stack != null) {
+            drops.add(stack);
+        }
+
+        return drops;
+    }
+
 
     @Override
     public IIcon getIcon(int side, int meta) {
@@ -76,13 +122,11 @@ public abstract class BiblioWoodBlock extends BiblioBlock
     @Override
     @SideOnly(Side.CLIENT)
     public IIcon getIcon(IBlockAccess world, int x, int y, int z, int side) {
-        int meta = world.getBlockMetadata(x, y, z);
-        BiblioWoodRegistry.WoodEntry wood = BiblioWoodRegistry.getWood(meta);
-        if (wood == null) {
+        BiblioTileEntity TE = (BiblioTileEntity) world.getTileEntity(x, y, z);
+        if (TE == null) {
             return super.getIcon(world, x, y, z, side);
         }
-
-        return BiblioWoodRegistry.getIcon(meta);
+        return BiblioWoodRegistry.getIcon(TE.getExtendedMeta());
     }
 
     @Override
@@ -90,6 +134,18 @@ public abstract class BiblioWoodBlock extends BiblioBlock
         BiblioWoodRegistry.registerIcons(iconRegister);
     }
 
+    /* Particles */
+    @SideOnly(Side.CLIENT)
+    @Override
+    public boolean addHitEffects(World worldObj, MovingObjectPosition target, EffectRenderer effectRenderer) {
+        return ParticleHelper.addHitEffects(worldObj, this, target, effectRenderer, particleCallback);
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public boolean addDestroyEffects(World worldObj, int x, int y, int z, int meta, EffectRenderer effectRenderer) {
+        return ParticleHelper.addDestroyEffects(worldObj, this, x, y, z, meta, effectRenderer, particleCallback);
+    }
 
 
     public TextureState addAdditionTextureStateInformation(BiblioTileEntity tile, TextureState state)
@@ -157,14 +213,26 @@ public abstract class BiblioWoodBlock extends BiblioBlock
     @Override
     public void setCustomBlockBounds(BiblioTileEntity biblioTile, float shift)
     {
-        // This is your specific bounding box logic for the typewriter
-        switch (biblioTile.getAngle())
-        {
-            case SOUTH: { this.setBlockBounds(0.5F-shift, 0.0F, 0.0F, 1.0F-shift, 1.0F, 1.0F); break; }
-            case WEST:  { this.setBlockBounds(0.0F, 0.0F, 0.5F-shift, 1.0F, 1.0F, 1.0F-shift); break; }
-            case EAST:  { this.setBlockBounds(0.0F, 0.0F, 0.0F+shift, 1.0F, 1.0F, 0.5F+shift); break; }
-            case NORTH:
-            default:    { this.setBlockBounds(0.0F+shift, 0.0F, 0.0F, 0.5F+shift, 1.0F, 1.0F); break; }
+        if(isHalfBlock) {
+            switch (biblioTile.getAngle()) {
+                case SOUTH: {
+                    this.setBlockBounds(0.5F - shift, 0.0F, 0.0F, 1.0F - shift, 1.0F, 1.0F);
+                    break;
+                }
+                case WEST: {
+                    this.setBlockBounds(0.0F, 0.0F, 0.5F - shift, 1.0F, 1.0F, 1.0F - shift);
+                    break;
+                }
+                case EAST: {
+                    this.setBlockBounds(0.0F, 0.0F, 0.0F + shift, 1.0F, 1.0F, 0.5F + shift);
+                    break;
+                }
+                case NORTH:
+                default: {
+                    this.setBlockBounds(0.0F + shift, 0.0F, 0.0F, 0.5F + shift, 1.0F, 1.0F);
+                    break;
+                }
+            }
         }
     }
 

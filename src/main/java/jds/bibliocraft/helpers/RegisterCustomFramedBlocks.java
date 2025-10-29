@@ -84,7 +84,7 @@ public class RegisterCustomFramedBlocks
 		this.blockList.add(new ItemStack(BlockFancyWorkbench.instance, 1, 6));           //3 Fancy Workbench
 		this.blockList.add(new ItemStack(BlockFurniturePaneler.instance, 1, 6));         //4 Paneler
 		this.blockList.add(new ItemStack(BlockShelf.instance, 1, 6));                    //5 Shelf
-		this.blockList.add(new ItemStack(BlockToolRack.instance, 1, 6));                 //6 Tool Rack
+//		this.blockList.add(new ItemStack(BlockToolRack.instance, 1, 6));                 //6 Tool Rack
 		this.blockList.add(new ItemStack(BlockPotionShelf.instance, 1, 6));              //7 Potion Shelf
 		this.blockList.add(new ItemStack(BlockClock.instance, 1, 6));                    //8 Clock
 		this.blockList.add(new ItemStack(BlockPaintingFrameBorderless.instance, 1, 6));  //9 Painting Frame Borderless // recipes all contin slabs, blocks, or this borderless

@@ -175,7 +175,7 @@ public class BlockFancyWorkbench extends BiblioWoodBlock
         ObjContext ctx = new ObjContext(world, x, y, z, tile.getAngle(), tile.getVertPosition(), tile.getShiftPosition());
         ObjBuilder obj = new ObjBuilder(tes).setContext(ctx);
 
-        renderFancyWorkbench(obj, world.getBlockMetadata(x, y, z), tile.getBookArray(), false);
+        renderFancyWorkbench(obj, tile.getExtendedMeta(), tile.getBookArray(), false);
 
         return true;
     }

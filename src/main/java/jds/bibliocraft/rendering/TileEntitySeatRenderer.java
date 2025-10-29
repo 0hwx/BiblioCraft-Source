@@ -61,7 +61,7 @@ public class TileEntitySeatRenderer extends TileEntityBiblioRenderer
     public void renderSeat(double x, double y, double z, double rotate, int meta) {
         GL11.glTranslated(x, y, z);
         GL11.glRotated(rotate, 0.0D, 1.0D, 0.0D);
-        mc.renderEngine.bindTexture(BiblioWoodRegistry.getResource(meta));
+//        mc.renderEngine.bindTexture(BiblioWoodRegistry.getResource(meta));
         seat.Stool();
     }
 

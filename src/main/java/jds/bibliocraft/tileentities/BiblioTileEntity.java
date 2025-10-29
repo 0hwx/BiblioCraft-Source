@@ -171,7 +171,13 @@ public abstract class BiblioTileEntity extends TileEntity implements IInventory,
     /** Use this to save custom NBT data tags */
     public abstract NBTTagCompound writeCustomNBTData(NBTTagCompound nbt);
 
-	public void setAngle(ForgeDirection facing)
+	public void setExtendedMeta(int extendedMeta)
+	{
+		this.extendedMeta = extendedMeta;
+		getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
+	}
+
+    public void setAngle(ForgeDirection facing)
 	{
 		this.angle = facing;
 		getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
@@ -188,6 +194,10 @@ public abstract class BiblioTileEntity extends TileEntity implements IInventory,
 		this.vertPosition = position;
 		getWorldObj().markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
+
+    public int getExtendedMeta(){
+        return this.extendedMeta;
+    }
 
 	public ForgeDirection getAngle()
 	{

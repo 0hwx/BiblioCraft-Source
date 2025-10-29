@@ -153,7 +153,7 @@ public class BlockShelf extends BiblioWoodBlock
         ObjContext ctx = new ObjContext(world, x, y, z, tile.getAngle(), tile.getVertPosition(), tile.getShiftPosition());
         ObjBuilder obj = new ObjBuilder(tes).setContext(ctx);
 
-        renderShelf(obj, world.getBlockMetadata(x, y, z), tile.getTop());
+        renderShelf(obj, tile.getExtendedMeta(), tile.getTop());
 
 //        tes.addTranslation(-x - .5F, -y - .5F, -z - .5F);
         return true;

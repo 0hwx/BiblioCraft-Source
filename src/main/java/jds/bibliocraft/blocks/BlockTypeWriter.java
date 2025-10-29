@@ -33,7 +33,7 @@ public class BlockTypeWriter extends BiblioColorBlock
 
 	public BlockTypeWriter()
 	{
-		super(Material.rock, soundTypeMetal, name);
+		super(Material.iron, soundTypeMetal, name);
 	}
 
 	@Override
