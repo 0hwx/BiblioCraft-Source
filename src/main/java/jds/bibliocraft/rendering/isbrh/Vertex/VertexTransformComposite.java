@@ -6,11 +6,13 @@ import jds.bibliocraft.utils.math.Vector.Vector3d;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 
 public class VertexTransformComposite implements VertexTransform {
 
-    public final List<VertexTransform> xforms = new ArrayList<>();
+    // Use a thread-safe list for read-heavy, write-rare operations
+    public final List<VertexTransform> xforms = new CopyOnWriteArrayList<>();
 
     public VertexTransformComposite(VertexTransform... xforms) {
         Collections.addAll(this.xforms, xforms);
@@ -20,14 +22,6 @@ public class VertexTransformComposite implements VertexTransform {
         this.xforms.addAll(xforms);
     }
 
-//    VertexTransformComposite(Collection<VertexTransform> xformsIn) {
-//        xforms = new VertexTransform[xformsIn.size()];
-//        int i = 0;
-//        for (VertexTransform xform : xformsIn) {
-//            xforms[i] = xform;
-//            i++;
-//        }
-//    }
 
     public void add(VertexTransform xform) {
         this.xforms.add(xform);

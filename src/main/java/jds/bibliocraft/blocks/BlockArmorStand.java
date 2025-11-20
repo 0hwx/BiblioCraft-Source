@@ -1,13 +1,8 @@
 package jds.bibliocraft.blocks;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.vecmath.Quat4f;
-import javax.vecmath.Vector3f;
-
 import jds.bibliocraft.BiblioCraft;
-import jds.bibliocraft.tileentities.BiblioTileEntity;
+import jds.bibliocraft.blocks.base.BiblioWoodBlock;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityArmorStand;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityLivingBase;
@@ -18,8 +13,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ChunkCoordinates;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 

@@ -1,9 +1,9 @@
 package jds.bibliocraft.tileentities;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
-import jds.bibliocraft.blocks.BlockFancyWorkbench;
 import jds.bibliocraft.containers.ContainerFancyWorkbench;
 import jds.bibliocraft.items.ItemRecipeBook;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;

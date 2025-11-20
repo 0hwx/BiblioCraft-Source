@@ -1,24 +1,21 @@
 package jds.bibliocraft.blocks;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import jds.bibliocraft.BiblioCraft;
 import jds.bibliocraft.Config;
+import jds.bibliocraft.blocks.base.BiblioWoodBlock;
 import jds.bibliocraft.helpers.EnumColor;
 import jds.bibliocraft.helpers.EnumRelativeLocation;
 import jds.bibliocraft.items.ItemRecipeBook;
 import jds.bibliocraft.network.BiblioNetworking;
 import jds.bibliocraft.network.packet.client.BiblioDeskOpenGui;
 import jds.bibliocraft.states.TextureState;
-import jds.bibliocraft.tileentities.BiblioTileEntity;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityDesk;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockCarpet;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.IBlockAccess;

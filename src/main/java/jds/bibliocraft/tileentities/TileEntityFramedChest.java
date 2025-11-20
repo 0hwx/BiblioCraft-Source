@@ -3,10 +3,9 @@ package jds.bibliocraft.tileentities;
 import java.util.Iterator;
 import java.util.List;
 
-import jds.bibliocraft.blocks.BlockFramedChest;
 import jds.bibliocraft.containers.ContainerFramedChest;
 import jds.bibliocraft.helpers.BiblioSortingHelper;
-import net.minecraft.client.renderer.texture.ITickable;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;

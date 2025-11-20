@@ -1,6 +1,6 @@
 package jds.bibliocraft.states;
 
-import jds.bibliocraft.blocks.BiblioWoodBlock.EnumWoodType;
+import jds.bibliocraft.blocks.base.BiblioWoodBlock.EnumWoodType;
 import jds.bibliocraft.helpers.EnumColor;
 import net.minecraft.util.ResourceLocation;
 

@@ -1,17 +1,12 @@
 package jds.bibliocraft.blocks;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.vecmath.Quat4f;
-import javax.vecmath.Vector3f;
-
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import jds.bibliocraft.blocks.base.BiblioWoodBlock;
 import jds.bibliocraft.gui.GuiClock;
 import jds.bibliocraft.helpers.EnumShiftPosition;
 import jds.bibliocraft.helpers.EnumVertPosition;
-import jds.bibliocraft.tileentities.BiblioTileEntity;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityClock;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
@@ -19,7 +14,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;

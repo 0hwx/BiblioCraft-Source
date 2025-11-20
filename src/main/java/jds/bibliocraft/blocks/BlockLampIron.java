@@ -1,12 +1,10 @@
 package jds.bibliocraft.blocks;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import jds.bibliocraft.blocks.base.BiblioLightBlock;
 import jds.bibliocraft.helpers.EnumMetalType;
 import jds.bibliocraft.helpers.EnumVertPosition;
-import jds.bibliocraft.tileentities.BiblioLightTileEntity;
-import jds.bibliocraft.tileentities.BiblioTileEntity;
+import jds.bibliocraft.tileentities.base.BiblioLightTileEntity;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;

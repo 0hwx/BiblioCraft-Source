@@ -1,6 +1,8 @@
 package jds.bibliocraft.helpers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import cpw.mods.fml.common.registry.GameRegistry;
 import jds.bibliocraft.Config;
@@ -32,96 +34,62 @@ import jds.bibliocraft.items.ItemSeatBack2;
 import jds.bibliocraft.items.ItemSeatBack3;
 import jds.bibliocraft.items.ItemSeatBack4;
 import jds.bibliocraft.items.ItemSeatBack5;
+import jds.bibliocraft.recipe.FramedRecipeRegistry;
+import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 
 public class RegisterCustomFramedBlocks
 {
-	private static final int framedBlocks = 27; // total number of framed blocks
-	private ArrayList<ItemStack> blockList;
-	private String textureString = "none";
-	private boolean enabledMap[];
+    private final ArrayList<ItemStack> texturedBlockList;
+    private final Map<FramedBlockType, ItemStack> texturedStackMap; // For easy recipe access
+    private final String textureString;
 
 	public RegisterCustomFramedBlocks(String texture)
 	{
-		this.enabledMap = new boolean[framedBlocks];
-		this.enabledMap[0] = Config.enableBookcase;
-		this.enabledMap[1] = Config.enableBookcase;
-		this.enabledMap[2] = Config.enableFramedChest;
-		this.enabledMap[3] = Config.enableFancyWorkbench;
-		this.enabledMap[4] = Config.enableFurniturePaneler;
-		this.enabledMap[5] = Config.enableGenericshelf;
-		this.enabledMap[6] = Config.enableToolrack;
-		this.enabledMap[7] = Config.enablePotionshelf;
-		this.enabledMap[8] = Config.enableClock;
-		this.enabledMap[9] = Config.enablePainting;
-		this.enabledMap[10] = Config.enablePainting;
-		this.enabledMap[11] = Config.enablePainting;
-		this.enabledMap[12] = Config.enablePainting;
-		this.enabledMap[13] = Config.enablePainting;
-		this.enabledMap[14] = Config.enableWeaponcase;
-		this.enabledMap[15] = Config.enableSeat;
-		this.enabledMap[16] = Config.enableWritingdesk;
-		this.enabledMap[17] = Config.enableMapFrame;
-		this.enabledMap[18] = Config.enableWoodLabel;
-		this.enabledMap[19] = Config.enableArmorstand;
-		this.enabledMap[20] = Config.enableTable;
-		this.enabledMap[21] = Config.enableFancySign;
-		this.enabledMap[22] = Config.enableSeat;
-		this.enabledMap[23] = Config.enableSeat;
-		this.enabledMap[24] = Config.enableSeat;
-		this.enabledMap[25] = Config.enableSeat;
-		this.enabledMap[26] = Config.enableSeat;
-		this.textureString = texture;
-		this.blockList = new ArrayList<ItemStack>();
-		ItemStack bookcase = new ItemStack(BlockBookcase.instance, 1, 6);
-		this.blockList.add(new ItemStack(BlockBookcase.instance, 1, 6));                 //0 Bookcase
-		this.blockList.add(new ItemStack(BlockBookcaseCreative.instance, 1, 6));         //1 Creative Bookcase
-		this.blockList.add(new ItemStack(BlockFramedChest.instance, 1, 6));              //2 Framed Chest
-		this.blockList.add(new ItemStack(BlockFancyWorkbench.instance, 1, 6));           //3 Fancy Workbench
-		this.blockList.add(new ItemStack(BlockFurniturePaneler.instance, 1, 6));         //4 Paneler
-		this.blockList.add(new ItemStack(BlockShelf.instance, 1, 6));                    //5 Shelf
-//		this.blockList.add(new ItemStack(BlockToolRack.instance, 1, 6));                 //6 Tool Rack
-		this.blockList.add(new ItemStack(BlockPotionShelf.instance, 1, 6));              //7 Potion Shelf
-		this.blockList.add(new ItemStack(BlockClock.instance, 1, 6));                    //8 Clock
-		this.blockList.add(new ItemStack(BlockPaintingFrameBorderless.instance, 1, 6));  //9 Painting Frame Borderless // recipes all contin slabs, blocks, or this borderless
-		this.blockList.add(new ItemStack(BlockPaintingFrameFlat.instance, 1, 6));        //10 Painting Frame Flat
-		this.blockList.add(new ItemStack(BlockPaintingFrameSimple.instance, 1, 6));      //11 Painting Frame Simple
-		this.blockList.add(new ItemStack(BlockPaintingFrameMiddle.instance, 1, 6));      //12 Painting Frame Middle
-		this.blockList.add(new ItemStack(BlockPaintingFrameFancy.instance, 1, 6));       //13 Painting Frame Fancy
-		this.blockList.add(new ItemStack(BlockCase.instance, 1, 6));                     //14 Case
-		this.blockList.add(new ItemStack(BlockSeat.instance, 1, 6));                     //15 Seat
-		this.blockList.add(new ItemStack(BlockDesk.instance, 1, 6));                     //16 Desk
-		this.blockList.add(new ItemStack(BlockMapFrame.instance, 1, 6));                 //17 Map Frame
-		this.blockList.add(new ItemStack(BlockLabel.instance, 1, 6));                    //18 Label
-		this.blockList.add(new ItemStack(BlockArmorStand.instance, 1, 6));               //19 Armor Stand
-		this.blockList.add(new ItemStack(BlockTable.instance, 1, 6));                    //20 Table
-		this.blockList.add(new ItemStack(BlockFancySign.instance, 1, 6));                //21 Fancy Sign
-		this.blockList.add(new ItemStack(ItemSeatBack.instance, 1, 6));                  //22 Seat Back
-		this.blockList.add(new ItemStack(ItemSeatBack2.instance, 1, 6));                 //23 Seat Back 2
-		this.blockList.add(new ItemStack(ItemSeatBack3.instance, 1, 6));                 //24 Seat Back 3
-		this.blockList.add(new ItemStack(ItemSeatBack4.instance, 1, 6));                 //25 Seat Back 4
-		this.blockList.add(new ItemStack(ItemSeatBack5.instance, 1, 6));                 //26 Seat Back 5
-		NBTTagCompound tags = new NBTTagCompound();
-		tags.setString("renderTexture", this.textureString);
-		for (int i = 0; i < blockList.size(); i++)
-		{
-			this.blockList.get(i).setTagCompound(tags);
-		}
-	}
+        this.textureString = texture;
+        this.texturedBlockList = new ArrayList<>();
+        this.texturedStackMap = new HashMap<>();
+
+        // Create the NBT tag *once*
+        NBTTagCompound tags = new NBTTagCompound();
+        tags.setString("renderTexture", this.textureString);
+
+        // Iterate over the new enum
+        for (FramedBlockType type : FramedBlockType.VALUES)
+        {
+            // Check the config flag directly from the enum
+            if (type.isEnabled())
+            {
+                // Create the base stack (Item + meta)
+                ItemStack Stack = type.createBaseStack();
+                // Apply the NBT tag
+                Stack.setTagCompound((NBTTagCompound) tags.copy());
+
+                this.texturedBlockList.add(Stack);
+                this.texturedStackMap.put(type, Stack);
+            }
+        }
+    }
 
 	public ArrayList<ItemStack> getFramedBlockList()
 	{
-		return this.blockList;
+		return this.texturedBlockList;
 	}
 
-	public boolean[] getEnableList()
-	{
-		return this.enabledMap;
-	}
+    /**
+     * Gets a specific textured item, or null if it was disabled.
+     * Used for recipe registration.
+     */
+    public ItemStack getStack(FramedBlockType type)
+    {
+        return this.texturedStackMap.get(type);
+    }
 
 	public void registerRecipies(ItemStack plank, ItemStack slab) {
         WoodRegistryEntry recipeStrings = new WoodRegistryEntry(slab.getUnlocalizedName(), plank.getUnlocalizedName(), this.textureString, true);
@@ -141,74 +109,289 @@ public class RegisterCustomFramedBlocks
         ItemStack torch = new ItemStack(Blocks.torch, 1, 0);
         ItemStack woodPP = new ItemStack(Blocks.wooden_pressure_plate, 1, 0);
 
-		/* TODO All recipes are bra-oke-en
-		//GameRegistry.addShapedRecipe(name, group, output, params);
-		if (Config.enableBookcase)
-			GameRegistry.addRecipe(RecipeBiblioFramedWood.addShapedWoodRecipe(this.blockList.get(0), recipeStrings, new Object[]{"XYX", "XYX", "XYX", Character.valueOf('X'), plank, Character.valueOf('Y'), slab}));
+        // --- This is now much safer and more readable than using get(0) ---
+        ItemStack workbench = getStack(FramedBlockType.FANCY_WORKBENCH);
+        ItemStack bookcase = getStack(FramedBlockType.BOOKCASE);
 
-		if (Config.enableFramedChest && Config.enableWoodLabel)
-			GameRegistry.addRecipe(RecipeBiblioFramedWood.addShapedWoodRecipe(this.blockList.get(2), recipeStrings, new Object[]{ "SSS", "SLS", "SSS", Character.valueOf('S'), plank, Character.valueOf('L'), this.blockList.get(18)}));
+        if (workbench != null && bookcase != null)
+        {
+            Map<Character, Object> map = new HashMap<>();
+            map.put('I', "dyeBlack");
+            map.put('T', craftingBench);
+            map.put('F', feather);
+            map.put('S', slab);
+            map.put('B', bookcase);
+            FramedRecipeRegistry.defineAndRegisterRecipe(workbench, recipeStrings, new String[] { "ITF", "SBS", "SSS" }, map);
+            FramedRecipeRegistry.defineAndRegisterRecipe(workbench, recipeStrings, new String[] { "FTI", "SBS", "SSS" }, map);
+        }
 
-		if (Config.enableFancyWorkbench && Config.enableBookcase)
-		{
-			GameRegistry.addRecipe(RecipeBiblioFramedWood.addShapedWoodRecipe(this.blockList.get(3), recipeStrings, new Object[]{"ITF", "SBS", "SSS", Character.valueOf('I'), "dyeBlack", Character.valueOf('T'), craftingBench, Character.valueOf('F'), feather, Character.valueOf('S'), slab, Character.valueOf('B'), this.blockList.get(0)}));
-			GameRegistry.addRecipe(RecipeBiblioFramedWood.addShapedWoodRecipe(this.blockList.get(3), recipeStrings, new Object[]{"FTI", "SBS", "SSS", Character.valueOf('I'), "dyeBlack", Character.valueOf('T'), craftingBench, Character.valueOf('F'), feather, Character.valueOf('S'), slab, Character.valueOf('B'), this.blockList.get(0)}));
-		}
 
-		if (Config.enableFurniturePaneler)
-			GameRegistry.addRecipe(RecipeBiblioFramedWood.addShapedWoodRecipe(this.blockList.get(4), recipeStrings, new Object[]{"IFI", "SSS", "PPP", Character.valueOf('S'), slab, Character.valueOf('F'), saw, Character.valueOf('P'), plank, Character.valueOf('I'), ironIngot}));
+        if (bookcase != null) {
+            Map<Character, Object> map = new HashMap<>();
+            map.put('X', plank);
+            map.put('Y', slab);
+            FramedRecipeRegistry.defineAndRegisterRecipe(bookcase, recipeStrings, new String[]{"XYX", "XYX", "XYX"}, map);
+        }
 
-		if (Config.enableGenericshelf)
-			GameRegistry.addRecipe(RecipeBiblioFramedWood.addShapedWoodRecipe(this.blockList.get(5), recipeStrings, new Object[]{"YYY", " X ", "YYY", Character.valueOf('X'), plank, Character.valueOf('Y'), slab}));
+        ItemStack framedChest = getStack(FramedBlockType.FRAMED_CHEST);
+        ItemStack label = getStack(FramedBlockType.LABEL);
+        if (framedChest != null && label != null) {
+            Map<Character, Object> map = new HashMap<>();
+            map.put('S', plank);
+            map.put('L', label);
+            FramedRecipeRegistry.defineAndRegisterRecipe(framedChest, recipeStrings, new String[]{"SSS", "SLS", "SSS"}, map);
+        }
 
-		if (Config.enableToolrack)
-			GameRegistry.addRecipe(RecipeBiblioFramedWood.addShapedWoodRecipe(this.blockList.get(6), recipeStrings, new Object[]{"YYY", "YXY", "YYY", Character.valueOf('X'), ironIngot, Character.valueOf('Y'), slab}));
+        ItemStack paneler = getStack(FramedBlockType.PANELER);
+        if (paneler != null) {
+            Map<Character, Object> map = new HashMap<>();
+            map.put('S', slab);
+            map.put('F', saw);
+            map.put('P', plank);
+            map.put('I', ironIngot);
+            FramedRecipeRegistry.defineAndRegisterRecipe(paneler, recipeStrings, new String[]{"IFI", "SSS", "PPP"}, map);
+        }
 
-		if (Config.enablePotionshelf)
-			GameRegistry.addRecipe(RecipeBiblioFramedWood.addShapedWoodRecipe(this.blockList.get(7), recipeStrings, new Object[]{"YYY", "XBX", "YYY", Character.valueOf('X'), plank, Character.valueOf('Y'), slab, Character.valueOf('B'), emptyBottle}));
+        ItemStack shelf = getStack(FramedBlockType.SHELF);
+        if (shelf != null) {
+            Map<Character, Object> map = new HashMap<>();
+            map.put('X', plank);
+            map.put('Y', slab);
+            FramedRecipeRegistry.defineAndRegisterRecipe(shelf, recipeStrings, new String[]{"YYY", " X ", "YYY"}, map);
+        }
 
-		if (Config.enableClock)
-			GameRegistry.addRecipe(RecipeBiblioFramedWood.addShapedWoodRecipe(this.blockList.get(8), recipeStrings, new Object[]{ "SCS", "STS", "SGS", Character.valueOf('S'), slab, Character.valueOf('C'), vanclock, Character.valueOf('T'), stick, Character.valueOf('G'), goldIngot}));
+        ItemStack toolRack = getStack(FramedBlockType.TOOL_RACK);
+        if (toolRack != null) {
+            Map<Character, Object> map = new HashMap<>();
+            map.put('X', ironIngot);
+            map.put('Y', slab);
+            FramedRecipeRegistry.defineAndRegisterRecipe(toolRack, recipeStrings, new String[]{"YYY", "YXY", "YYY"}, map);
+        }
 
-		if (Config.enablePainting)
-		{
-			GameRegistry.addRecipe(RecipeBiblioFramedWood.addShapedWoodRecipe(this.blockList.get(9), recipeStrings, new Object[]{"TST", "SSS", "TST", Character.valueOf('T'), stick, Character.valueOf('S'), slab}));
-			GameRegistry.addRecipe(RecipeBiblioFramedWood.addShapedWoodRecipe(this.blockList.get(10), recipeStrings, new Object[]{"SSS", "SBS", "SSS", Character.valueOf('B'), this.blockList.get(9), Character.valueOf('S'), slab}));
-			GameRegistry.addRecipe(RecipeBiblioFramedWood.addShapedWoodRecipe(this.blockList.get(11), recipeStrings, new Object[]{"TST", "SBS", "TST", Character.valueOf('T'), stick, Character.valueOf('S'), slab, Character.valueOf('B'), this.blockList.get(9)}));
-			GameRegistry.addRecipe(RecipeBiblioFramedWood.addShapedWoodRecipe(this.blockList.get(12), recipeStrings, new Object[]{"TST", "TBT", "TST", Character.valueOf('T'), stick, Character.valueOf('S'), slab, Character.valueOf('B'), this.blockList.get(9)}));
-			GameRegistry.addRecipe(RecipeBiblioFramedWood.addShapedWoodRecipe(this.blockList.get(13), recipeStrings, new Object[]{"TTT", "TBT", "TTT", Character.valueOf('T'), stick, Character.valueOf('B'), this.blockList.get(9)}));
-		}
+        ItemStack potionShelf = getStack(FramedBlockType.POTION_SHELF);
+        if (potionShelf != null) {
+            Map<Character, Object> map = new HashMap<>();
+            map.put('X', plank);
+            map.put('Y', slab);
+            map.put('B', emptyBottle);
+            FramedRecipeRegistry.defineAndRegisterRecipe(potionShelf, recipeStrings, new String[]{"YYY", "XBX", "YYY"}, map);
+        }
 
-		if (Config.enableWeaponcase)
-			GameRegistry.addRecipe(RecipeBiblioFramedWood.addShapedWoodRecipe(this.blockList.get(14), recipeStrings, new Object[]{"YZY", "YXY", "YYY", Character.valueOf('X'), whiteWool, Character.valueOf('Y'), slab, Character.valueOf('Z'), glassPane}));
+        ItemStack clock = getStack(FramedBlockType.CLOCK);
+        if (clock != null) {
+            Map<Character, Object> map = new HashMap<>();
+            map.put('S', slab);
+            map.put('C', vanclock);
+            map.put('T', stick);
+            map.put('G', goldIngot);
+            FramedRecipeRegistry.defineAndRegisterRecipe(clock, recipeStrings, new String[]{"SCS", "STS", "SGS"}, map);
+        }
 
-		if (Config.enableWritingdesk)
-			GameRegistry.addRecipe(RecipeBiblioFramedWood.addShapedWoodRecipe(this.blockList.get(16), recipeStrings, new Object[]{"T F", "XXX", "Y Y", Character.valueOf('T'), torch, Character.valueOf('F'), feather, Character.valueOf('X'), slab, Character.valueOf('Y'), plank}));
+        ItemStack borderlessFrame = getStack(FramedBlockType.PAINTING_FRAME_BORDERLESS);
+        if (borderlessFrame != null) {
+            Map<Character, Object> map = new HashMap<>();
+            map.put('T', stick);
+            map.put('S', slab);
+            FramedRecipeRegistry.defineAndRegisterRecipe(borderlessFrame, recipeStrings, new String[]{"TST", "SSS", "TST"}, map);
 
-		if (Config.enableMapFrame)
-			GameRegistry.addRecipe(RecipeBiblioFramedWood.addShapedWoodRecipe(this.blockList.get(17), recipeStrings, new Object[]{"SSS", "SXS", "SSS", Character.valueOf('S'), stick, Character.valueOf('X'), slab})); // TODO the stick didn't work?
+            ItemStack flatFrame = getStack(FramedBlockType.PAINTING_FRAME_FLAT);
+            if (flatFrame != null) {
+                Map<Character, Object> map2 = new HashMap<>();
+                map2.put('B', borderlessFrame);
+                map2.put('S', slab);
+                FramedRecipeRegistry.defineAndRegisterRecipe(flatFrame, recipeStrings, new String[]{"SSS", "SBS", "SSS"}, map2);
+            }
 
-		if (Config.enableWoodLabel)
-			GameRegistry.addRecipe(RecipeBiblioFramedWood.addShapedWoodRecipe(this.blockList.get(18), recipeStrings, new Object[]{"YYY", "YYY", Character.valueOf('Y'), slab}));
+            ItemStack simpleFrame = getStack(FramedBlockType.PAINTING_FRAME_SIMPLE);
+            if (simpleFrame != null) {
+                Map<Character, Object> map3 = new HashMap<>();
+                map3.put('T', stick);
+                map3.put('S', slab);
+                map3.put('B', borderlessFrame);
+                FramedRecipeRegistry.defineAndRegisterRecipe(simpleFrame, recipeStrings, new String[]{"TST", "SBS", "TST"}, map3);
+            }
 
-		if (Config.enableArmorstand)
-			GameRegistry.addRecipe(RecipeBiblioFramedWood.addShapedWoodRecipe(this.blockList.get(19), recipeStrings, new Object[]{" Y ", " Y ", "XXX", Character.valueOf('X'), slab, Character.valueOf('Y'), stick}));
+            ItemStack middleFrame = getStack(FramedBlockType.PAINTING_FRAME_MIDDLE);
+            if (middleFrame != null) {
+                Map<Character, Object> map4 = new HashMap<>();
+                map4.put('T', stick);
+                map4.put('S', slab);
+                map4.put('B', borderlessFrame);
+                FramedRecipeRegistry.defineAndRegisterRecipe(middleFrame, recipeStrings, new String[]{"TST", "TBT", "TST"}, map4);
+            }
 
-		if (Config.enableTable)
-			GameRegistry.addRecipe(RecipeBiblioFramedWood.addShapedWoodRecipe(this.blockList.get(20), recipeStrings, new Object[]{"XXX", " Y ", " Y ", Character.valueOf('X'), slab, Character.valueOf('Y'), plank}));
+            ItemStack fancyFrame = getStack(FramedBlockType.PAINTING_FRAME_FANCY);
+            if (fancyFrame != null) {
+                Map<Character, Object> map5 = new HashMap<>();
+                map5.put('T', stick);
+                map5.put('B', borderlessFrame);
+                FramedRecipeRegistry.defineAndRegisterRecipe(fancyFrame, recipeStrings, new String[]{"TTT", "TBT", "TTT"}, map5);
+            }
+        }
 
-		if (Config.enableFancySign && Config.enableWoodLabel)
-			GameRegistry.addRecipe(RecipeShapelessFramedWood.addShapedWoodRecipe(this.blockList.get(21), recipeStrings, new Object[]{this.blockList.get(18), slab, paper}));
+        ItemStack caseBlock = getStack(FramedBlockType.CASE);
+        if (caseBlock != null) {
+            Map<Character, Object> map = new HashMap<>();
+            map.put('X', whiteWool);
+            map.put('Y', slab);
+            map.put('Z', glassPane);
+            FramedRecipeRegistry.defineAndRegisterRecipe(caseBlock, recipeStrings, new String[]{"YZY", "YXY", "YYY"}, map);
+        }
 
-		if (Config.enableSeat)
-		{
-			GameRegistry.addRecipe(RecipeBiblioFramedWood.addShapedWoodRecipe(this.blockList.get(22), recipeStrings, new Object[]{" W ", " S ", "T T", Character.valueOf('W'), whiteWool, Character.valueOf('S'), slab, Character.valueOf('T'), stick}));
-			GameRegistry.addRecipe(RecipeBiblioFramedWood.addShapedWoodRecipe(this.blockList.get(23), recipeStrings, new Object[]{"TWT", "TST", "T T", Character.valueOf('W'), whiteWool, Character.valueOf('S'), slab, Character.valueOf('T'), stick}));
-			GameRegistry.addRecipe(RecipeBiblioFramedWood.addShapedWoodRecipe(this.blockList.get(25), recipeStrings, new Object[]{"TWT", " S ", Character.valueOf('W'), whiteWool, Character.valueOf('S'), slab}));
-			GameRegistry.addRecipe(RecipeShapelessFramedWood.addShapedWoodRecipe(this.blockList.get(24), recipeStrings, new Object[]{slab, this.blockList.get(23)}));
-			GameRegistry.addRecipe(RecipeShapelessFramedWood.addShapedWoodRecipe(this.blockList.get(26), recipeStrings, new Object[]{slab, slab, this.blockList.get(23)}));
-			GameRegistry.addRecipe(new ShapedOreRecipe(this.blockList.get(15), true, new Object[]{" W ", " S ", "TPT", Character.valueOf('W'), whiteWool, Character.valueOf('S'), slab, Character.valueOf('T'), stick, Character.valueOf('P'), woodPP}));
-		}
-		 */
+        ItemStack desk = getStack(FramedBlockType.DESK);
+        if (desk != null) {
+            Map<Character, Object> map = new HashMap<>();
+            map.put('T', torch);
+            map.put('F', feather);
+            map.put('X', slab);
+            map.put('Y', plank);
+            FramedRecipeRegistry.defineAndRegisterRecipe(desk, recipeStrings, new String[]{"T F", "XXX", "Y Y"}, map);
+        }
+
+        ItemStack mapFrame = getStack(FramedBlockType.MAP_FRAME);
+        if (mapFrame != null) {
+            Map<Character, Object> map = new HashMap<>();
+            map.put('S', stick);
+            map.put('X', slab);
+            FramedRecipeRegistry.defineAndRegisterRecipe(mapFrame, recipeStrings, new String[]{"SSS", "SXS", "SSS"}, map);
+        }
+
+        if (label != null) { // 'label' was defined earlier
+            Map<Character, Object> map = new HashMap<>();
+            map.put('Y', slab);
+            FramedRecipeRegistry.defineAndRegisterRecipe(label, recipeStrings, new String[]{"YYY", "YYY"}, map);
+        }
+
+        ItemStack armorStand = getStack(FramedBlockType.ARMOR_STAND);
+        if (armorStand != null) {
+            Map<Character, Object> map = new HashMap<>();
+            map.put('X', slab);
+            map.put('Y', stick);
+            FramedRecipeRegistry.defineAndRegisterRecipe(armorStand, recipeStrings, new String[]{" Y ", " Y ", "XXX"}, map);
+        }
+
+        ItemStack table = getStack(FramedBlockType.TABLE);
+        if (table != null) {
+            Map<Character, Object> map = new HashMap<>();
+            map.put('X', slab);
+            map.put('Y', plank);
+            FramedRecipeRegistry.defineAndRegisterRecipe(table, recipeStrings, new String[]{"XXX", " Y ", " Y "}, map);
+        }
+
+        ItemStack fancySign = getStack(FramedBlockType.FANCY_SIGN);
+        if (fancySign != null && label != null) {
+            // This recipe looks shapeless
+            // I'm assuming FramedRecipeRegistry has an overloaded method for shapeless
+            FramedRecipeRegistry.defineAndRegisterRecipe(fancySign, recipeStrings, new Object[]{label, slab, paper});
+        }
+
+        ItemStack seat = getStack(FramedBlockType.SEAT);
+        ItemStack seatBack = getStack(FramedBlockType.SEAT_BACK);
+        ItemStack seatBack2 = getStack(FramedBlockType.SEAT_BACK_2);
+        ItemStack seatBack3 = getStack(FramedBlockType.SEAT_BACK_3);
+        ItemStack seatBack4 = getStack(FramedBlockType.SEAT_BACK_4);
+        ItemStack seatBack5 = getStack(FramedBlockType.SEAT_BACK_5);
+
+        if (seatBack != null) {
+            Map<Character, Object> map = new HashMap<>();
+            map.put('W', whiteWool);
+            map.put('S', slab);
+            map.put('T', stick);
+            FramedRecipeRegistry.defineAndRegisterRecipe(seatBack, recipeStrings, new String[]{" W ", " S ", "T T"}, map);
+        }
+
+        if (seatBack2 != null) {
+            Map<Character, Object> map = new HashMap<>();
+            map.put('W', whiteWool);
+            map.put('S', slab);
+            map.put('T', stick);
+            FramedRecipeRegistry.defineAndRegisterRecipe(seatBack2, recipeStrings, new String[]{"TWT", "TST", "T T"}, map);
+        }
+
+        if (seatBack4 != null) {
+            Map<Character, Object> map = new HashMap<>();
+            map.put('W', whiteWool);
+            map.put('S', slab);
+            map.put('T', stick);
+            FramedRecipeRegistry.defineAndRegisterRecipe(seatBack4, recipeStrings, new String[]{"TWT", " S "}, map);
+        }
+
+        if (seatBack3 != null && seatBack2 != null) {
+            FramedRecipeRegistry.defineAndRegisterRecipe(seatBack3, recipeStrings, new Object[]{slab, seatBack2});
+        }
+
+        if (seatBack5 != null && seatBack2 != null) {
+            FramedRecipeRegistry.defineAndRegisterRecipe(seatBack5, recipeStrings, new Object[]{slab, slab, seatBack2});
+        }
+
+        if (seat != null) {
+            // This one is a ShapedOreRecipe, which is different.
+            // It needs to be registered with GameRegistry directly.
+            // But we must make sure the output has the correct NBT!
+            ItemStack nbtSeat = seat.copy(); // Use the NBT-tagged stack from our map
+            GameRegistry.addRecipe(new ShapedOreRecipe(nbtSeat, true, new Object[]{" W ", " S ", "TPT", Character.valueOf('W'), whiteWool, Character.valueOf('S'), slab, Character.valueOf('T'), stick, Character.valueOf('P'), woodPP}));
+        }
+    }
+    /**
+     * Defines all 27 framed block/item types, their config flags.
+     * This replaces the static parallel lists in RegisterCustomFramedBlocks.
+     */
+    public enum FramedBlockType {
+
+        BOOKCASE(BlockBookcase.instance,  Config.enableBookcase),
+        BOOKCASE_CREATIVE(BlockBookcaseCreative.instance,  Config.enableBookcase),
+        FRAMED_CHEST(BlockFramedChest.instance,  Config.enableFramedChest),
+        FANCY_WORKBENCH(BlockFancyWorkbench.instance,  Config.enableFancyWorkbench),
+        PANELER(BlockFurniturePaneler.instance,  Config.enableFurniturePaneler),
+        SHELF(BlockShelf.instance,  Config.enableGenericshelf),
+        TOOL_RACK(BlockToolRack.instance,  Config.enableToolrack),
+        POTION_SHELF(BlockPotionShelf.instance,  Config.enablePotionshelf),
+        CLOCK(BlockClock.instance,  Config.enableClock),
+        PAINTING_FRAME_BORDERLESS(BlockPaintingFrameBorderless.instance,  Config.enablePainting),
+        PAINTING_FRAME_FLAT(BlockPaintingFrameFlat.instance,  Config.enablePainting),
+        PAINTING_FRAME_SIMPLE(BlockPaintingFrameSimple.instance,  Config.enablePainting),
+        PAINTING_FRAME_MIDDLE(BlockPaintingFrameMiddle.instance,  Config.enablePainting),
+        PAINTING_FRAME_FANCY(BlockPaintingFrameFancy.instance,  Config.enablePainting),
+        CASE(BlockCase.instance,  Config.enableWeaponcase),
+        SEAT(BlockSeat.instance,  Config.enableSeat),
+        DESK(BlockDesk.instance,  Config.enableWritingdesk),
+        MAP_FRAME(BlockMapFrame.instance,  Config.enableMapFrame),
+        LABEL(BlockLabel.instance,  Config.enableWoodLabel),
+        ARMOR_STAND(BlockArmorStand.instance,  Config.enableArmorstand),
+        TABLE(BlockTable.instance,  Config.enableTable),
+        FANCY_SIGN(BlockFancySign.instance,  Config.enableFancySign),
+        SEAT_BACK(ItemSeatBack.instance,  Config.enableSeat),
+        SEAT_BACK_2(ItemSeatBack2.instance,  Config.enableSeat),
+        SEAT_BACK_3(ItemSeatBack3.instance,  Config.enableSeat),
+        SEAT_BACK_4(ItemSeatBack4.instance,  Config.enableSeat),
+        SEAT_BACK_5(ItemSeatBack5.instance,  Config.enableSeat);
+
+        private final Item item;
+        private final boolean isEnabled;
+        private static final FramedBlockType[] VALUES = values();
+
+
+        FramedBlockType(Block block, boolean enabled) {
+            this(Item.getItemFromBlock(block), enabled);
+        }
+
+        FramedBlockType(Item item, boolean enabled) {
+            this.item = item;
+            this.isEnabled = enabled;
+        }
+
+        /**
+         * @return True if this block is enabled in the config.
+         */
+        public boolean isEnabled() {
+            return this.isEnabled;
+        }
+
+        /**
+         * @return A new base ItemStack (size 1, with metadata) for this type.
+         */
+        public ItemStack createBaseStack() {
+            return new ItemStack(this.item, 1, 6);
+        }
     }
 }

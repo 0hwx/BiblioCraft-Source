@@ -6,7 +6,7 @@
 //import javax.vecmath.Quat4f;
 //import javax.vecmath.Vector3f;
 //
-//import jds.bibliocraft.blocks.BiblioLightBlock;
+//import jds.bibliocraft.blocks.base.BiblioLightBlock;
 //import jds.bibliocraft.blocks.BlockPrintingPress;
 //import jds.bibliocraft.helpers.EnumColor;
 //import net.minecraft.client.renderer.block.model.ModelResourceLocation;

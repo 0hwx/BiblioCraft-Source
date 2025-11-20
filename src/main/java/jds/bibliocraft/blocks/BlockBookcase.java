@@ -2,23 +2,20 @@ package jds.bibliocraft.blocks;
 
 //import jds.bibliocraft.items.ItemDrill;
 //import jds.bibliocraft.items.ItemLock;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
-
-import com.google.common.collect.Lists;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import jds.bibliocraft.BiblioCraft;
 import jds.bibliocraft.Config;
+import jds.bibliocraft.blocks.base.BiblioWoodBlock;
 import jds.bibliocraft.blocks.blockitems.BlockItemBookcase;
 import jds.bibliocraft.rendering.isbrh.obj.EnumObjModels;
 import jds.bibliocraft.rendering.isbrh.obj.ObjBuilder;
 import jds.bibliocraft.rendering.isbrh.obj.ObjContext;
-import jds.bibliocraft.tileentities.BiblioTileEntity;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityBookcase;
-import jds.bibliocraft.utils.BiblioWoodRegistry;
+
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
@@ -28,8 +25,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -391,6 +386,7 @@ public class BlockBookcase extends BiblioWoodBlock
 
     @Override
     public void registerBlockIcons(IIconRegister iconRegister) {
+        super.registerBlockIcons(iconRegister);
         bookIcon = iconRegister.registerIcon("bibliocraft:bookcase_books");
     }
 
@@ -421,7 +417,7 @@ public class BlockBookcase extends BiblioWoodBlock
         ObjContext ctx = new ObjContext(world, x, y, z, tile.getAngle(), tile.getVertPosition(), tile.getShiftPosition());
         ObjBuilder obj = new ObjBuilder(tes).setContext(ctx);
 
-        renderBookcase(obj, tile.getExtendedMeta(), tile.getCheckedBooks(), false);
+        renderBookcase(obj, world.getBlockMetadata(x,y,z),tile.getCustomTextureString(), tile.getCheckedBooks(), false);
         return true;
     }
 
@@ -437,16 +433,22 @@ public class BlockBookcase extends BiblioWoodBlock
         GL11.glTranslated(x, y, z);
         ObjContext ctx = new ObjContext(null, x, y, z);
         ObjBuilder obj = new ObjBuilder(tes).setContext(ctx);
+        String customTextureName = "none";
+        if (stack.getTagCompound() != null) customTextureName = stack.getTagCompound().getString("renderTexture");
         obj.start();
-        renderBookcase(obj , meta,count, false);
+        renderBookcase(obj , meta,customTextureName,count, false);
         obj.end();
         RenderHelper.enableStandardItemLighting();
     }
 
-    public void renderBookcase(ObjBuilder obj , int meta, int[] count, boolean renderAllBooks) {
+    public void renderBookcase(ObjBuilder obj , int meta,String customTextureName, int[] count, boolean renderAllBooks) {
         String[] book = {"book1", "book2", "book3", "book4", "book5", "book6", "book7",
                          "book8", "book9", "book10", "book11", "book12", "book13", "book14", "book15","book16"};
-        IIcon woodIcon = BiblioWoodRegistry.getIcon(meta);
+        IIcon woodIcon = this.getIcon(1,meta);
+
+        if (customTextureName != null && !customTextureName.equals("none")) {
+            woodIcon = this.getCustomTexture(customTextureName);
+        }
         obj.setModel(EnumObjModels.BOOKCASE);
         if (renderAllBooks) {
             obj.renderPart(book, bookIcon);

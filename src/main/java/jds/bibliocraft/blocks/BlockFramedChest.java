@@ -1,10 +1,8 @@
 package jds.bibliocraft.blocks;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import jds.bibliocraft.BiblioCraft;
-import jds.bibliocraft.tileentities.BiblioTileEntity;
+import jds.bibliocraft.blocks.base.BiblioWoodBlock;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityFramedChest;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityLivingBase;

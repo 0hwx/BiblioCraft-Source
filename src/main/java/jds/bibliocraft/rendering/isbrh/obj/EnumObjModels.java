@@ -13,13 +13,16 @@ public enum EnumObjModels {
 
     LABEL("label","bibliocraft:models/blocks/label.obj"),
 
+    TABLE("table","bibliocraft:models/blocks/table.obj"),
+    SEAT("seat","bibliocraft:models/blocks/seat.obj"),
+
 
     FANCY_WORKBENCH("fancy_workbench", "bibliocraft:models/block/fancyworkbench.obj"),
     BOOKCASE("bookcase", "bibliocraft:models/block/bookcase.obj"),
-    TABLE("table", "bibliocraft:models/block/table.obj"),
 
 
     TYPEWRITER("typewriter", "bibliocraft:models/blocks/typewriter.obj"),
+    TYPESETTING("typesetting", "bibliocraft:models/blocks/typesettingtable.obj"),
     ;
 
     private final String name;

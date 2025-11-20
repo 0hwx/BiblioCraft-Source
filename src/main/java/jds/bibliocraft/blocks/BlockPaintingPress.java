@@ -1,11 +1,8 @@
 package jds.bibliocraft.blocks;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import jds.bibliocraft.BiblioCraft;
+import jds.bibliocraft.blocks.base.BiblioSimpleBlock;
 import jds.bibliocraft.items.ItemPaintingCanvas;
-import jds.bibliocraft.tileentities.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityPaintPress;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;

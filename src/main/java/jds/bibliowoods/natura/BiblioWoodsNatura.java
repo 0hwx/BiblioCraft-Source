@@ -6,6 +6,7 @@ import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import jds.bibliocraft.blocks.BlockBookcase;
 import jds.bibliocraft.blocks.BlockCase;
+import jds.bibliocraft.blocks.BlockToolRack;
 import jds.bibliocraft.helpers.BiblioWoodHelperTab;
 import jds.bibliocraft.helpers.RegisterCustomFramedBlocks;
 import net.minecraft.block.Block;
@@ -32,9 +33,9 @@ public class BiblioWoodsNatura
 	public void load(FMLInitializationEvent event)
 	{
 		modloaded = Loader.isModLoaded("Natura");
-		biblioLoaded = Loader.isModLoaded("bibliocraft");
+//		biblioLoaded = Loader.isModLoaded("bibliocraft");
 
-		if (biblioLoaded && modloaded)
+		if (modloaded)
 		{
 			Block planks1 = Block.getBlockFromName("Natura:planks");
 			Block slabs1 = Block.getBlockFromName("Natura:plankSlab1");
@@ -45,33 +46,33 @@ public class BiblioWoodsNatura
 			int[] slabID = {0,1,2,3,4,5,6,7,0,1,2,3,4};
 
 			String[] textures = {
-					"natura:blocks/maple_planks",
-					"natura:blocks/silverbell_planks",
-					"natura:blocks/purpleheart_planks",
-					"natura:blocks/tiger_planks",
-					"natura:blocks/willow_planks",
-					"natura:blocks/eucalyptus_planks",
-					"natura:blocks/hopseed_planks",
-					"natura:blocks/sakura_planks",
-					"natura:blocks/redwood_planks",
-					"natura:blocks/ghostwood_planks",
-					"natura:blocks/bloodwood_planks",
-					"natura:blocks/darkwood_planks",
-					"natura:blocks/fusewood_planks"
+                "natura:eucalyptus_planks",
+                "natura:sakura_planks",
+                "natura:ghostwood_planks",
+                "natura:redwood_planks",
+                "natura:bloodwood_planks",
+                "natura:hopseed_planks",
+                "natura:maple_planks",
+                "natura:silverbell_planks",
+                "natura:purpleheart_planks",
+                "natura:tiger_planks",
+                "natura:willow_planks",
+                "natura:darkwood_planks",
+                "natura:fusewood_planks"
 			};
-			ItemStack icon = new ItemStack(BlockCase.instance, 1, 6);
+			ItemStack icon = new ItemStack(BlockToolRack.instance, 1, 6);
+
 			NBTTagCompound tags = new NBTTagCompound();
-			tags.setString("renderTexture", "natura:blocks/tiger_planks");
+			tags.setString("renderTexture", "natura:tiger_planks");
 			icon.setTagCompound(tags);
-			creativeTab = new BiblioWoodHelperTab("bibliowoodnaturatab", textures, icon.getItem());
+            System.out.println("icon nbt = " + icon.getTagCompound());
+			creativeTab = new BiblioWoodHelperTab("bibliowoodnaturatab", textures, icon);
 			for (int i = 0; i < textures.length; i++)
 			{
+                RegisterCustomFramedBlocks reg = new RegisterCustomFramedBlocks(textures[i]);
                 ItemStack plank = new ItemStack(planks[i], 1, plankID[i]);
                 ItemStack slab = new ItemStack(slabs[i], 1, slabID[i]);
-				RegisterCustomFramedBlocks reg = new RegisterCustomFramedBlocks(textures[i]);
 				reg.registerRecipies(plank, slab);
-                    System.out.println("plank " + i + "   = " + plank.getDisplayName() + "   unlocalized = " + plank.getUnlocalizedName());
-                    System.out.println("slab " + i + "   = " + slab.getDisplayName() + "   unlocalized = " + slab.getUnlocalizedName());
 			}
 
 		}

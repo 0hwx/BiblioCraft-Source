@@ -1,9 +1,8 @@
 package jds.bibliocraft.tileentities;
 
 import jds.bibliocraft.CommonProxy;
-import jds.bibliocraft.blocks.BlockBell;
 
-import net.minecraft.client.renderer.texture.ITickable;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 

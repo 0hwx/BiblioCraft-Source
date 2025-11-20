@@ -1,10 +1,7 @@
 package jds.bibliocraft.blocks;
 
-import javax.vecmath.Quat4f;
-import javax.vecmath.Vector3f;
-
 import jds.bibliocraft.BiblioCraft;
-import jds.bibliocraft.tileentities.BiblioTileEntity;
+import jds.bibliocraft.blocks.base.BiblioSimpleBlock;
 import jds.bibliocraft.tileentities.TileEntityDinnerPlate;
 import net.minecraft.block.material.Material;
 

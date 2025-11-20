@@ -57,14 +57,14 @@ public class BlockItemLantern extends ItemBlock
 		I18n.format("lantern.candle15")
 	};
 
-	public static final BlockItemLantern instanceGold = new BlockItemLantern(BlockLanternGold.instance, BlockLanternGold.name);
-	public static final BlockItemLantern instanceIron = new BlockItemLantern(BlockLanternIron.instance, BlockLanternIron.name);
+//	public static final BlockItemLantern instanceGold = new BlockItemLantern(BlockLanternGold.instance, BlockLanternGold.name);
+//	public static final BlockItemLantern instanceIron = new BlockItemLantern(BlockLanternIron.instance, BlockLanternIron.name);
 
-	public BlockItemLantern(Block block, String name)
+	public BlockItemLantern(Block block)
 	{
 		super(block);
 		setHasSubtypes(true);
-		setUnlocalizedName(name);
+//		setUnlocalizedName(name);
 	}
 
 	@Override

@@ -1,0 +1,98 @@
+package jds.bibliocraft.rendering.tesr;
+
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
+import net.minecraft.item.ItemStack;
+import org.lwjgl.opengl.GL11;
+
+public class TileEntityDinnerPlateRenderer extends TileEntityBiblioRenderer
+{
+
+	@Override
+	public void renderTileEntityAt(BiblioTileEntity tile, double x, double y, double z, float tick)
+	{
+		ItemStack centerStack = tile.getStackInSlot(0);
+		ItemStack leftStack = tile.getStackInSlot(1);
+		ItemStack rightStack = tile.getStackInSlot(2);
+
+		if (leftStack == null && rightStack == null && centerStack != null)
+		{
+			int stackSize = centerStack.stackSize;
+			int testValue = (int)(stackSize / 20.0) + 1;
+			//if (tick % 10 == 0)
+			//System.out.println("stackSize = " + stackSize + "       testValue = " + testValue);
+			if (stackSize >= 1)
+			{
+				renderSlotItem(centerStack, 0.5, 0.0, 0.5, 0.7f);
+			}
+			if (stackSize >= 2)
+			{
+				for (int i = 0; i < testValue; i++)
+				{
+					renderSlotItem(centerStack, 0.5, 0.05 + 0.05 * i, 0.5, 0.7f);
+				}
+			}
+		}
+		else
+		{
+			if (centerStack != null)
+			{
+				int stackSize = centerStack.stackSize;
+				int testValue = (int)(stackSize / 20.0) + 1;
+
+				if (stackSize >= 1)
+				{
+					renderSlotItem(centerStack, 0.5, 0.02, 0.68, 0.5f);
+				}
+				if (stackSize >= 2)
+				{
+					for (int i = 0; i < testValue; i++)
+					{
+						renderSlotItem(centerStack, 0.5, 0.055 + 0.035 * i, 0.68, 0.5f);
+					}
+				}
+			}
+			if (leftStack != null)
+			{
+				int stackSize = leftStack.stackSize;
+				int testValue = (int)(stackSize / 20.0) + 1;
+
+				if (stackSize >= 1)
+				{
+					renderSlotItem(leftStack, 0.35, 0.018, 0.4, 0.4f);
+				}
+				if (stackSize >= 2)
+				{
+					for (int i = 0; i < testValue; i++)
+					{
+						renderSlotItem(leftStack, 0.35, 0.048 + 0.03 * i, 0.4, 0.4f);
+					}
+				}
+			}
+			if (rightStack != null)
+			{
+				int stackSize = rightStack.stackSize;
+				int testValue = (int)(stackSize / 20.0) + 1;
+
+
+				if (stackSize >= 1)
+				{
+					renderSlotItem(rightStack, 0.62, 0.016, 0.4, 0.4f);
+				}
+				if (stackSize >= 2)
+				{
+					for (int i = 0; i < testValue; i++)
+					{
+						renderSlotItem(rightStack, 0.62, 0.046 + 0.03 * i, 0.4, 0.4f);
+					}
+				}
+			}
+		}
+	}
+
+	@Override
+	public void additionalGLStuffForItemStack()
+	{
+		GL11.glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
+	}
+
+}

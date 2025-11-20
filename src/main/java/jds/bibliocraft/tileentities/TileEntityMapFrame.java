@@ -5,9 +5,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import jds.bibliocraft.Config;
-import jds.bibliocraft.blocks.BlockMapFrame;
 import jds.bibliocraft.helpers.EnumVertPosition;
-import net.minecraft.client.renderer.texture.ITickable;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import net.minecraft.entity.item.EntityItemFrame;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
@@ -16,7 +15,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagFloat;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
-import net.minecraft.network.Packet;
 import net.minecraft.world.World;
 import net.minecraft.world.storage.MapData;
 import net.minecraftforge.common.util.Constants;

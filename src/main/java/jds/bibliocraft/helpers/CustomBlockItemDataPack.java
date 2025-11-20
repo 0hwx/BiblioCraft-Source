@@ -1,13 +1,11 @@
 package jds.bibliocraft.helpers;
 
-import jds.bibliocraft.tileentities.BiblioTileEntity;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityFancySign;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.util.Constants;
-
-import java.util.List;
 
 public class CustomBlockItemDataPack
 {

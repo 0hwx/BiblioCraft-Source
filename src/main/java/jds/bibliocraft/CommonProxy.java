@@ -1,7 +1,7 @@
 package jds.bibliocraft;
 
 import cpw.mods.fml.common.registry.GameRegistry;
-import jds.bibliocraft.blocks.BiblioLightBlock;
+import jds.bibliocraft.blocks.base.BiblioLightBlock;
 import jds.bibliocraft.blocks.BlockArmorStand;
 import jds.bibliocraft.blocks.BlockBell;
 import jds.bibliocraft.blocks.BlockBookcase;
@@ -34,7 +34,7 @@ import jds.bibliocraft.blocks.BlockTable;
 import jds.bibliocraft.blocks.BlockToolRack;
 import jds.bibliocraft.blocks.BlockTypeWriter;
 import jds.bibliocraft.blocks.BlockTypesettingTable;
-import jds.bibliocraft.tileentities.BiblioLightTileEntity;
+import jds.bibliocraft.tileentities.base.BiblioLightTileEntity;
 import jds.bibliocraft.tileentities.TileEntityArmorStand;
 import jds.bibliocraft.tileentities.TileEntityBell;
 import jds.bibliocraft.tileentities.TileEntityBookcase;
@@ -68,7 +68,6 @@ import jds.bibliocraft.tileentities.TileEntityToolRack;
 import jds.bibliocraft.tileentities.TileEntityTypeMachine;
 import jds.bibliocraft.tileentities.TileEntityTypewriter;
 import net.minecraft.util.ResourceLocation;
-import scala.tools.nsc.doc.model.Public;
 
 public class CommonProxy
 {
@@ -99,7 +98,7 @@ public class CommonProxy
 	public static final ResourceLocation FANCYSIGNGUI = new ResourceLocation("bibliocraft", "textures/gui/fancysignGUI.png");
 	public static final ResourceLocation FANCYSIGNGUIBUTTONS = new ResourceLocation("bibliocraft", "textures/gui/fancysignGUIbuttons.png");
 	public static final ResourceLocation FANCYWORKBENCHGUI = new ResourceLocation("bibliocraft", "textures/gui/fancyworkbenchGUI.png");
-	public static final ResourceLocation FANCYWORKBENCHBOOKCASEGUI = new ResourceLocation("bibliocraft", "textures/gui/fancyworkbenchBookcaseGUI.png");
+	public static final ResourceLocation FANCYWORKBENCHBOOKCASEGUI = new ResourceLocation("bibliocraft", "textures/gui/fancyworkbenchbookcaseGUI.png");
 	public static final ResourceLocation RECIPEBOOKGUI = new ResourceLocation("bibliocraft", "textures/gui/recipebookGUI.png");
 	public static final ResourceLocation CLOCKGUI = new ResourceLocation("bibliocraft", "textures/gui/clockGUI.png");
 
@@ -294,46 +293,4 @@ public class CommonProxy
 
 	public void initNetwork()
 	{}
-    public static ResourceLocation VanilaPlankTexture(int meta){
-        switch (meta){
-            case 1:
-                return new ResourceLocation("textures/blocks/planks_spruce.png");
-            case 2:
-                return new ResourceLocation("textures/blocks/planks_birch.png");
-            case 3:
-                return new ResourceLocation("textures/blocks/planks_jungle.png");
-            case 4:
-                return new ResourceLocation("textures/blocks/planks_acacia.png");
-            case 5:
-                return new ResourceLocation("textures/blocks/planks_big_oak.png");
-            case 6:
-                return new ResourceLocation("bibliocraft","textures/blocks/frame.png");
-            default:
-                return new ResourceLocation("textures/blocks/planks_oak.png");
-        }
-    }
-    public static ResourceLocation WoolColourTexture(int meta) {
-        switch (meta) {
-            case 0:
-                return WHITEWOOL;
-            case 1:
-                return BLACKWOOL;
-            case 2:
-                return new ResourceLocation("textures/blocks/wool_colored_brown.png");
-            case 3:
-                return new ResourceLocation("textures/blocks/wool_colored_brown.png");
-            case 4:
-                return new ResourceLocation("textures/blocks/wool_colored_brown.png");
-            case 5:
-                return new ResourceLocation("textures/blocks/wool_colored_brown.png");
-            case 6:
-                return new ResourceLocation("textures/blocks/wool_colored_brown.png");
-            case 7:
-                return new ResourceLocation("textures/blocks/wool_colored_brown.png");
-            case 8:
-                return new ResourceLocation("textures/blocks/wool_colored_brown.png");
-            default:
-                return new ResourceLocation("textures/blocks/wool_colored_brown.png");
-        }
-    }
 }

@@ -1,13 +1,7 @@
 package jds.bibliocraft.blocks;
 
-import java.util.List;
-
-import javax.vecmath.Quat4f;
-import javax.vecmath.Vector3f;
-
-import com.google.common.collect.Lists;
-
-import jds.bibliocraft.tileentities.BiblioTileEntity;
+import jds.bibliocraft.blocks.base.BiblioColorBlock;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntitySwordPedestal;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
@@ -15,7 +9,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;

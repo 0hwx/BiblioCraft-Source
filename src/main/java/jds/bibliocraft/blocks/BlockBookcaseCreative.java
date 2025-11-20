@@ -1,6 +1,6 @@
 package jds.bibliocraft.blocks;
 
-import jds.bibliocraft.tileentities.BiblioTileEntity;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityBookcase;
 import net.minecraft.entity.EntityLivingBase;
 

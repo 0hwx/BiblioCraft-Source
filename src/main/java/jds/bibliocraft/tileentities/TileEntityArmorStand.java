@@ -1,12 +1,10 @@
 package jds.bibliocraft.tileentities;
 
-import jds.bibliocraft.blocks.BlockArmorStand;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.IChatComponent;
 
 
 public class TileEntityArmorStand extends BiblioTileEntity

@@ -1,30 +1,28 @@
 package jds.bibliocraft.blocks;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import jds.bibliocraft.BiblioCraft;
+import jds.bibliocraft.blocks.base.BiblioWoodBlock;
 import jds.bibliocraft.containers.ContainerWeaponRack;
 import jds.bibliocraft.rendering.isbrh.obj.EnumObjModels;
 import jds.bibliocraft.rendering.isbrh.obj.ObjBuilder;
 import jds.bibliocraft.rendering.isbrh.obj.ObjContext;
-import jds.bibliocraft.tileentities.BiblioTileEntity;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityToolRack;
-import jds.bibliocraft.utils.BiblioWoodRegistry;
+
 import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.client.IItemRenderer;
-import net.minecraftforge.client.model.AdvancedModelLoader;
-import net.minecraftforge.client.model.obj.WavefrontObject;
 import net.minecraftforge.common.util.ForgeDirection;
 import org.lwjgl.opengl.GL11;
 
@@ -86,19 +84,19 @@ public class BlockToolRack extends BiblioWoodBlock
 	}
 
     @Override
-    public void renderItem(IItemRenderer.ItemRenderType type, ItemStack item, Object... data) {
+    public void renderItem(ItemRenderType type, ItemStack item, Object... data) {
         switch (type) {
             case INVENTORY:
-                renderItemToolRack(0, -0.5D, -0.25D,180.0D, item.getItemDamage());
+                renderItemToolRack(0, -0.5D, -0.25D,180.0D, item);
                 return;
             case EQUIPPED_FIRST_PERSON:
-                renderItemToolRack(-0.25D, 0.25D, 0.25D, 45.0D, item.getItemDamage());
+                renderItemToolRack(-0.25D, 0.25D, 0.25D, 45.0D, item);
                 return;
             case EQUIPPED:
-                renderItemToolRack(-0.5D, 0, 0.25D, 90.0D, item.getItemDamage());
+                renderItemToolRack(-0.5D, 0, 0.25D, 90.0D, item);
                 return;
             default:
-                renderItemToolRack(0, -0.5D, -0.25D, 0, item.getItemDamage());
+                renderItemToolRack(0, -0.5D, -0.25D, 0, item);
         }
     }
 
@@ -112,32 +110,40 @@ public class BlockToolRack extends BiblioWoodBlock
         if (tile == null) return false;
         ObjContext ctx = new ObjContext(world, x, y, z, tile.getAngle(), tile.getVertPosition(), tile.getShiftPosition());
         ObjBuilder obj = new ObjBuilder(tes).setContext(ctx);
-        renderToolRack(obj, tile.getExtendedMeta());
+        renderToolRack(obj, world.getBlockMetadata(x, y, z), tile.getCustomTextureString());
 
-//        tes.addTranslation(-x - .5F, -y - .5F, -z - .5F);
+
         return true;
     }
 
 
-    public void renderItemToolRack(double x, double y, double z, double rotate, int meta) {
+    public void renderItemToolRack(double x, double y, double z, double rotate, ItemStack item) {
         final Tessellator tes = Tessellator.instance;
         RenderHelper.disableStandardItemLighting();
         GL11.glRotated(rotate, 0.0D, 1.0D, 0.0D);
         GL11.glTranslated(x, y, z);
         ObjContext ctx = new ObjContext(null, x, y, z);
         ObjBuilder obj = new ObjBuilder(tes).setContext(ctx);
+        String customTextureName = "none";
+        if (item.getTagCompound() != null) customTextureName = item.getTagCompound().getString("renderTexture");
         obj.start();
-        renderToolRack(obj , meta);
+        renderToolRack(obj , item.getItemDamage(), customTextureName);
         obj.end();
         RenderHelper.enableStandardItemLighting();
     }
 
-    public void renderToolRack(ObjBuilder obj , int meta) {
+    public void renderToolRack(ObjBuilder obj , int meta, String customTextureName) {
         String[] Wood = {"bottom","top","left","right","center"};
         String[] nub = {"nub0","nub1","nub2","nub3","nub4","nub5","nub6","nub7"};
 
-        IIcon woodIcon = BiblioWoodRegistry.getIcon(meta);
-        IIcon metalIcon = Blocks.iron_block.getIcon(0,0);
+        // IIcon woodIcon = BiblioWoodRegistry.getIcon(meta);
+        // 1. Get the default icon as a fallback
+        IIcon woodIcon = this.getIcon(0, meta); // 'this' is your Block
+        IIcon metalIcon = Blocks.iron_block.getIcon(0, 0);
+        if (!customTextureName.equals("none")) {
+            woodIcon = this.getCustomTexture(customTextureName);
+        }
+
         obj.setModel(EnumObjModels.TOOL_RACK);
         obj.renderPart(Wood, woodIcon);
         obj.renderPart(nub, metalIcon);

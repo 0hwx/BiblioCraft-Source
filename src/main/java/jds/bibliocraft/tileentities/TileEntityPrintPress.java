@@ -1,7 +1,6 @@
 package jds.bibliocraft.tileentities;
 
 import jds.bibliocraft.Config;
-import jds.bibliocraft.blocks.BlockPrintingPress;
 import jds.bibliocraft.helpers.FileUtil;
 import jds.bibliocraft.items.ItemAtlas;
 import jds.bibliocraft.items.ItemAtlasPlate;
@@ -10,7 +9,7 @@ import jds.bibliocraft.items.ItemEnchantedPlate;
 import jds.bibliocraft.items.ItemPlate;
 import jds.bibliocraft.items.ItemRecipeBook;
 import jds.bibliocraft.items.ItemStockroomCatalog;
-import net.minecraft.client.renderer.texture.ITickable;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.ISidedInventory;

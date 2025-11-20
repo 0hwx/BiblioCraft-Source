@@ -14,7 +14,7 @@
 //
 //import org.apache.commons.lang3.tuple.Pair;
 //
-//import jds.bibliocraft.blocks.BiblioWoodBlock.EnumWoodType;
+//import jds.bibliocraft.blocks.base.BiblioWoodBlock.EnumWoodType;
 //import jds.bibliocraft.helpers.ModelCache;
 //import net.minecraft.block.state.IBlockState;
 //import net.minecraft.client.Minecraft;

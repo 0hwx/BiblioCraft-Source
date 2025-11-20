@@ -1,8 +1,7 @@
 package jds.bibliocraft.tileentities;
 
-import jds.bibliocraft.blocks.BlockPaintingPress;
 import jds.bibliocraft.items.ItemPaintingCanvas;
-import net.minecraft.client.renderer.texture.ITickable;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;

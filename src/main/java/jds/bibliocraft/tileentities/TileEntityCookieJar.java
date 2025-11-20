@@ -3,7 +3,7 @@ package jds.bibliocraft.tileentities;
 import java.util.ArrayList;
 
 import jds.bibliocraft.blocks.BlockCookieJar;
-import net.minecraft.client.renderer.texture.ITickable;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;

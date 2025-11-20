@@ -1,26 +1,18 @@
 package jds.bibliocraft.blocks;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.annotation.Nullable;
-import javax.vecmath.Quat4f;
-import javax.vecmath.Vector3f;
-
 import cpw.mods.fml.common.network.NetworkRegistry;
 import jds.bibliocraft.BiblioCraft;
 import jds.bibliocraft.CommonProxy;
+import jds.bibliocraft.blocks.base.BiblioWoodBlock;
 import jds.bibliocraft.helpers.EnumColor;
 import jds.bibliocraft.helpers.EnumVertPosition;
 import jds.bibliocraft.network.BiblioNetworking;
 import jds.bibliocraft.network.packet.client.BiblioSoundPlayer;
 import jds.bibliocraft.states.TextureState;
-import jds.bibliocraft.tileentities.BiblioTileEntity;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityCase;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockCarpet;
-import net.minecraft.client.renderer.RenderBlocks;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -28,7 +20,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;

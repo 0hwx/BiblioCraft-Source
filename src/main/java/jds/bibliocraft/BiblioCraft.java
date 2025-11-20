@@ -3,6 +3,7 @@ package jds.bibliocraft;
 import java.io.File;
 
 
+import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
@@ -17,8 +18,10 @@ import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import jds.bibliocraft.models.ModelToolRack;
+import jds.bibliocraft.recipe.nei.NEIBiblioFramedWoodConfig;
 import jds.bibliocraft.rendering.isbrh.SimpleModelRenderer;
-import jds.bibliocraft.utils.BiblioWoodRegistry;
+
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.model.obj.WavefrontObject;
 import org.apache.logging.log4j.LogManager;
@@ -40,6 +43,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
+import org.lwjgl.input.Keyboard;
 import vazkii.botania.common.block.ModBlocks;
 
 /**
@@ -65,38 +69,8 @@ public class BiblioCraft
     public static final String MODID = "bibliocraft";
     public static final String VERSION = "2.4.6";
 	public static final Logger LOGGER = LogManager.getLogger(MODID);
-    public static FMLEventChannel ch_BiblioType;
-    public static FMLEventChannel ch_BiblioTypeFlag;
-    public static FMLEventChannel ch_BiblioTypeDelete;
-    public static FMLEventChannel ch_BiblioMCBEdit;
-    public static FMLEventChannel ch_BiblioMCBPage;
-    public static FMLEventChannel ch_BiblioAStand;
-    public static FMLEventChannel ch_BiblioInvStack;
-    public static FMLEventChannel ch_BiblioMeasure;
-    public static FMLEventChannel ch_BiblioMapPin;
-    public static FMLEventChannel ch_BiblioTypeUpdate;
-    public static FMLEventChannel ch_BiblioRecipeBook;
-    public static FMLEventChannel ch_BiblioRecipeLoad;
-    public static FMLEventChannel ch_BiblioSign;
-    public static FMLEventChannel ch_BiblioClock;
-    public static FMLEventChannel ch_BiblioPaintPress;
-    public static FMLEventChannel ch_BiblioPainting;
-    public static FMLEventChannel ch_BiblioPaintingC;
-    public static FMLEventChannel ch_BiblioDrillText;
-    public static FMLEventChannel ch_BiblioAtlas;
-    public static FMLEventChannel ch_BiblioAtlasGUIswap;
-    public static FMLEventChannel ch_BiblioAtlasTranGUI;
-    public static FMLEventChannel ch_BiblioAtlasWPT;
-    public static FMLEventChannel ch_BiblioPaneler;
-    public static FMLEventChannel ch_BiblioRecipeCraft;
-    public static FMLEventChannel ch_BiblioRecipeText;
-    public static FMLEventChannel ch_BiblioStockCatalog;
-    public static FMLEventChannel ch_BiblioStoCatTitle;
-    public static FMLEventChannel ch_BiblioStoCatCompass;
-    public static FMLEventChannel ch_BiblioDeskGUIS;
-    public static FMLEventChannel ch_BiblioRenderUpdate;
-    public static FMLEventChannel ch_BiblioClipboard;
-    public static FMLEventChannel ch_BiblioOpenBook;
+    public static KeyBinding keyDebug;
+
 
 	@Mod.Instance(MODID)
 	public static BiblioCraft instance;
@@ -118,7 +92,6 @@ public class BiblioCraft
 	public void preInit(FMLPreInitializationEvent event)
 	{
 		Config.init(event);
-        BiblioWoodRegistry.init();
 //        RenderingRegistry.registerBlockHandler(new CustomISBRHRender());
         RenderingRegistry.registerBlockHandler(new SimpleModelRenderer());
 
@@ -154,6 +127,8 @@ public class BiblioCraft
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
+        MinecraftForge.EVENT_BUS.register(new NEIBiblioFramedWoodConfig());
+
         // Automatically register vanilla woods
 //        BiblioWoodRegistry.init();
     }

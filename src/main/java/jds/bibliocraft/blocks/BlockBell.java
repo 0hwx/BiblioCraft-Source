@@ -2,6 +2,7 @@ package jds.bibliocraft.blocks;
 
 import cpw.mods.fml.common.network.NetworkRegistry;
 import jds.bibliocraft.CommonProxy;
+import jds.bibliocraft.blocks.base.BiblioSimpleBlock;
 import jds.bibliocraft.network.BiblioNetworking;
 import jds.bibliocraft.network.packet.client.BiblioSoundPlayer;
 import jds.bibliocraft.tileentities.TileEntityBell;

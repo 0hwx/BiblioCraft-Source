@@ -2,12 +2,13 @@ package jds.bibliocraft.blocks;
 
 import jds.bibliocraft.BiblioCraft;
 import jds.bibliocraft.Config;
+import jds.bibliocraft.blocks.base.BiblioWoodBlock;
 import jds.bibliocraft.rendering.isbrh.obj.EnumObjModels;
 import jds.bibliocraft.rendering.isbrh.obj.ObjBuilder;
 import jds.bibliocraft.rendering.isbrh.obj.ObjContext;
-import jds.bibliocraft.tileentities.BiblioTileEntity;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityPotionShelf;
-import jds.bibliocraft.utils.BiblioWoodRegistry;
+
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
@@ -170,16 +171,16 @@ public class BlockPotionShelf  extends BiblioWoodBlock
     public void renderItem(IItemRenderer.ItemRenderType type, ItemStack item, Object... data) {
         switch (type) {
             case INVENTORY:
-                renderItemPotionShelf(0, -0.5D, -0.25D,180.0D, item.getItemDamage());
+                renderItemPotionShelf(0, -0.5D, -0.25D,180.0D, item);
                 return;
             case EQUIPPED_FIRST_PERSON:
-                renderItemPotionShelf(-0.25D, 0.25D, 0.25D, 45.0D, item.getItemDamage());
+                renderItemPotionShelf(-0.25D, 0.25D, 0.25D, 45.0D, item);
                 return;
             case EQUIPPED:
-                renderItemPotionShelf(-0.5D, 0, 0.25D, 90.0D, item.getItemDamage());
+                renderItemPotionShelf(-0.5D, 0, 0.25D, 90.0D, item);
                 return;
             default:
-                renderItemPotionShelf(0, -0.5D, -0.25D,0, item.getItemDamage());
+                renderItemPotionShelf(0, -0.5D, -0.25D,0, item);
         }
     }
 
@@ -193,27 +194,33 @@ public class BlockPotionShelf  extends BiblioWoodBlock
         ObjContext ctx = new ObjContext(world, x, y, z, tile.getAngle(), tile.getVertPosition(), tile.getShiftPosition());
         ObjBuilder obj = new ObjBuilder(tes).setContext(ctx);
 
-        renderPotionShelf(obj, tile.getExtendedMeta());
+        renderPotionShelf(obj, world.getBlockMetadata(x, y, z), tile.getCustomTextureString());
 
         return true;
     }
 
 
-    public void renderItemPotionShelf(double x, double y, double z, double rotate, int meta) {
+    public void renderItemPotionShelf(double x, double y, double z, double rotate, ItemStack item) {
         final Tessellator tes = Tessellator.instance;
         RenderHelper.disableStandardItemLighting();
         GL11.glRotated(rotate, 0.0D, 1.0D, 0.0D);
         GL11.glTranslated(x, y, z);
         ObjContext ctx = new ObjContext(null, x, y, z);
         ObjBuilder obj = new ObjBuilder(tes).setContext(ctx);
+        String customTextureName = "none";
+        if (item.getTagCompound() != null) customTextureName = item.getTagCompound().getString("renderTexture");
         obj.start();
-        renderPotionShelf(obj , meta);
+        renderPotionShelf(obj , item.getItemDamage(), customTextureName);
         obj.end();
         RenderHelper.enableStandardItemLighting();
     }
 
-    public void renderPotionShelf(ObjBuilder obj , int meta) {
-        IIcon woodIcon = BiblioWoodRegistry.getIcon(meta);
+    public void renderPotionShelf(ObjBuilder obj , int meta, String customTextureName) {
+        IIcon woodIcon = this.getIcon(0,meta);
+
+        if (!customTextureName.equals("none")) {
+            woodIcon = this.getCustomTexture(customTextureName);
+        }
         String[] shelf = {"left","right","bottom","middle","top",};
         obj.setModel(EnumObjModels.POTION_SHELF);
         obj.renderPart(shelf, woodIcon);

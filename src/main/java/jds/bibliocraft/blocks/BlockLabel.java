@@ -1,13 +1,13 @@
 package jds.bibliocraft.blocks;
 
 import jds.bibliocraft.BiblioCraft;
+import jds.bibliocraft.blocks.base.BiblioWoodBlock;
 import jds.bibliocraft.rendering.isbrh.obj.EnumObjModels;
 import jds.bibliocraft.rendering.isbrh.obj.ObjBuilder;
 import jds.bibliocraft.rendering.isbrh.obj.ObjContext;
-import jds.bibliocraft.tileentities.BiblioTileEntity;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityLabel;
-import jds.bibliocraft.tileentities.TileEntityPotionShelf;
-import jds.bibliocraft.utils.BiblioWoodRegistry;
+
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
@@ -15,7 +15,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -95,16 +94,16 @@ public class BlockLabel extends BiblioWoodBlock
     public void renderItem(IItemRenderer.ItemRenderType type, ItemStack item, Object... data) {
         switch (type) {
             case INVENTORY:
-                renderItemLabel(0, -0.5D, -0.25D,180.0D, item.getItemDamage());
+                renderItemLabel(0, -0.5D, -0.25D,180.0D, item);
                 return;
             case EQUIPPED_FIRST_PERSON:
-                renderItemLabel(-0.25D, 0.25D, 0.25D, 45.0D, item.getItemDamage());
+                renderItemLabel(-0.25D, 0.25D, 0.25D, 45.0D, item);
                 return;
             case EQUIPPED:
-                renderItemLabel(-0.5D, 0, 0.25D, 90.0D, item.getItemDamage());
+                renderItemLabel(-0.5D, 0, 0.25D, 90.0D, item);
                 return;
             default:
-                renderItemLabel(0, -0.5D, -0.25D,0, item.getItemDamage());
+                renderItemLabel(0, -0.5D, -0.25D,0, item);
         }
     }
 
@@ -118,27 +117,33 @@ public class BlockLabel extends BiblioWoodBlock
         ObjContext ctx = new ObjContext(world, x, y, z, tile.getAngle(), tile.getVertPosition(), tile.getShiftPosition());
         ObjBuilder obj = new ObjBuilder(tes).setContext(ctx);
 
-        renderLabel(obj, tile.getExtendedMeta());
+        renderLabel(obj, world.getBlockMetadata(x, y, z), tile.getCustomTextureString());
 
         return true;
     }
 
 
-    public void renderItemLabel(double x, double y, double z, double rotate, int meta) {
+    public void renderItemLabel(double x, double y, double z, double rotate, ItemStack item) {
         final Tessellator tes = Tessellator.instance;
         RenderHelper.disableStandardItemLighting();
         GL11.glRotated(rotate, 0.0D, 1.0D, 0.0D);
         GL11.glTranslated(x, y, z);
         ObjContext ctx = new ObjContext(null, x, y, z);
         ObjBuilder obj = new ObjBuilder(tes).setContext(ctx);
+        String customTextureName = "none";
+        if (item.getTagCompound() != null) customTextureName = item.getTagCompound().getString("renderTexture");
         obj.start();
-        renderLabel(obj , meta);
+        renderLabel(obj , item.getItemDamage(), customTextureName);
         obj.end();
         RenderHelper.enableStandardItemLighting();
     }
 
-    public void renderLabel(ObjBuilder obj , int meta) {
-        IIcon woodIcon = BiblioWoodRegistry.getIcon(meta);
+    public void renderLabel(ObjBuilder obj , int meta, String customTextureName) {
+        IIcon woodIcon = this.getIcon(0,meta);
+
+        if (customTextureName != null && !customTextureName.equals("none")) {
+            woodIcon = this.getCustomTexture(customTextureName);
+        }
         String[] shelf = {"left","right","bottom","back","top",};
         obj.setModel(EnumObjModels.LABEL);
         obj.renderPart(shelf, woodIcon);

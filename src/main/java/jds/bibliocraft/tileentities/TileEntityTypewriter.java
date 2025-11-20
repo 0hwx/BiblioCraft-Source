@@ -3,9 +3,8 @@ package jds.bibliocraft.tileentities;
 import java.util.List;
 
 import jds.bibliocraft.CommonProxy;
-import jds.bibliocraft.blocks.BlockTypeWriter;
 import jds.bibliocraft.storygen.BookGenUtil;
-import net.minecraft.client.renderer.texture.ITickable;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.monster.EntityCreeper;
 import net.minecraft.entity.monster.EntityEnderman;

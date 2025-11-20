@@ -14,7 +14,7 @@
 //
 //import org.apache.commons.lang3.tuple.Pair;
 //
-//import jds.bibliocraft.blocks.BiblioLightBlock;
+//import jds.bibliocraft.blocks.base.BiblioLightBlock;
 //import jds.bibliocraft.blocks.BlockLampGold;
 //import jds.bibliocraft.blocks.BlockLampIron;
 //import jds.bibliocraft.blocks.BlockLanternGold;

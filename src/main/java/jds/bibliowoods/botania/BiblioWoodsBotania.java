@@ -37,10 +37,10 @@ public class BiblioWoodsBotania
 			Block planks2 = Block.getBlockFromName("Botania:livingwood");
 			Block planks3 = Block.getBlockFromName("Botania:dreamwood");
 			Block planks5 = Block.getBlockFromName("Botania:livingrock");
-            System.out.println("testBlock" + planks);
-            System.out.println("testBlock" + planks2);
-            System.out.println("testBlock" + planks3);
-            System.out.println("testBlock" + planks5);
+//            System.out.println("testBlock" + planks);
+//            System.out.println("testBlock" + planks2);
+//            System.out.println("testBlock" + planks3);
+//            System.out.println("testBlock" + planks5);
 			testBlock(planks);
 			testBlock(planks2);
 			testBlock(planks3);
@@ -61,8 +61,8 @@ public class BiblioWoodsBotania
 			for (int i = 0; i < 16; i++)
 			{
 				ItemStack stack = new ItemStack(block, 1, i);
-				if (stack != null)
-					System.out.println("stack " + i + "   = " + stack.getDisplayName() + "   unlocalized = " + stack.getUnlocalizedName());
+//				if (stack != null)
+//					System.out.println("stack " + i + "   = " + stack.getDisplayName() + "   unlocalized = " + stack.getUnlocalizedName());
 			}
 		}
 	}

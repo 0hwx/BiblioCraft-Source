@@ -1,12 +1,13 @@
 package jds.bibliocraft.blocks;
 
 import jds.bibliocraft.BiblioCraft;
+import jds.bibliocraft.blocks.base.BiblioWoodBlock;
 import jds.bibliocraft.helpers.EnumPaintingFrame;
 import jds.bibliocraft.helpers.PaintingUtil;
 import jds.bibliocraft.items.ItemPaintingCanvas;
 import jds.bibliocraft.network.BiblioNetworking;
 import jds.bibliocraft.network.packet.server.BiblioPaintingC;
-import jds.bibliocraft.tileentities.BiblioTileEntity;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityPainting;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
@@ -14,7 +15,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 

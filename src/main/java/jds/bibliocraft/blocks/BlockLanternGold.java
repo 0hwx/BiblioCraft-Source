@@ -1,15 +1,14 @@
 package jds.bibliocraft.blocks;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import jds.bibliocraft.blocks.base.BiblioLightBlock;
 import jds.bibliocraft.entity.EntityCandleFX;
 import jds.bibliocraft.helpers.EnumMetalType;
-import jds.bibliocraft.tileentities.BiblioLightTileEntity;
-import jds.bibliocraft.tileentities.BiblioTileEntity;
+import jds.bibliocraft.tileentities.base.BiblioLightTileEntity;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.EntityFX;
 import net.minecraft.util.AxisAlignedBB;

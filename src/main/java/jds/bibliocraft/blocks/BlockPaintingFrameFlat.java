@@ -1,10 +1,7 @@
 package jds.bibliocraft.blocks;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import jds.bibliocraft.helpers.EnumPaintingFrame;
-import jds.bibliocraft.tileentities.BiblioTileEntity;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityPainting;
 import jds.bibliocraft.tileentities.TileEntityPaintingFlat;
 import net.minecraft.entity.EntityLivingBase;

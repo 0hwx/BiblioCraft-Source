@@ -1,7 +1,7 @@
 package jds.bibliocraft.rendering.tesr;
 
 import jds.bibliocraft.BiblioCraft;
-import jds.bibliocraft.rendering.BiblioTileRenderer;
+import jds.bibliocraft.rendering.tesr.base.BiblioTileRenderer;
 import jds.bibliocraft.tileentities.TileEntityBell;
 import jds.bibliocraft.utils.VanillaResource;
 import net.minecraft.item.ItemStack;

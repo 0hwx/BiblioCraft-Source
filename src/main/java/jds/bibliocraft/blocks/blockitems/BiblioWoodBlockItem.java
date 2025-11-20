@@ -4,8 +4,9 @@ import java.util.List;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import jds.bibliocraft.tileentities.BiblioTileEntity;
-import jds.bibliocraft.utils.BiblioWoodRegistry;
+import jds.bibliocraft.blocks.base.BiblioWoodBlock;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
+
 import net.minecraft.block.Block;
 
 import net.minecraft.client.resources.I18n;
@@ -23,52 +24,13 @@ import javax.annotation.Nullable;
 
 public class BiblioWoodBlockItem extends ItemBlock
 {
-    private final Block block;
+    private String[] names;
 
     public BiblioWoodBlockItem(Block block, String blockName)
     {
         super(block);
-        this.block = block;
+        setNames(blockName);
         setHasSubtypes(true);
-    }
-
-    @Override
-    public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side,
-                                float hitX, float hitY, float hitZ, int metadata) {
-        return placeWood(stack, player, world, x, y, z, metadata);
-    }
-
-    public static boolean placeWood(ItemStack stack, @Nullable EntityPlayer player, World world, int x, int y, int z,
-                                    int metadata) {
-        Block block = Block.getBlockFromItem(stack.getItem());
-        return placeWood(stack, stack.getItemDamage(), block, player, world, x, y, z, metadata);
-    }
-
-    public static boolean placeWood(ItemStack stack, int extendedMeta, Block block, @Nullable EntityPlayer player,
-                                    World world, int x, int y, int z, int metadata) {
-        boolean placed = world.setBlock(x, y, z, block, metadata, 3);
-        if (!placed) {
-            return false;
-        }
-
-        Block worldBlock = world.getBlock(x, y, z);
-        if (!Block.isEqualTo(block, worldBlock)) {
-            return false;
-        }
-
-        TileEntity tile = world.getTileEntity(x, y, z);
-        if (!(tile instanceof BiblioTileEntity)) {
-            world.setBlockToAir(x, y, z);
-            return false;
-        }
-
-        if (player != null) {
-            worldBlock.onBlockPlacedBy(world, x, y, z, player, stack);
-            worldBlock.onPostBlockPlaced(world, x, y, z, metadata);
-        }
-
-        ((BiblioTileEntity) tile).setExtendedMeta(extendedMeta);
-        return true;
     }
 
     @Override
@@ -78,15 +40,18 @@ public class BiblioWoodBlockItem extends ItemBlock
     }
 
     @Override
-    public String getUnlocalizedName(ItemStack stack)
+    public String getUnlocalizedName(ItemStack itemstack)
     {
-        int meta = stack.getItemDamage();
-        BiblioWoodRegistry.WoodEntry entry = BiblioWoodRegistry.getWood(meta);
-        if (entry != null) {
-            String woodName = entry.name.toLowerCase().replace(" ", "_"); // WoodEntry should have getName()
-            return "tile." + woodName + "." + block.getUnlocalizedName().substring(5);
+        return names[itemstack.getItemDamage()];
+    }
+
+    private void setNames(String blockName)
+    {
+        names = new String[BiblioWoodBlock.EnumWoodType.values().length];
+        for (int i = 0; i < names.length; i++)
+        {
+            names[i] = BiblioWoodBlock.EnumWoodType.getEnum(i).getName() + blockName;
         }
-        return super.getUnlocalizedName(stack);
     }
 
     @SideOnly(Side.CLIENT)
@@ -110,12 +75,12 @@ public class BiblioWoodBlockItem extends ItemBlock
         return tooltip;
     }
 
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void getSubItems(Item itemIn, CreativeTabs tabs, List<ItemStack> list)
-    {
-        for (BiblioWoodRegistry.WoodEntry entry : BiblioWoodRegistry.getRegisteredWoods().values()) {
-            list.add(new ItemStack(itemIn, 1, entry.meta)); // WoodEntry should track its meta
-        }
-    }
+//    @Override
+//    @SideOnly(Side.CLIENT)
+//    public void getSubItems(Item itemIn, CreativeTabs tabs, List<ItemStack> list)
+//    {
+//        for (BiblioWoodRegistry.WoodEntry entry : BiblioWoodRegistry.getRegisteredWoods().values()) {
+//            list.add(new ItemStack(itemIn, 1, entry.meta)); // WoodEntry should track its meta
+//        }
+//    }
 }

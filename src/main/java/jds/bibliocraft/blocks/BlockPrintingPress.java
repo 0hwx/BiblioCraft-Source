@@ -1,19 +1,15 @@
 package jds.bibliocraft.blocks;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import jds.bibliocraft.helpers.EnumColor;
+import jds.bibliocraft.blocks.base.BiblioSimpleBlock;
 import jds.bibliocraft.items.ItemAtlas;
 import jds.bibliocraft.items.ItemAtlasPlate;
 import jds.bibliocraft.items.ItemEnchantedPlate;
 import jds.bibliocraft.items.ItemPlate;
-import jds.bibliocraft.tileentities.BiblioTileEntity;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityPrintPress;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBook;
-import net.minecraft.item.ItemEnchantedBook;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;

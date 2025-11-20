@@ -1,12 +1,10 @@
 package jds.bibliocraft.blocks;
 
-import javax.vecmath.Quat4f;
-import javax.vecmath.Vector3f;
-
 import jds.bibliocraft.BiblioCraft;
 import jds.bibliocraft.Config;
+import jds.bibliocraft.blocks.base.BiblioSimpleBlock;
 import jds.bibliocraft.helpers.EnumVertPosition;
-import jds.bibliocraft.tileentities.BiblioTileEntity;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityDiscRack;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.EntityLivingBase;

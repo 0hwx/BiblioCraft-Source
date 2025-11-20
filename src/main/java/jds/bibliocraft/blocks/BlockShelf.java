@@ -2,12 +2,13 @@ package jds.bibliocraft.blocks;
 
 
 import jds.bibliocraft.BiblioCraft;
+import jds.bibliocraft.blocks.base.BiblioWoodBlock;
 import jds.bibliocraft.rendering.isbrh.obj.EnumObjModels;
 import jds.bibliocraft.rendering.isbrh.obj.ObjBuilder;
 import jds.bibliocraft.rendering.isbrh.obj.ObjContext;
-import jds.bibliocraft.tileentities.BiblioTileEntity;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityShelf;
-import jds.bibliocraft.utils.BiblioWoodRegistry;
+
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
@@ -130,16 +131,16 @@ public class BlockShelf extends BiblioWoodBlock
     public void renderItem(IItemRenderer.ItemRenderType type, ItemStack item, Object... data) {
         switch (type) {
             case INVENTORY:
-                renderItemShelf(0, -0.5D, -0.25D,180.0D, item.getItemDamage());
+                renderItemShelf(0, -0.5D, -0.25D,180.0D, item);
                 return;
             case EQUIPPED_FIRST_PERSON:
-                renderItemShelf(-0.25D, 0.25D, 0.25D, 45.0D, item.getItemDamage());
+                renderItemShelf(-0.25D, 0.25D, 0.25D, 45.0D, item);
                 return;
             case EQUIPPED:
-                renderItemShelf(-0.5D, 0, 0.25D, 90.0D, item.getItemDamage());
+                renderItemShelf(-0.5D, 0, 0.25D, 90.0D, item);
                 return;
             default:
-                renderItemShelf(0, -0.5D, -0.25D,0, item.getItemDamage());
+                renderItemShelf(0, -0.5D, -0.25D,0, item);
         }
     }
 
@@ -153,28 +154,34 @@ public class BlockShelf extends BiblioWoodBlock
         ObjContext ctx = new ObjContext(world, x, y, z, tile.getAngle(), tile.getVertPosition(), tile.getShiftPosition());
         ObjBuilder obj = new ObjBuilder(tes).setContext(ctx);
 
-        renderShelf(obj, tile.getExtendedMeta(), tile.getTop());
+        renderShelf(obj, world.getBlockMetadata(x,y,z),tile.getCustomTextureString(), tile.getTop());
 
-//        tes.addTranslation(-x - .5F, -y - .5F, -z - .5F);
+
         return true;
     }
 
 
-    public void renderItemShelf(double x, double y, double z, double rotate, int meta) {
+    public void renderItemShelf(double x, double y, double z, double rotate, ItemStack item) {
         final Tessellator tes = Tessellator.instance;
         RenderHelper.disableStandardItemLighting();
         GL11.glRotated(rotate, 0.0D, 1.0D, 0.0D);
         GL11.glTranslated(x, y, z);
         ObjContext ctx = new ObjContext(null, x, y, z);
         ObjBuilder obj = new ObjBuilder(tes).setContext(ctx);
+        String customTextureName = "none";
+        if (item.getTagCompound() != null) customTextureName = item.getTagCompound().getString("renderTexture");
         obj.start();
-        renderShelf(obj , meta,true);
+        renderShelf(obj , item.getItemDamage(),customTextureName,true);
         obj.end();
         RenderHelper.enableStandardItemLighting();
     }
 
-    public void renderShelf(ObjBuilder obj , int meta,boolean top) {
-        IIcon woodIcon = BiblioWoodRegistry.getIcon(meta);
+    public void renderShelf(ObjBuilder obj , int meta, String customTextureName , boolean top) {
+        IIcon woodIcon = this.getIcon(0,meta);
+
+        if (!customTextureName.equals("none")) {
+            woodIcon = this.getCustomTexture(customTextureName);
+        }
         obj.setModel(EnumObjModels.SHELF);
 
         if (top){

@@ -1,18 +1,11 @@
 package jds.bibliocraft.blocks;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.vecmath.Quat4f;
-import javax.vecmath.Vector3f;
-
 import jds.bibliocraft.BiblioCraft;
-import jds.bibliocraft.tileentities.BiblioTileEntity;
+import jds.bibliocraft.blocks.base.BiblioSimpleBlock;
 import jds.bibliocraft.tileentities.TileEntityCookieJar;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.IIcon;

@@ -1,8 +1,8 @@
 package jds.bibliocraft.tileentities;
 
 import jds.bibliocraft.Config;
-import jds.bibliocraft.blocks.BlockToolRack;
 import jds.bibliocraft.helpers.EnumVertPosition;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBow;
 import net.minecraft.item.ItemFishingRod;

@@ -161,8 +161,8 @@ public class BlockLoader
 
 		if (Config.enableLantern)
 		{
-//            GameRegistry.registerBlock(BlockLanternGold.instance,BlockItemLantern.class, BlockLanternGold.name);
-//            GameRegistry.registerBlock(BlockLanternIron.instance,BlockItemLantern.class, BlockLanternIron.name);
+            GameRegistry.registerBlock(BlockLanternGold.instance,BlockItemLantern.class, BlockLanternGold.name);
+            GameRegistry.registerBlock(BlockLanternIron.instance,BlockItemLantern.class, BlockLanternIron.name);
 		}
 		if (Config.enableLamp)
 		{

@@ -25,8 +25,8 @@
 //import net.minecraftforge.client.model.IModelCustom;
 //import org.apache.commons.lang3.tuple.Pair;
 //
-//import jds.bibliocraft.blocks.BiblioWoodBlock;
-//import jds.bibliocraft.blocks.BiblioWoodBlock.EnumWoodType;
+//import jds.bibliocraft.blocks.base.BiblioWoodBlock;
+//import jds.bibliocraft.blocks.base.BiblioWoodBlock.EnumWoodType;
 //
 //import jds.bibliocraft.states.TextureState;
 //import net.minecraft.client.Minecraft;

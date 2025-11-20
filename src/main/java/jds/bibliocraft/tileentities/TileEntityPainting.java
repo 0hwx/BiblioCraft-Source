@@ -2,17 +2,13 @@ package jds.bibliocraft.tileentities;
 
 import jds.bibliocraft.Config;
 import jds.bibliocraft.blocks.BlockPaintingFrameBorderless;
-import jds.bibliocraft.blocks.BlockPaintingFrameFancy;
-import jds.bibliocraft.blocks.BlockPaintingFrameFlat;
-import jds.bibliocraft.blocks.BlockPaintingFrameMiddle;
-import jds.bibliocraft.blocks.BlockPaintingFrameSimple;
 import jds.bibliocraft.helpers.EnumPaintingFrame;
 import jds.bibliocraft.items.ItemPaintingCanvas;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.AxisAlignedBB;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;

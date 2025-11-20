@@ -1,20 +1,12 @@
 package jds.bibliocraft.blocks;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.vecmath.Quat4f;
-import javax.vecmath.Vector3f;
-
 import jds.bibliocraft.BiblioCraft;
 import jds.bibliocraft.Config;
+import jds.bibliocraft.blocks.base.BiblioWoodBlock;
 import jds.bibliocraft.network.BiblioNetworking;
 import jds.bibliocraft.network.packet.client.BiblioPanelerClient;
 
-import jds.bibliocraft.states.PanelState;
-
-import jds.bibliocraft.states.TextureState;
-import jds.bibliocraft.tileentities.BiblioTileEntity;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityFurniturePaneler;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityLivingBase;

@@ -1,6 +1,6 @@
 package jds.bibliocraft.tileentities;
 
-import jds.bibliocraft.blocks.BlockFancySign;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 

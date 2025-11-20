@@ -1,14 +1,10 @@
 package jds.bibliocraft.rendering.isbrh;
 
 import com.gtnewhorizons.angelica.api.ThreadSafeISBRH;
-import jds.bibliocraft.BiblioCraft;
-import jds.bibliocraft.api.render.IISBRH;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderBlocks;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.world.IBlockAccess;
-import net.minecraftforge.client.model.obj.WavefrontObject;
 
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
 
@@ -31,8 +27,7 @@ public class SimpleModelRenderer implements ISimpleBlockRenderingHandler {
     public boolean renderWorldBlock(IBlockAccess world, int x, int y, int z, Block block, int modelId,
             RenderBlocks renderer) {
         final Tessellator tess = Tessellator.instance;
-        if (block instanceof IISBRH) {
-            IISBRH customRenderBlock = (IISBRH) block;
+        if (block instanceof IISBRH customRenderBlock) {
             return customRenderBlock.renderWorldBlock(world, x, y, z, block,tess);
         }
         return true;

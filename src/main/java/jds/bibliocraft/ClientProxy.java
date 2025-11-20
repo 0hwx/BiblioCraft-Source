@@ -13,40 +13,39 @@ import jds.bibliocraft.blocks.BlockLabel;
 import jds.bibliocraft.blocks.BlockPotionShelf;
 import jds.bibliocraft.blocks.BlockSeat;
 import jds.bibliocraft.blocks.BlockShelf;
+import jds.bibliocraft.blocks.BlockTable;
 import jds.bibliocraft.blocks.BlockToolRack;
 import jds.bibliocraft.blocks.BlockTypeWriter;
-import jds.bibliocraft.blocks.blockitems.BlockItemTypewriter;
+import jds.bibliocraft.blocks.BlockTypesettingTable;
 import jds.bibliocraft.entity.EntitySeat;
 import jds.bibliocraft.entity.EntitySeatRenderer;
 import jds.bibliocraft.events.RenderClipboardText;
-import jds.bibliocraft.rendering.TileEntityArmorStandRenderer;
-import jds.bibliocraft.rendering.TileEntityBookcaseRenderer;
-import jds.bibliocraft.rendering.TileEntityCaseRenderer;
-import jds.bibliocraft.rendering.TileEntityClipboardRenderer;
-import jds.bibliocraft.rendering.TileEntityClockRenderer;
-import jds.bibliocraft.rendering.TileEntityCookieJarRenderer;
-import jds.bibliocraft.rendering.TileEntityDeskRenderer;
-import jds.bibliocraft.rendering.TileEntityDinnerPlateRenderer;
-import jds.bibliocraft.rendering.TileEntityDiscRackRenderer;
-import jds.bibliocraft.rendering.TileEntityFancyWorkbenchRenderer;
-import jds.bibliocraft.rendering.TileEntityFramedChestRenderer;
-import jds.bibliocraft.rendering.TileEntityFurniturePanelerRenderer;
-import jds.bibliocraft.rendering.TileEntityLabelRenderer;
-import jds.bibliocraft.rendering.TileEntityMapFrameRenderer;
-import jds.bibliocraft.rendering.TileEntityPaintPressRenderer;
-import jds.bibliocraft.rendering.TileEntityPaintingRenderer;
-import jds.bibliocraft.rendering.TileEntityPotionShelfRenderer;
-import jds.bibliocraft.rendering.TileEntityPrintPressRenderer;
-import jds.bibliocraft.rendering.TileEntitySeatRenderer;
-import jds.bibliocraft.rendering.TileEntityShelfRenderer;
-import jds.bibliocraft.rendering.TileEntitySwordPedestalRenderer;
-import jds.bibliocraft.rendering.TileEntityTableRenderer;
-import jds.bibliocraft.rendering.TileEntityToolRackRenderer;
-import jds.bibliocraft.rendering.TileEntityTypeWriterRenderer;
+import jds.bibliocraft.rendering.tesr.TileEntityArmorStandRenderer;
+import jds.bibliocraft.rendering.tesr.TileEntityCaseRenderer;
+import jds.bibliocraft.rendering.tesr.TileEntityClipboardRenderer;
+import jds.bibliocraft.rendering.tesr.TileEntityClockRenderer;
+import jds.bibliocraft.rendering.tesr.TileEntityCookieJarRenderer;
+import jds.bibliocraft.rendering.tesr.TileEntityDeskRenderer;
+import jds.bibliocraft.rendering.tesr.TileEntityDinnerPlateRenderer;
+import jds.bibliocraft.rendering.tesr.TileEntityDiscRackRenderer;
+import jds.bibliocraft.rendering.tesr.TileEntityFancyWorkbenchRenderer;
+import jds.bibliocraft.rendering.tesr.TileEntityFramedChestRenderer;
+import jds.bibliocraft.rendering.tesr.TileEntityFurniturePanelerRenderer;
+import jds.bibliocraft.rendering.tesr.TileEntityLabelRenderer;
+import jds.bibliocraft.rendering.tesr.TileEntityMapFrameRenderer;
+import jds.bibliocraft.rendering.tesr.TileEntityPaintPressRenderer;
+import jds.bibliocraft.rendering.tesr.TileEntityPaintingRenderer;
+import jds.bibliocraft.rendering.tesr.TileEntityPotionShelfRenderer;
+import jds.bibliocraft.rendering.tesr.TileEntityPrintPressRenderer;
+import jds.bibliocraft.rendering.tesr.TileEntitySeatRenderer;
+import jds.bibliocraft.rendering.tesr.TileEntityShelfRenderer;
+import jds.bibliocraft.rendering.tesr.TileEntitySwordPedestalRenderer;
+import jds.bibliocraft.rendering.tesr.TileEntityTableRenderer;
+import jds.bibliocraft.rendering.tesr.TileEntityToolRackRenderer;
+import jds.bibliocraft.rendering.tesr.TileEntityTypeWriterRenderer;
 import jds.bibliocraft.rendering.tesr.TESRBell;
 import jds.bibliocraft.tileentities.TileEntityArmorStand;
 import jds.bibliocraft.tileentities.TileEntityBell;
-import jds.bibliocraft.tileentities.TileEntityBookcase;
 import jds.bibliocraft.tileentities.TileEntityCase;
 import jds.bibliocraft.tileentities.TileEntityClipboard;
 import jds.bibliocraft.tileentities.TileEntityClock;
@@ -92,7 +91,7 @@ public class ClientProxy extends CommonProxy
 		if (!Config.disablerenderers)
 		{
 
-            registerTileEntityAndItemRenderers1(BlockTypeWriter.instance, TileEntityTypewriter.class, new TileEntityTypeWriterRenderer());
+                registerTileEntityAndItemRenderers1(BlockTypeWriter.instance, TileEntityTypewriter.class, new TileEntityTypeWriterRenderer());
 
 			if (Config.enableGenericshelf){
                 registerTileEntityAndItemRenderers1(BlockShelf.instance ,TileEntityShelf.class, new TileEntityShelfRenderer());
@@ -119,7 +118,7 @@ public class ClientProxy extends CommonProxy
 			if (Config.enableFramedChest){
 				ClientRegistry.bindTileEntitySpecialRenderer(TileEntityFramedChest.class, new TileEntityFramedChestRenderer());}
 			if (Config.enableTable){
-				ClientRegistry.bindTileEntitySpecialRenderer(TileEntityTable.class, new TileEntityTableRenderer());}
+				registerTileEntityAndItemRenderers1(BlockTable.instance, TileEntityTable.class, new TileEntityTableRenderer());}
 			if (Config.enableWritingdesk){
 				ClientRegistry.bindTileEntitySpecialRenderer(TileEntityDesk.class, new TileEntityDeskRenderer());}
 			if (Config.enableMapFrame){
@@ -127,7 +126,7 @@ public class ClientProxy extends CommonProxy
 			if (Config.enableDinnerPlate){
 				ClientRegistry.bindTileEntitySpecialRenderer(TileEntityDinnerPlate.class, new TileEntityDinnerPlateRenderer());}
 			if (Config.enableTypewriter){
-				ClientRegistry.bindTileEntitySpecialRenderer(TileEntityTypewriter.class, new TileEntityTypeWriterRenderer());}
+                registerTileEntityAndItemRenderers1(BlockTypesettingTable.instance, TileEntityTypewriter.class, new TileEntityTypeWriterRenderer());}
 			if (Config.enableSwordPedestal){
 				ClientRegistry.bindTileEntitySpecialRenderer(TileEntitySwordPedestal.class, new TileEntitySwordPedestalRenderer());}
 			if (Config.enableDiscRack){

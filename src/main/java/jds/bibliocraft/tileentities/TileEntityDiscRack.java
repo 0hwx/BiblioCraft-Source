@@ -1,6 +1,6 @@
 package jds.bibliocraft.tileentities;
 
-import jds.bibliocraft.blocks.BlockDiscRack;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import net.minecraft.item.ItemRecord;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;

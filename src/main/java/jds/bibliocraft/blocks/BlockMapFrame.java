@@ -1,21 +1,14 @@
 package jds.bibliocraft.blocks;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.vecmath.Quat4f;
-import javax.vecmath.Vector3f;
-
-import com.google.common.collect.Lists;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import jds.bibliocraft.blocks.base.BiblioWoodBlock;
 import jds.bibliocraft.helpers.EnumVertPosition;
 import jds.bibliocraft.items.ItemDrill;
 import jds.bibliocraft.items.ItemWaypointCompass;
 import jds.bibliocraft.network.BiblioNetworking;
 import jds.bibliocraft.network.packet.server.BiblioUpdateInv;
-import jds.bibliocraft.tileentities.BiblioTileEntity;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityMapFrame;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityLivingBase;
@@ -26,7 +19,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.MathHelper;
-import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import cpw.mods.fml.common.network.ByteBufUtils;
 import net.minecraftforge.common.util.ForgeDirection;

@@ -1,7 +1,6 @@
 package jds.bibliocraft.rendering.isbrh.obj;
 
 import jds.bibliocraft.helpers.EnumShiftPosition;
-import jds.bibliocraft.rendering.isbrh.RenderUtil;
 import jds.bibliocraft.rendering.isbrh.Vertex.VertexRotationFacing;
 import jds.bibliocraft.rendering.isbrh.Vertex.VertexTransform;
 import jds.bibliocraft.rendering.isbrh.Vertex.VertexTransformComposite;
@@ -21,13 +20,14 @@ import static net.minecraftforge.common.util.ForgeDirection.DOWN;
 import static net.minecraftforge.common.util.ForgeDirection.EAST;
 import static net.minecraftforge.common.util.ForgeDirection.NORTH;
 import static net.minecraftforge.common.util.ForgeDirection.SOUTH;
+import static net.minecraftforge.common.util.ForgeDirection.UP;
 import static net.minecraftforge.common.util.ForgeDirection.WEST;
 
 public class ObjRenderHelper {
 
 
     public static void renderWithIcon(GroupObject group, IIcon icon, IIcon override,  Tessellator tess,
-                               ObjContext ctx, VertexTransform transform, boolean isBRH) {
+                               ObjContext ctx, VertexTransform transform, boolean isBRH,boolean lockTopUV) {
 
         for (Face f : group.faces) {
             // Copy face normal and apply transformation once per face
@@ -61,6 +61,11 @@ public class ObjRenderHelper {
                 default:    right = EAST; down = SOUTH; break;
             }
 
+            if (lockTopUV && (normal == UP || normal == DOWN)) {
+                right = EAST;  // fixed axes
+                down = SOUTH;
+            }
+
             // Set brightness if needed
             if (isBRH && ctx.world != null) {
                 int neighborX = (int) (ctx.x + normal.offsetX);
@@ -90,28 +95,39 @@ public class ObjRenderHelper {
 
                 // Set color multiplier
                 if (isBRH) {
-                    int c = (int) (0xFF * RenderUtil.getColorMultiplierForFace(normal));
+                    int c = (int) (0xFF * getColorMultiplierForFace(normal));
                     tess.setColorOpaque(c, c, c);
                 }
 
-                // Handle texture
+                // Compute UVs
+                double u, vCoord;
+                boolean isLockedUV = lockTopUV && ctx.world != null && (normal == UP || normal == DOWN);
                 if (override != null) {
-                    // Compute UVs based on face-local axes
-                    double u = dotProduct(v, right);
-                    double vCoord = dotProduct(v, down);
+                    // World block + lockTopUV -> offset by coordinates
+                    u = dotProduct(v, right);
+                    vCoord = dotProduct(v, down);
 
-                    // Clamp UVs
-                    u = u - Math.floor(u);
-                    vCoord = vCoord - Math.floor(vCoord);
+                    if (isLockedUV) {
+                        u = (u + ctx.x) % 1.0;
+                        vCoord = (vCoord + ctx.z) % 1.0;
+                    }
 
-                    // Flip for certain faces to match Minecraft convention
+                    // Flip for Minecraft face convention
                     if (normal == SOUTH || normal == WEST) u = 1 - u;
-                    if (normal != ForgeDirection.UP && normal != DOWN) vCoord = 1 - vCoord;
+                    if (normal != ForgeDirection.UP && normal != ForgeDirection.DOWN) vCoord = 1 - vCoord;
 
                     tess.addVertexWithUV(v.x, v.y, v.z, override.getInterpolatedU(u * 16), override.getInterpolatedV(vCoord * 16));
                 } else {
                     TextureCoordinate t = f.textureCoordinates[i];
-                    tess.addVertexWithUV(v.x, v.y, v.z, getInterpolatedU(icon, t.u), getInterpolatedV(icon, t.v));
+                    u = t.u;
+                    vCoord = t.v;
+
+                    if (isLockedUV) {
+                        u = (u + ctx.x) % 1.0;
+                        vCoord = (vCoord + ctx.z) % 1.0;
+                    }
+
+                    tess.addVertexWithUV(v.x, v.y, v.z, getInterpolatedU(icon, u), getInterpolatedV(icon, vCoord));
                 }
             }
         }
@@ -134,7 +150,7 @@ public class ObjRenderHelper {
         ForgeDirection normal = ForgeDirection.UNKNOWN;
 
         // Step 1: Determine raw normal
-        if (n.y > 0) normal = ForgeDirection.UP;
+        if (n.y > 0) normal = UP;
         else if (n.y < 0) normal = DOWN;
         else if (n.z > 0) normal = SOUTH;
         else if (n.z < 0) normal = NORTH;
@@ -210,5 +226,17 @@ public class ObjRenderHelper {
         return new VertexTranslation(offset);
     }
 
+    public static float getColorMultiplierForFace(ForgeDirection face) {
+        if (face == ForgeDirection.UP) {
+            return 1;
+        }
+        if (face == ForgeDirection.DOWN) {
+            return 0.5f;
+        }
+        if (face.offsetX != 0) {
+            return 0.6f;
+        }
+        return 0.8f; // z
+    }
 }
 

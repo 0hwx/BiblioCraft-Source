@@ -21,7 +21,6 @@ public class BlockItemBookcaseCreative extends BiblioWoodBlockItem
 		super(block, BlockBookcaseCreative.name);
 		setHasSubtypes(true);
         setUnlocalizedName(BlockBookcaseCreative.name);
-		//instance = new BlockItemBookcaseCreative(block);
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -30,14 +29,7 @@ public class BlockItemBookcaseCreative extends BiblioWoodBlockItem
 	{
 		tooltip.add(I18n.format("item.creativebookcase.randombooks"));
 		tooltip.add("\u00a7d" + I18n.format("item.creativebookcase.mode"));
-    	if (stack.getItemDamage() == 6)
-    	{
-    		NBTTagCompound nbt = stack.getTagCompound();
-    		if (nbt != null)
-    		{
-    			tooltip.add(I18n.format("item.paneler.panels")+" \u00a7o"+nbt.getString("renderTexture"));
-    		}
-    	}
+
     	super.addInformation(stack, playerIn, tooltip, advanced);
 	}
 }

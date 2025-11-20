@@ -25,6 +25,7 @@ public class ObjBuilder {
     private Tessellator tess;
     private WavefrontObject model;
     private ObjContext context;
+    private boolean lockTopUV = false;
 
     public ObjBuilder(Tessellator tess) {
         this.tess = tess;
@@ -51,8 +52,16 @@ public class ObjBuilder {
         return this;
     }
 
-    public void renderPart(String[] partName, IIcon icon) {
-        if (model == null || context == null || icon == null ) return;
+    public ObjBuilder setLockTopUV(boolean lock) {
+        this.lockTopUV = lock;
+        return this;
+    }
+
+
+
+
+    public void renderPart(List<String> partName, IIcon icon) {
+        if (model == null || context == null) return;
         for (GroupObject group : model.groupObjects) {
             for (String part : partName) {
                 if (group.name.equalsIgnoreCase(part)) {
@@ -62,9 +71,19 @@ public class ObjBuilder {
         }
     }
 
+    public void renderPart(String[] partName, IIcon icon) {
+        if (model == null || context == null) return;
+        for (GroupObject group : model.groupObjects) {
+            for (String part : partName) {
+                if (group.name.equalsIgnoreCase(part)) {
+                    renderGroup(group, icon);
+                }
+            }
+        }
+    }
 
     public void renderPart(String partName, IIcon icon) {
-        if (model == null || context == null || icon == null ) return;
+        if (model == null || context == null ) return;
         for (GroupObject group : model.groupObjects) {
             if (group.name.equalsIgnoreCase(partName)) {
                 renderGroup(group, icon);
@@ -93,6 +112,6 @@ public class ObjBuilder {
         if (shift != null) transforms.add(shift);
 
         VertexTransformComposite transform = new VertexTransformComposite(transforms);
-        ObjRenderHelper.renderWithIcon(group, icon,null, tess, context, transform, true);
+        ObjRenderHelper.renderWithIcon(group, icon,null, tess, context, transform, true, lockTopUV);
     }
 }

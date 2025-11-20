@@ -32,24 +32,24 @@ public class VertexTranslation implements VertexTransform {
     }
 
     @Override
-    public void apply(Vertex vertex) {
+    public synchronized void apply(Vertex vertex) {
         apply(vertex.xyz);
     }
 
     @Override
-    public void apply(Vector3d vec) {
+    public synchronized void apply(Vector3d vec) {
         vec.x += x;
         vec.y += y;
         vec.z += z;
     }
 
-    public void set(double x, double y, double z) {
+    public synchronized void set(double x, double y, double z) {
         this.x = x;
         this.y = y;
         this.z = z;
     }
 
-    public void set(Vector3d trans) {
+    public synchronized void set(Vector3d trans) {
         set(trans.x, trans.y, trans.z);
     }
 

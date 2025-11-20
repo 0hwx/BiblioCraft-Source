@@ -1,14 +1,14 @@
 package jds.bibliocraft.blocks;
 
 import jds.bibliocraft.BiblioCraft;
+import jds.bibliocraft.blocks.base.BiblioWoodBlock;
 import jds.bibliocraft.items.ItemRecipeBook;
 import jds.bibliocraft.rendering.isbrh.obj.EnumObjModels;
 import jds.bibliocraft.rendering.isbrh.obj.ObjBuilder;
 import jds.bibliocraft.rendering.isbrh.obj.ObjContext;
-import jds.bibliocraft.tileentities.BiblioTileEntity;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityFancyWorkbench;
-import jds.bibliocraft.tileentities.TileEntityShelf;
-import jds.bibliocraft.utils.BiblioWoodRegistry;
+
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
@@ -147,6 +147,7 @@ public class BlockFancyWorkbench extends BiblioWoodBlock
 
     @Override
     public void registerBlockIcons(IIconRegister iconRegister) {
+        super.registerBlockIcons(iconRegister);
        bookIcon = iconRegister.registerIcon("bibliocraft:bookcase_books");
        benchsidesIcon = iconRegister.registerIcon("bibliocraft:benchsides");
     }
@@ -155,13 +156,13 @@ public class BlockFancyWorkbench extends BiblioWoodBlock
     public void renderItem(IItemRenderer.ItemRenderType type, ItemStack item, Object... data) {
         switch (type) {
             case INVENTORY:
-                renderItemFancyWorkbench(0, -0.5D, 0,180.0D, item.getItemDamage());
+                renderItemFancyWorkbench(0, -0.5D, 0,180.0D, item);
                 return;
             case EQUIPPED_FIRST_PERSON, EQUIPPED:
-                renderItemFancyWorkbench(-0.5D,0D,0.5D, 90.0D, item.getItemDamage());
+                renderItemFancyWorkbench(-0.5D,0D,0.5D, 90.0D, item);
                 return;
             default:
-                renderItemFancyWorkbench(0,-0.5D,0, 0, item.getItemDamage());
+                renderItemFancyWorkbench(0,-0.5D,0, 0, item);
         }
     }
 
@@ -175,28 +176,34 @@ public class BlockFancyWorkbench extends BiblioWoodBlock
         ObjContext ctx = new ObjContext(world, x, y, z, tile.getAngle(), tile.getVertPosition(), tile.getShiftPosition());
         ObjBuilder obj = new ObjBuilder(tes).setContext(ctx);
 
-        renderFancyWorkbench(obj, tile.getExtendedMeta(), tile.getBookArray(), false);
+        renderFancyWorkbench(obj, world.getBlockMetadata(x,y,z),tile.getCustomTextureString(), tile.getBookArray(), false);
 
         return true;
     }
 
 
-    public void renderItemFancyWorkbench(double x, double y, double z, double rotate, int meta) {
+    public void renderItemFancyWorkbench(double x, double y, double z, double rotate, ItemStack item) {
         final Tessellator tes = Tessellator.instance;
         RenderHelper.disableStandardItemLighting();
         GL11.glRotated(rotate, 0.0D, 1.0D, 0.0D);
         GL11.glTranslated(x, y, z);
         ObjContext ctx = new ObjContext(null, x, y, z);
         ObjBuilder obj = new ObjBuilder(tes).setContext(ctx);
+        String customTextureName = "none";
+        if (item.getTagCompound() != null) customTextureName = item.getTagCompound().getString("renderTexture");
         obj.start();
-        renderFancyWorkbench(obj , meta,null,true);
+        renderFancyWorkbench(obj , item.getItemDamage(),customTextureName,null,true);
         obj.end();
         RenderHelper.enableStandardItemLighting();
     }
 
-    public void renderFancyWorkbench(ObjBuilder obj , int meta, int[] count, boolean renderAllBooks) {
+    public void renderFancyWorkbench(ObjBuilder obj , int meta,String customTextureName, int[] count, boolean renderAllBooks) {
         String[] book = {"book1", "book2", "book3", "book4", "book5", "book6", "book7","book8"};
-        IIcon woodIcon = BiblioWoodRegistry.getIcon(meta);
+        IIcon woodIcon = this.getIcon(1,meta);
+
+        if (customTextureName != null && !customTextureName.equals("none")) {
+            woodIcon = this.getCustomTexture(customTextureName);
+        }
         IIcon CraftingTopIcon = Blocks.crafting_table.getIcon(1,0);
         obj.setModel(EnumObjModels.FANCY_WORKBENCH);
         if (renderAllBooks) {

@@ -2,7 +2,7 @@ package jds.bibliocraft.tileentities;
 
 import java.util.List;
 
-import jds.bibliocraft.blocks.BiblioWoodBlock.EnumWoodType;
+import jds.bibliocraft.blocks.base.BiblioWoodBlock.EnumWoodType;
 import jds.bibliocraft.blocks.BlockSeat;
 import jds.bibliocraft.entity.EntitySeat;
 import jds.bibliocraft.helpers.EnumColor;
@@ -43,13 +43,12 @@ import jds.bibliowood.tfcwood.items.ItemSeatBackT3;
 import jds.bibliowood.tfcwood.items.ItemSeatBackT4;
 import jds.bibliowood.tfcwood.items.ItemSeatBackT5;
 */
-import net.minecraft.client.renderer.texture.ITickable;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraftforge.common.util.ForgeDirection;
 

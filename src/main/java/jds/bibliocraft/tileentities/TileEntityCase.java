@@ -1,7 +1,7 @@
 package jds.bibliocraft.tileentities;
 
-import jds.bibliocraft.CommonProxy;
 import jds.bibliocraft.blocks.BlockCase;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;

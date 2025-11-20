@@ -1,12 +1,9 @@
 package jds.bibliocraft.blocks;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import javax.vecmath.Quat4f;
-import javax.vecmath.Vector3f;
-
 import jds.bibliocraft.Config;
+import jds.bibliocraft.blocks.base.BiblioWoodBlock;
 import jds.bibliocraft.entity.EntitySeat;
 import jds.bibliocraft.helpers.SeatHelper;
 import jds.bibliocraft.items.ItemSeatBack;
@@ -15,7 +12,7 @@ import jds.bibliocraft.items.ItemSeatBack3;
 import jds.bibliocraft.items.ItemSeatBack4;
 import jds.bibliocraft.items.ItemSeatBack5;
 import jds.bibliocraft.states.TextureState;
-import jds.bibliocraft.tileentities.BiblioTileEntity;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntitySeat;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityLivingBase;

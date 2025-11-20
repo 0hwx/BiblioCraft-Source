@@ -33,7 +33,7 @@ public enum EnumColor
 	{
 		this.ID = id;
 		this.name = name;
-		this.texturePath = "minecraft:blocks/wool_colored_" + name;
+		this.texturePath = "wool_colored_" + name;
 	}
 
 	public String getName()

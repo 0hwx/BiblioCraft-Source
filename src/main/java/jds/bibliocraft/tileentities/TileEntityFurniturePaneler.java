@@ -1,7 +1,6 @@
 package jds.bibliocraft.tileentities;
 
-import jds.bibliocraft.blocks.BiblioWoodBlock.EnumWoodType;
-import jds.bibliocraft.blocks.BlockFurniturePaneler;
+import jds.bibliocraft.blocks.base.BiblioWoodBlock.EnumWoodType;
 import jds.bibliocraft.blocks.blockitems.BiblioWoodBlockItem;
 /*
 import jds.bibliocraft.blocks.BlockItemBookcaseMaster;
@@ -34,6 +33,7 @@ import jds.bibliocraft.items.ItemSeatBack4;
 import jds.bibliocraft.items.ItemSeatBack5;
 import jds.bibliocraft.network.BiblioNetworking;
 import jds.bibliocraft.network.packet.client.BiblioPanelerClient;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;

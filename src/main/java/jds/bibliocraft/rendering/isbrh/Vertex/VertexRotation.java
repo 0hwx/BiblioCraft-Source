@@ -19,37 +19,37 @@ public class VertexRotation implements VertexTransform {
     }
 
     @Override
-    public void apply(Vertex vertex) {
+    public synchronized void apply(Vertex vertex) {
         apply(vertex.xyz);
     }
 
     @Override
-    public void apply(Vector3d vec) {
+    public synchronized void apply(Vector3d vec) {
         vec.sub(center);
         quat.rotate(vec);
         vec.add(center);
     }
 
-    public void setAngle(double angle) {
+    public synchronized void setAngle(double angle) {
         this.angle = angle;
         quat = Quat4d.makeRotate(angle, axis);
     }
 
-    public double getAngle() {
+    public synchronized double getAngle() {
         return angle;
     }
 
-    public void setAxis(Vector3d axis) {
+    public synchronized void setAxis(Vector3d axis) {
         this.axis.set(axis);
         quat = Quat4d.makeRotate(angle, axis);
     }
 
-    public void setCenter(Vector3d cen) {
+    public synchronized void setCenter(Vector3d cen) {
         center.set(cen);
     }
 
     @Override
-    public void applyToNormal(Vector3f vec) {
+    public synchronized void applyToNormal(Vector3f vec) {
         quat.rotate(vec);
     }
 

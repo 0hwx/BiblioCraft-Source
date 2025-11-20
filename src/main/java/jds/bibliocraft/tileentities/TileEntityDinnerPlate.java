@@ -1,6 +1,6 @@
 package jds.bibliocraft.tileentities;
 
-import jds.bibliocraft.blocks.BlockDinnerPlate;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemFood;

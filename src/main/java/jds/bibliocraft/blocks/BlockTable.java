@@ -1,12 +1,18 @@
 package jds.bibliocraft.blocks;
 
 import jds.bibliocraft.BiblioCraft;
+import jds.bibliocraft.blocks.base.BiblioWoodBlock;
 import jds.bibliocraft.helpers.EnumColor;
 import jds.bibliocraft.items.ItemDrill;
+import jds.bibliocraft.rendering.isbrh.obj.EnumObjModels;
+import jds.bibliocraft.rendering.isbrh.obj.ObjBuilder;
+import jds.bibliocraft.rendering.isbrh.obj.ObjContext;
 import jds.bibliocraft.states.TextureState;
-import jds.bibliocraft.tileentities.BiblioTileEntity;
+import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityTable;
 import net.minecraft.block.Block;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -14,10 +20,13 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.IIcon;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.client.IItemRenderer;
 import net.minecraftforge.common.util.ForgeDirection;
+import org.lwjgl.opengl.GL11;
 
 public class BlockTable extends BiblioWoodBlock
 {
@@ -191,25 +200,41 @@ public class BlockTable extends BiblioWoodBlock
 		 }
     }
 
+//    @Override
+//    public void setCustomBlockBounds(BiblioTileEntity biblioTile, float shift)
+//    {
+//        AxisAlignedBB output = this.getBlockBounds(0.00F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
+//        if (biblioTile != null && biblioTile instanceof TileEntityTable table)
+//        {
+//            boolean leg1 = table.getLeg1();
+//            boolean leg2 = table.getLeg2();
+//            boolean leg3 = table.getLeg3();
+//            boolean leg4 = table.getLeg4();
+//            boolean legMono = table.getMonoleg();
+//            if (leg1 == false && leg2 == false && leg3 == false && leg4 == false && legMono == false)
+//            {
+//                output = this.getBlockBounds(0.00F, 0.88F, 0.0F, 1.0F, 1.0F, 1.0F);
+//            }
+//        }
+//        return output;
+//    }
+
 	@Override
 	public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z)
 	{
-		AxisAlignedBB output = this.getBlockBounds(0.00F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
-		TileEntity tilee = world.getTileEntity(x, y, z);
-		if (tilee != null && tilee instanceof TileEntityTable)
-		{
-			TileEntityTable tile = (TileEntityTable)tilee;
-			boolean leg1 = tile.getLeg1();
-			boolean leg2 = tile.getLeg2();
-			boolean leg3 = tile.getLeg3();
-			boolean leg4 = tile.getLeg4();
-			boolean legMono = tile.getMonoleg();
-			if (leg1 == false && leg2 == false && leg3 == false && leg4 == false && legMono == false)
-			{
-				output = this.getBlockBounds(0.00F, 0.88F, 0.0F, 1.0F, 1.0F, 1.0F);
-			}
-		}
-		return output;
+        TileEntity tilee = world.getTileEntity(x, y, z);
+        if (tilee instanceof TileEntityTable)
+        {
+            TileEntityTable tile = (TileEntityTable)tilee;
+            // If it's a 'four' connection (state 5), it has no legs
+            if (tile.getConnectionState() == 5)
+            {
+                // Collision box is just the top
+                return this.getBlockBounds(0.00F, 0.88F, 0.0F, 1.0F, 1.0F, 1.0F);
+            }
+        }
+        // All other states have legs, so return full block bounds
+        return this.getBlockBounds(0.00F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
 	}
 
 	@Override
@@ -227,88 +252,63 @@ public class BlockTable extends BiblioWoodBlock
 
 	 public void checkNeighborTables(World world, int x, int y, int z, TileEntityTable table)
 	 {
-		 Block blockid1 = world.getBlock(x+1, y, z);
-		 Block blockid2 = world.getBlock(x-1, y, z);
-		 Block blockid3 = world.getBlock(x, y, z+1);
-		 Block blockid4 = world.getBlock(x, y, z-1);
-		 if (blockid1 instanceof BlockTable || blockid2 instanceof BlockTable || blockid3 instanceof BlockTable || blockid4 instanceof BlockTable)
-		 {
-			// set quad legs and tops acorrding
-			 boolean l1 = true;
-			 boolean l2 = true;
-			 boolean l3 = true;
-			 boolean l4 = true;
-			 boolean t1 = true;
-			 boolean t2 = true;
-			 boolean t3 = true;
-			 boolean t4 = true;
-			 boolean ml = false;
+         // Check all 4 horizontal neighbors
+         boolean north = world.getBlock(x, y, z - 1) instanceof BlockTable;
+         boolean south = world.getBlock(x, y, z + 1) instanceof BlockTable;
+         boolean east = world.getBlock(x + 1, y, z) instanceof BlockTable;
+         boolean west = world.getBlock(x - 1, y, z) instanceof BlockTable;
 
-			 boolean expside1 = false;
-			 boolean expside2 = false;
-			 boolean expside3 = false;
-			 boolean expside4 = false;
+         int connections = (north ? 1 : 0) + (south ? 1 : 0) + (east ? 1 : 0) + (west ? 1 : 0);
 
-			 if (blockid1 instanceof BlockTable )
-			 {
-				// System.out.println("Block1");
-				 l1 = false;
-				 l2 = false;
-				 t1 = false;
-				 t2 = false;
-			 }
-			 else
-			 {
-				 expside1 = true;
-			 }
-			 if (blockid2 instanceof BlockTable)
-			 {
-				// System.out.println("Block2");
-				 l3 = false;
-				 l4 = false;
-				 t3 = false;
-				 t4 = false;
-			 }
-			 else
-			 {
-				 expside2 = true;
-			 }
-			 if (blockid3 instanceof BlockTable)
-			 {
-				// System.out.println("Block3");
-				 l2 = false;
-				 l3 = false;
-				 t2 = false;
-				 t3 = false;
-			 }
-			 else
-			 {
-				 expside3 = true;
-			 }
-			 if (blockid4 instanceof BlockTable)
-			 {
-				 //System.out.println("Block4");
-				 l1 = false;
-				 l4 = false;
-				 t1 = false;
-				 t4 = false;
-			 }
-			 else
-			 {
-				 expside4 = true;
-			 }
+         // 0=none, 1=one, 2=straight, 3=curve, 4=three, 5=four
+         int newState = 0;
+         // This is the rotation of the model
+         ForgeDirection newAngle = ForgeDirection.SOUTH;
 
-			 table.setLegs(l1, l2, l3, l4, ml);
-			 table.setTops(t1, t2, t3, t4);
-			 table.setExposeSides(expside1, expside2, expside3, expside4);
-		 }
-		 else
-		 {
-				 // this sets the table to be a single table with 4 beveled edges and 1 center post
-			 table.setLegs(false, false, false, false, true);
-			 table.setTops(true, true, true, true);
+         switch (connections) {
+             case 0:
+                 newState = 0; // "none" (monoleg)
+                 break;
+             case 1:
+                 newState = 1; // "one"
+                 // Set angle based on which side is connected
+                 if (south) newAngle = ForgeDirection.EAST;
+                 else if (west) newAngle = ForgeDirection.SOUTH;
+                 else if (east) newAngle = ForgeDirection.NORTH;
+                 else if (north) newAngle = ForgeDirection.WEST;
+                 break;
+             case 2:
+                 if (north && south) {
+                     newState = 2; // "straight"
+                     newAngle = ForgeDirection.NORTH; // N-S alignment
+                 } else if (east && west) {
+                     newState = 2; // "straight"
+                     newAngle = ForgeDirection.EAST; // E-W alignment
+                 } else {
+                     newState = 3; // "curve"
+                     // Set angle for the "inner corner"
+                     if (south && east) newAngle = ForgeDirection.EAST;
+                     else if (south && west) newAngle = ForgeDirection.SOUTH;
+                     else if (north && west) newAngle = ForgeDirection.WEST;
+                     else if (north && east) newAngle = ForgeDirection.NORTH;
+                 }
+                 break;
+             case 3:
+                 newState = 4; // "three"
+                 // Set angle based on the "open" side
+                 if (!north) newAngle = ForgeDirection.NORTH;
+                 else if (!east) newAngle = ForgeDirection.EAST;
+                 else if (!south) newAngle = ForgeDirection.SOUTH;
+                 else if (!west) newAngle = ForgeDirection.WEST;
+                 break;
+             case 4:
+                 newState = 5; // "four"
+                 break;
+         }
 
-		 }
+         // Set the new state and angle on the TileEntity
+         table.setConnectionState(newState);
+         table.setAngle(newAngle);
 	 }
 
 		@Override
@@ -326,4 +326,124 @@ public class BlockTable extends BiblioWoodBlock
 			}
 			return state;
 	    }
+
+    @Override
+    public void renderItem(IItemRenderer.ItemRenderType type, ItemStack item, Object... data) {
+        switch (type) {
+            case INVENTORY:
+                renderItemTable(0, -0.5D, 0,180.0D, item);
+                return;
+            case EQUIPPED_FIRST_PERSON, EQUIPPED:
+                renderItemTable(-0.5D,0D,0.5D, 90.0D, item);
+                return;
+            default:
+                renderItemTable(0,-0.5D,0, 0, item);
+        }
+    }
+
+
+    @Override
+    public boolean renderWorldBlock(IBlockAccess world, int x, int y, int z, Block block, Tessellator tes) {
+        tes.setBrightness(block.getMixedBrightnessForBlock(world, x, y, z));
+        tes.setColorOpaque_F(1, 1, 1);
+        tes.addTranslation(x + 0.5F, y, z + 0.5F);
+        TileEntityTable tile = (TileEntityTable) world.getTileEntity(x, y, z);
+        if (tile == null) return false;
+
+        // 1. Get the base texture string
+        String baseTextureName = tile.getCustomTextureString();
+
+        // 2. Create the TextureState
+        TextureState state = new TextureState(baseTextureName);
+
+        // 3. Populate it with Color data from the TileEntity
+        //    (This calls the helper method you provided)
+        state = this.addAdditionTextureStateInformation(tile, state);
+        ObjContext ctx = new ObjContext(world, x, y, z, tile.getAngle(), tile.getVertPosition(), tile.getShiftPosition());
+        ObjBuilder obj = new ObjBuilder(tes).setContext(ctx);
+
+        renderTable(obj, world.getBlockMetadata(x,y,z),state,tile);
+
+        return true;
+    }
+
+
+    public void renderItemTable(double x, double y, double z, double rotate, ItemStack item) {
+        final Tessellator tes = Tessellator.instance;
+        RenderHelper.disableStandardItemLighting();
+        GL11.glRotated(rotate, 0.0D, 1.0D, 0.0D);
+        GL11.glTranslated(x, y, z);
+        ObjContext ctx = new ObjContext(null, x, y, z);
+        ObjBuilder obj = new ObjBuilder(tes).setContext(ctx);
+        String customTextureName = "none";
+        if (item.getTagCompound() != null) customTextureName = item.getTagCompound().getString("renderTexture");
+        TextureState state = new TextureState(customTextureName);
+        obj.start();
+        renderTable(obj , item.getItemDamage(),state,null);
+        obj.end();
+        RenderHelper.enableStandardItemLighting();
+    }
+
+    public void renderTable(ObjBuilder obj , int meta, TextureState state,TileEntityTable table) {
+        String[] none = {"none_top", "none_leg"};
+        String none_cloth = "none_cloth";
+        String[] one = {"one_top", "one_leg"};
+        String one_cloth = "one_cloth";
+        String straight = "straight_top";
+        String straight_cloth = "straight_cloth";
+        String[] curve = {"curve_top", "curve_leg"};
+        String curve_cloth = "curve_cloth";
+        String three = "three_top";
+        String three_cloth = "three_cloth";
+        String four = "four_top";
+        String four_cloth = "four_cloth";
+
+        IIcon woodIcon = this.getIcon(1,meta);
+        IIcon woolIcon = getCustomTexture(state.getColorOne().getWoolTextureString());
+        String customTextureName = state.getTextureString();
+
+        if (customTextureName != null && !customTextureName.equals("none")) {
+            woodIcon = this.getCustomTexture(customTextureName);
+        }
+        obj.setModel(EnumObjModels.TABLE);
+
+        int connectionState = 0; // Default to "none" for item
+        boolean hasCloth = false;
+
+        if (table != null) {
+            connectionState = table.getConnectionState();
+            hasCloth = table.isClothSlotFull();
+        }
+
+        // --- 4. Render the correct model based on state ---
+        switch (connectionState) {
+            case 1: // "one"
+                if (hasCloth) obj.renderPart(one_cloth, woolIcon);
+                obj.setLockTopUV(true).renderPart(one, woodIcon);
+                break;
+            case 2: // "straight"
+                if (hasCloth) obj.renderPart(straight_cloth, woolIcon);
+                obj.setLockTopUV(true).renderPart(straight, woodIcon);
+                break;
+            case 3: // "curve"
+                if (hasCloth) obj.renderPart(curve_cloth, woolIcon);
+                obj.setLockTopUV(true).renderPart(curve, woodIcon);
+                break;
+            case 4: // "three"
+                if (hasCloth) obj.renderPart(three_cloth, woolIcon);
+                obj.setLockTopUV(true).renderPart(three, woodIcon);
+                break;
+            case 5: // "four"
+                if (hasCloth) obj.renderPart(four_cloth, woolIcon);
+                obj.setLockTopUV(true).renderPart(four, woodIcon);
+                break;
+            case 0: // "none" (default)
+            default:
+                if (hasCloth) obj.renderPart(none_cloth, woolIcon);
+                obj.setLockTopUV(true).renderPart(none, woodIcon);
+                break;
+        }
+
+    }
+
 }
