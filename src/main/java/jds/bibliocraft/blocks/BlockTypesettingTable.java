@@ -34,10 +34,9 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BlockTypesettingTable extends BiblioSimpleBlock
-{
-	public static final BlockTypesettingTable instance = new BlockTypesettingTable();
-	public static final String name = "TypesettingTable";
+public class BlockTypesettingTable extends BiblioSimpleBlock {
+    public static final BlockTypesettingTable instance = new BlockTypesettingTable();
+    public static final String name = "TypesettingTable";
 
     public static final int SLOT_NONE = -2;
     public static final int SLOT_GUI = -1;
@@ -51,10 +50,10 @@ public class BlockTypesettingTable extends BiblioSimpleBlock
 
         /**
          * @param slotId The ID to return if this hitbox is clicked
-         * @param minX The minimum X bound (inclusive)
-         * @param minZ The minimum Z bound (inclusive)
-         * @param maxX The maximum X bound (inclusive)
-         * @param maxZ The maximum Z bound (inclusive)
+         * @param minX   The minimum X bound (inclusive)
+         * @param minZ   The minimum Z bound (inclusive)
+         * @param maxX   The maximum X bound (inclusive)
+         * @param maxZ   The maximum Z bound (inclusive)
          */
         public SlotHitbox(int slotId, float minX, float minZ, float maxX, float maxZ) {
             this.slotId = slotId;
@@ -140,135 +139,106 @@ public class BlockTypesettingTable extends BiblioSimpleBlock
     }
 
 
-	@Override
-	public boolean onBlockActivatedCustomCommands(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ)
-	{
-		 int iCheck = (int) (hitX * 2);
-		 int iCheck2 = (int) (hitX * 3);
-		 int kCheck = (int) (hitZ * 3);
-		 int kCheck2 = (int) (hitZ * 2);
-		 TileEntity t = world.getTileEntity(x, y, z);
-		 if (t != null && t instanceof TileEntityTypeMachine)
-		 {
-			 TileEntityTypeMachine tile = (TileEntityTypeMachine)t;
-             ForgeDirection sides = ForgeDirection.getOrientation(side);
-			 int slot = getSlot(tile, sides, hitX, hitZ);
-			 if (!world.isRemote)
-			 {
-				 ItemStack playerhand = player.getHeldItem();
-				 switch (slot)
-				 {
-					 case 0:
-					 {
-						 // book / left slot
-						 if (player.isSneaking())
-				 			{
-				 				 if (plateResetorSaveBook(tile, world, player))
-				 				 {
-				 					tile.booklistset();
-				 				 }
-				 			}
-				 			else
-				 			{
-				 				if (!addBookorPlate(tile, player, world))
-				 				{
-				 					tile.removeStackFromInventoryFromWorld(slot, player, this);
-				 				}
-				 			}
-						 break;
-					 }
-					 case 1:
-					 {
-						 // chase slot
-						 // I should probly use the new method I created for this that is default to my tiles.
-						 boolean addedStack = false;
-						 if (playerhand != null && playerhand.getItem() instanceof ItemChase)
-						 {
-							 addedStack = tile.addStackToInventoryFromWorld(playerhand, slot, player);
-						 }
-						 if (!addedStack)
-						 {
-							 tile.removeStackFromInventoryFromWorld(slot, player, this);
-						 }
-						 break;
-					 }
-					 case 2:
-					 {
-						 //plate / right slot
-						 tile.removeStackFromInventoryFromWorld(slot, player, this);
-						 break;
-					 }
-				 }
-			 }
-			 else
-			 {
-				 if (slot == -1)
-				 {
-					 //gui client side
-					 openGUI(player, tile);
-				 }
-			 }
-		 }
-		 return true;
-	}
+    @Override
+    public boolean onBlockActivatedCustomCommands(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
+        int iCheck = (int) (hitX * 2);
+        int iCheck2 = (int) (hitX * 3);
+        int kCheck = (int) (hitZ * 3);
+        int kCheck2 = (int) (hitZ * 2);
+        TileEntity t = world.getTileEntity(x, y, z);
+        if (t != null && t instanceof TileEntityTypeMachine) {
+            TileEntityTypeMachine tile = (TileEntityTypeMachine) t;
+            ForgeDirection sides = ForgeDirection.getOrientation(side);
+            int slot = getSlot(tile, sides, hitX, hitZ);
+            if (!world.isRemote) {
+                ItemStack playerhand = player.getHeldItem();
+                switch (slot) {
+                    case 0: {
+                        // book / left slot
+                        if (player.isSneaking()) {
+                            if (plateResetorSaveBook(tile, world, player)) {
+                                tile.booklistset();
+                            }
+                        } else {
+                            if (!addBookorPlate(tile, player, world)) {
+                                tile.removeStackFromInventoryFromWorld(slot, player, this);
+                            }
+                        }
+                        break;
+                    }
+                    case 1: {
+                        // chase slot
+                        // I should probly use the new method I created for this that is default to my tiles.
+                        boolean addedStack = false;
+                        if (playerhand != null && playerhand.getItem() instanceof ItemChase) {
+                            addedStack = tile.addStackToInventoryFromWorld(playerhand, slot, player);
+                        }
+                        if (!addedStack) {
+                            tile.removeStackFromInventoryFromWorld(slot, player, this);
+                        }
+                        break;
+                    }
+                    case 2: {
+                        //plate / right slot
+                        tile.removeStackFromInventoryFromWorld(slot, player, this);
+                        break;
+                    }
+                }
+            } else {
+                if (slot == -1) {
+                    //gui client side
+                    openGUI(player, tile);
+                }
+            }
+        }
+        return true;
+    }
 
-	@SideOnly(Side.CLIENT)
-	private void openGUI(EntityPlayer player, TileEntityTypeMachine tile)
-	{
-		Minecraft.getMinecraft().displayGuiScreen(new GuiTypesetting(player, tile));
-	}
+    @SideOnly(Side.CLIENT)
+    private void openGUI(EntityPlayer player, TileEntityTypeMachine tile) {
+        Minecraft.getMinecraft().displayGuiScreen(new GuiTypesetting(player, tile));
+    }
 
-	 public boolean addBookorPlate(TileEntityTypeMachine tile, EntityPlayer player, World world)
-	 {
-		 ItemStack playerhand = player.getHeldItem();
-		 if (playerhand != null)
-		 {
-			 boolean hasAdded = tile.addBookorPlate(playerhand, world);
-			 if (hasAdded)
-			 {
-				 player.inventory.setInventorySlotContents(player.inventory.currentItem, null);
-				 return true;
-			 }
-		 }
-		 return false;
-	 }
+    public boolean addBookorPlate(TileEntityTypeMachine tile, EntityPlayer player, World world) {
+        ItemStack playerhand = player.getHeldItem();
+        if (playerhand != null) {
+            boolean hasAdded = tile.addBookorPlate(playerhand, world);
+            if (hasAdded) {
+                player.inventory.setInventorySlotContents(player.inventory.currentItem, null);
+                return true;
+            }
+        }
+        return false;
+    }
 
-	 public boolean plateResetorSaveBook(TileEntityTypeMachine tile, World world, EntityPlayer player)
-	 {
-		 boolean hasReset = tile.resetPlate();
-		 boolean hasSavedBook = tile.saveBook(world);
-		 boolean hasEnchantedBook = tile.enchantPlate(player);
-		 boolean hasAtlas = tile.createAtlasPlate(player);
-		 if (hasReset || hasSavedBook || hasEnchantedBook || hasAtlas)
-		 {
-			 return true;
-		 }
-		 else
-		 {
-			 return false;
-		 }
-	 }
-
-	@Override
-	public TileEntity createNewTileEntity(World worldIn, int meta)
-	{
-		return new TileEntityTypeMachine();
-	}
+    public boolean plateResetorSaveBook(TileEntityTypeMachine tile, World world, EntityPlayer player) {
+        boolean hasReset = tile.resetPlate();
+        boolean hasSavedBook = tile.saveBook(world);
+        boolean hasEnchantedBook = tile.enchantPlate(player);
+        boolean hasAtlas = tile.createAtlasPlate(player);
+        if (hasReset || hasSavedBook || hasEnchantedBook || hasAtlas) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     @Override
-    public void setCustomBlockBounds(BiblioTileEntity biblioTile, float shift)
-    {
+    public TileEntity createNewTileEntity(World worldIn, int meta) {
+        return new TileEntityTypeMachine();
+    }
+
+    @Override
+    public void setCustomBlockBounds(BiblioTileEntity biblioTile, float shift) {
         this.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.92F, 1.0F);
     }
 
     @Override
-    public boolean isSideSolid(IBlockAccess world, int x, int y, int z, ForgeDirection side)
-    {
-    	boolean output = true;
-    	if (side == ForgeDirection.UP)
-    	{
-    		output = false;
-    	}
+    public boolean isSideSolid(IBlockAccess world, int x, int y, int z, ForgeDirection side) {
+        boolean output = true;
+        if (side == ForgeDirection.UP) {
+            output = false;
+        }
         return output;
     }
 
@@ -289,13 +259,13 @@ public class BlockTypesettingTable extends BiblioSimpleBlock
     public void renderItem(IItemRenderer.ItemRenderType type, ItemStack item, Object... data) {
         switch (type) {
             case INVENTORY:
-                renderItemTypesettingTable(0, -0.5D, 0,180.0D);
+                renderItemTypesettingTable(0, -0.5D, 0, 180.0D);
                 return;
             case EQUIPPED_FIRST_PERSON, EQUIPPED:
-                renderItemTypesettingTable(-0.5D,0D,0.5D, 90.0D);
+                renderItemTypesettingTable(-0.5D, 0D, 0.5D, 90.0D);
                 return;
             default:
-                renderItemTypesettingTable(0,-0.5D,0, 0);
+                renderItemTypesettingTable(0, -0.5D, 0, 0);
         }
     }
 
@@ -309,7 +279,7 @@ public class BlockTypesettingTable extends BiblioSimpleBlock
         ObjContext ctx = new ObjContext(world, x, y, z, tile.getAngle(), tile.getVertPosition(), tile.getShiftPosition());
         ObjBuilder obj = new ObjBuilder(tes).setContext(ctx);
 
-        renderTypesettingTable(obj,tile);
+        renderTypesettingTable(obj, tile);
 
         return true;
     }
@@ -328,7 +298,7 @@ public class BlockTypesettingTable extends BiblioSimpleBlock
         RenderHelper.enableStandardItemLighting();
     }
 
-    public void renderTypesettingTable(ObjBuilder obj , TileEntityTypeMachine tile) {
+    public void renderTypesettingTable(ObjBuilder obj, TileEntityTypeMachine tile) {
         obj.setModel(EnumObjModels.TYPESETTING);
         List<String> modelParts = new ArrayList<>();
 
@@ -375,72 +345,4 @@ public class BlockTypesettingTable extends BiblioSimpleBlock
 
         obj.renderPart(modelParts, typesetting);
     }
-
-//	@Override
-//	public List<String> getModelParts(BiblioTileEntity tile)
-//	{
-//		List<String> modelParts = new ArrayList<String>();
-//		modelParts.add("base");
-//
-//		ItemStack book = tile.getStackInSlot(0);
-//		if (book != null)
-//		{
-//			if (book.getItem() instanceof ItemPlate)
-//			{
-//				modelParts.add("plateLeft");
-//			}
-//			else
-//			{
-//				if (tile instanceof TileEntityTypeMachine)
-//				{
-//					TileEntityTypeMachine type = (TileEntityTypeMachine)tile;
-//					if (type.bookIsSaved)
-//					{
-//						modelParts.add("bookBlue");
-//					}
-//					else
-//					{
-//						if (type.enchantedBookCheck())
-//						{
-//							modelParts.add("bookEnchant");
-//						}
-//						else
-//						{
-//							modelParts.add("bookRed");
-//						}
-//					}
-//				}
-//			}
-//		}
-//
-//		ItemStack chase = tile.getStackInSlot(1);
-//		if (chase != null)
-//		{
-//			if (chase.stackSize > 0)
-//			{
-//				modelParts.add("chase1");
-//			}
-//			if (chase.stackSize > 16)
-//			{
-//				modelParts.add("chase2");
-//			}
-//			if (chase.stackSize > 32)
-//			{
-//				modelParts.add("chase3");
-//			}
-//			if (chase.stackSize > 48)
-//			{
-//				modelParts.add("chase4");
-//			}
-//		}
-//
-//		ItemStack plate = tile.getStackInSlot(2);
-//		if (plate != null)
-//		{
-//			modelParts.add("plateRight");
-//		}
-//
-//
-//		return modelParts;
-//	}
 }

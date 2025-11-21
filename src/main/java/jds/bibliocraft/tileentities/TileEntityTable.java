@@ -37,10 +37,6 @@ public class TileEntityTable extends BiblioTileEntity
 
 	public boolean isVanilla = true;
 
-    // This single variable replaces all the leg/top/side booleans
-    // 0=none, 1=one, 2=straight, 3=curve, 4=three, 5=four
-    private int connectionState = 0;
-
 	public TileEntityTable()
 	{
         // Slot 0: Main item (or map)
@@ -48,14 +44,6 @@ public class TileEntityTable extends BiblioTileEntity
         // Slot 2: Carpet
 		super(3, true);
 	}
-
-    public int getConnectionState() {
-        return this.connectionState;
-    }
-
-    public void setConnectionState(int state) {
-        this.connectionState = state;
-    }
 
 	public boolean getHasMap()
 	{
@@ -361,7 +349,6 @@ public class TileEntityTable extends BiblioTileEntity
 		this.slotyangle = nbt.getInteger("slotyangle");
 		this.hasMap = nbt.getBoolean("hasMap");
 		this.isVanilla = nbt.getBoolean("isVanilla");
-        this.connectionState = nbt.getInteger("ConnState");
 	}
 
 	@Override
@@ -371,7 +358,6 @@ public class TileEntityTable extends BiblioTileEntity
     	nbt.setInteger("slotyangle", slotyangle);
     	nbt.setBoolean("hasMap", hasMap);
     	nbt.setBoolean("isVanilla", this.isVanilla);
-        nbt.setInteger("ConnState", this.connectionState);
 		return nbt;
 	}
 

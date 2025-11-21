@@ -25,7 +25,8 @@ public class ObjBuilder {
     private Tessellator tess;
     private WavefrontObject model;
     private ObjContext context;
-    private boolean lockTopUV = false;
+    private boolean lockUV = false;
+    private boolean lockRotation = false;
 
     public ObjBuilder(Tessellator tess) {
         this.tess = tess;
@@ -52,11 +53,15 @@ public class ObjBuilder {
         return this;
     }
 
-    public ObjBuilder setLockTopUV(boolean lock) {
-        this.lockTopUV = lock;
+    public ObjBuilder setLockUV(boolean lock) {
+        this.lockUV = lock;
         return this;
     }
 
+    public ObjBuilder setLockRotation(boolean lock) {
+        this.lockRotation = lock;
+        return this;
+    }
 
 
 
@@ -106,12 +111,12 @@ public class ObjBuilder {
 
         VertexRotationFacing facingRot = new VertexRotationFacing(WEST);
         facingRot.setRotation(context.facing);
-        transforms.add(facingRot);
+        if (lockRotation) transforms.add(facingRot);
 
         VertexTranslation shift = makeShiftTransform(context.shift, context.facing);
         if (shift != null) transforms.add(shift);
 
         VertexTransformComposite transform = new VertexTransformComposite(transforms);
-        ObjRenderHelper.renderWithIcon(group, icon,null, tess, context, transform, true, lockTopUV);
+        ObjRenderHelper.renderWithIcon(group, icon,null, tess, context, transform, true, lockUV);
     }
 }

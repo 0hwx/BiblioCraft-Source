@@ -27,7 +27,22 @@ public class ObjRenderHelper {
 
 
     public static void renderWithIcon(GroupObject group, IIcon icon, IIcon override,  Tessellator tess,
-                               ObjContext ctx, VertexTransform transform, boolean isBRH,boolean lockTopUV) {
+                               ObjContext ctx, VertexTransform transform, boolean isBRH, boolean lockUV) {
+
+        double angle = getRotationAngle(transform);
+
+        // Convert the angle (0, PI/2, PI, 3*PI/2) to rotation steps (0, 1, 2, 3)
+        // We divide by ROTATION_AMOUNT (PI/2) and round to the nearest integer.
+        // Ensure you have ROTATION_AMOUNT defined or use Math.PI / 2
+        final double ROTATION_AMOUNT = Math.PI / 2;
+        int rotationSteps = (int)Math.round(angle / ROTATION_AMOUNT);
+
+        // The rotation applied to the model is rotationSteps % 4
+        rotationSteps %= 4;
+
+        // Calculate the counter-rotation steps
+        int counterRotation = (4 - rotationSteps) % 4;
+
 
         for (Face f : group.faces) {
             // Copy face normal and apply transformation once per face
@@ -61,11 +76,6 @@ public class ObjRenderHelper {
                 default:    right = EAST; down = SOUTH; break;
             }
 
-            if (lockTopUV && (normal == UP || normal == DOWN)) {
-                right = EAST;  // fixed axes
-                down = SOUTH;
-            }
-
             // Set brightness if needed
             if (isBRH && ctx.world != null) {
                 int neighborX = (int) (ctx.x + normal.offsetX);
@@ -87,10 +97,10 @@ public class ObjRenderHelper {
 
             for (int i = 0; i < f.vertices.length; i++) {
                 Vertex vert = f.vertices[i];
-                Vector3d v = new Vector3d(vert);
+                Vector3d vec = new Vector3d(vert);
 
                 if (transform != null) {
-                    transform.apply(v);
+                    transform.apply(vec);
                 }
 
                 // Set color multiplier
@@ -100,37 +110,91 @@ public class ObjRenderHelper {
                 }
 
                 // Compute UVs
-                double u, vCoord;
-                boolean isLockedUV = lockTopUV && ctx.world != null && (normal == UP || normal == DOWN);
+                double interpX , interpY;
                 if (override != null) {
-                    // World block + lockTopUV -> offset by coordinates
-                    u = dotProduct(v, right);
-                    vCoord = dotProduct(v, down);
+                    // Use world-aligned projection for tiled override icon (like vanilla block faces)
+                    // u/vec are computed from vertex position dotted with right/down axes
+                    interpX = dotProduct(vec, right);
+                    interpY = dotProduct(vec, down);
 
-                    if (isLockedUV) {
-                        u = (u + ctx.x) % 1.0;
-                        vCoord = (vCoord + ctx.z) % 1.0;
-                    }
+                    // invert or flip to match vanilla face conventions as your original code did
+                    if (normal == SOUTH || normal == WEST) interpX = 1.0 - interpX;
+                    if (normal != ForgeDirection.UP && normal != ForgeDirection.DOWN) interpY = 1.0 - interpY;
 
-                    // Flip for Minecraft face convention
-                    if (normal == SOUTH || normal == WEST) u = 1 - u;
-                    if (normal != ForgeDirection.UP && normal != ForgeDirection.DOWN) vCoord = 1 - vCoord;
+                    // Finally sample using override icon. For override we use pixel-based interpolation: *16 (tile units).
+                    tess.addVertexWithUV(vec.x, vec.y, vec.z,
+                        override.getInterpolatedU(interpX * 16.0),
+                        override.getInterpolatedV(interpY * 16.0));
 
-                    tess.addVertexWithUV(v.x, v.y, v.z, override.getInterpolatedU(u * 16), override.getInterpolatedV(vCoord * 16));
                 } else {
                     TextureCoordinate t = f.textureCoordinates[i];
-                    u = t.u;
-                    vCoord = t.v;
+                    double u = t.u;
+                    double v = t.v;
 
-                    if (isLockedUV) {
-                        u = (u + ctx.x) % 1.0;
-                        vCoord = (vCoord + ctx.z) % 1.0;
+                    // NEW LOGIC: Apply the pre-calculated counter-rotation
+                    if (lockUV) {
+                        // Only counter-rotate if the rotation is non-zero (i.e., rotationSteps != 0)
+                        if (rotationSteps != 0) {
+                            double[] rotatedUV = rotateUV(u, v, counterRotation);
+                            u = rotatedUV[0];
+                            v = rotatedUV[1];
+                        }
                     }
-
-                    tess.addVertexWithUV(v.x, v.y, v.z, getInterpolatedU(icon, u), getInterpolatedV(icon, vCoord));
+                    tess.addVertexWithUV(vec.x, vec.y, vec.z, getInterpolatedU(icon, u), getInterpolatedV(icon, v));
                 }
             }
         }
+    }
+
+    private static double getRotationAngle(VertexTransform transform) {
+        if (transform == null) {
+            return 0;
+        }
+
+        if (transform instanceof VertexRotationFacing rotationFacing) {
+            return rotationFacing.getAngle();
+        }
+
+        if (transform instanceof VertexTransformComposite composite) {
+            for (VertexTransform xform : composite.xforms) {
+                if (xform instanceof VertexRotationFacing rotationFacing) {
+                    return rotationFacing.getAngle();
+                }
+            }
+        }
+        // If no specific rotation facing transform is found, assume 0 rotation.
+        return 0;
+    }
+
+    /**
+     * rotateUV performs rotation of UV coordinates by 0/90/180/270 degrees clockwise.
+     * Note: rotation parameter k:
+     *  0 -> 0°
+     *  1 -> 90° clockwise
+     *  2 -> 180°
+     *  3 -> 270° clockwise
+     *
+     * We expect u,v in [0,1). Result is also in [0,1).
+     */
+    private static double[] rotateUV(double u, double v, int rot) {
+        return switch (rot & 3) {
+            case 1 -> new double[]{wrap01(v), wrap01(1 - u)};        // 90° CW
+            case 2 -> new double[]{wrap01(1 - u), wrap01(1 - v)};    // 180°
+            case 3 -> new double[]{wrap01(1 - v), wrap01(u)};        // 270°
+            default -> new double[]{wrap01(u), wrap01(v)};           // 0°
+        };
+    }
+
+    // Fractional part in [0,1)
+    private static double fractional(double x) {
+        double f = x - Math.floor(x);
+        // handle -0.0
+        return f < 0 ? (f + 1.0) : f;
+    }
+
+    // Ensure value ends in [0,1)
+    private static double wrap01(double x) {
+        return fractional(x);
     }
 
     // Helper to compute dot product for UV mapping
