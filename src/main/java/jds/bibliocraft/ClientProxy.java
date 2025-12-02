@@ -8,6 +8,7 @@ import jds.bibliocraft.blocks.BlockBookcaseCreative;
 import jds.bibliocraft.blocks.BlockCookieJar;
 import jds.bibliocraft.blocks.BlockDiscRack;
 import jds.bibliocraft.blocks.BlockFancyWorkbench;
+import jds.bibliocraft.blocks.BlockFramedChest;
 import jds.bibliocraft.blocks.BlockFurniturePaneler;
 import jds.bibliocraft.blocks.BlockLabel;
 import jds.bibliocraft.blocks.BlockPotionShelf;
@@ -116,7 +117,7 @@ public class ClientProxy extends CommonProxy
 			if (Config.enableClock){
 				ClientRegistry.bindTileEntitySpecialRenderer(TileEntityClock.class, new TileEntityClockRenderer());}
 			if (Config.enableFramedChest){
-				ClientRegistry.bindTileEntitySpecialRenderer(TileEntityFramedChest.class, new TileEntityFramedChestRenderer());}
+                registerTileEntityAndItemRenderers(BlockFramedChest.instance, TileEntityFramedChest.class, new TileEntityFramedChestRenderer());}
 			if (Config.enableTable){
 				registerTileEntityAndItemRenderers1(BlockTable.instance, TileEntityTable.class, new TileEntityTableRenderer());}
 			if (Config.enableWritingdesk){

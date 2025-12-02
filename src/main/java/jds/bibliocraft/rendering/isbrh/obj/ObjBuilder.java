@@ -53,11 +53,6 @@ public class ObjBuilder {
         return this;
     }
 
-    public ObjBuilder setLockUV(boolean lock) {
-        this.lockUV = lock;
-        return this;
-    }
-
     public ObjBuilder setLockRotation(boolean lock) {
         this.lockRotation = lock;
         return this;
@@ -111,12 +106,12 @@ public class ObjBuilder {
 
         VertexRotationFacing facingRot = new VertexRotationFacing(WEST);
         facingRot.setRotation(context.facing);
-        if (lockRotation) transforms.add(facingRot);
+        if (!lockRotation) transforms.add(facingRot);
 
         VertexTranslation shift = makeShiftTransform(context.shift, context.facing);
         if (shift != null) transforms.add(shift);
 
         VertexTransformComposite transform = new VertexTransformComposite(transforms);
-        ObjRenderHelper.renderWithIcon(group, icon,null, tess, context, transform, true, lockUV);
+        ObjRenderHelper.renderWithIcon(group, icon,null, tess, context, transform, true);
     }
 }

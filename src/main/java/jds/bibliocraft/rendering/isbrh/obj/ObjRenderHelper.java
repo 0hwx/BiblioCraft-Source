@@ -27,22 +27,7 @@ public class ObjRenderHelper {
 
 
     public static void renderWithIcon(GroupObject group, IIcon icon, IIcon override,  Tessellator tess,
-                               ObjContext ctx, VertexTransform transform, boolean isBRH, boolean lockUV) {
-
-        double angle = getRotationAngle(transform);
-
-        // Convert the angle (0, PI/2, PI, 3*PI/2) to rotation steps (0, 1, 2, 3)
-        // We divide by ROTATION_AMOUNT (PI/2) and round to the nearest integer.
-        // Ensure you have ROTATION_AMOUNT defined or use Math.PI / 2
-        final double ROTATION_AMOUNT = Math.PI / 2;
-        int rotationSteps = (int)Math.round(angle / ROTATION_AMOUNT);
-
-        // The rotation applied to the model is rotationSteps % 4
-        rotationSteps %= 4;
-
-        // Calculate the counter-rotation steps
-        int counterRotation = (4 - rotationSteps) % 4;
-
+                               ObjContext ctx, VertexTransform transform, boolean isBRH) {
 
         for (Face f : group.faces) {
             // Copy face normal and apply transformation once per face
@@ -128,73 +113,10 @@ public class ObjRenderHelper {
 
                 } else {
                     TextureCoordinate t = f.textureCoordinates[i];
-                    double u = t.u;
-                    double v = t.v;
-
-                    // NEW LOGIC: Apply the pre-calculated counter-rotation
-                    if (lockUV) {
-                        // Only counter-rotate if the rotation is non-zero (i.e., rotationSteps != 0)
-                        if (rotationSteps != 0) {
-                            double[] rotatedUV = rotateUV(u, v, counterRotation);
-                            u = rotatedUV[0];
-                            v = rotatedUV[1];
-                        }
-                    }
-                    tess.addVertexWithUV(vec.x, vec.y, vec.z, getInterpolatedU(icon, u), getInterpolatedV(icon, v));
+                    tess.addVertexWithUV(vec.x, vec.y, vec.z, getInterpolatedU(icon, t.u), getInterpolatedV(icon, t.v));
                 }
             }
         }
-    }
-
-    private static double getRotationAngle(VertexTransform transform) {
-        if (transform == null) {
-            return 0;
-        }
-
-        if (transform instanceof VertexRotationFacing rotationFacing) {
-            return rotationFacing.getAngle();
-        }
-
-        if (transform instanceof VertexTransformComposite composite) {
-            for (VertexTransform xform : composite.xforms) {
-                if (xform instanceof VertexRotationFacing rotationFacing) {
-                    return rotationFacing.getAngle();
-                }
-            }
-        }
-        // If no specific rotation facing transform is found, assume 0 rotation.
-        return 0;
-    }
-
-    /**
-     * rotateUV performs rotation of UV coordinates by 0/90/180/270 degrees clockwise.
-     * Note: rotation parameter k:
-     *  0 -> 0°
-     *  1 -> 90° clockwise
-     *  2 -> 180°
-     *  3 -> 270° clockwise
-     *
-     * We expect u,v in [0,1). Result is also in [0,1).
-     */
-    private static double[] rotateUV(double u, double v, int rot) {
-        return switch (rot & 3) {
-            case 1 -> new double[]{wrap01(v), wrap01(1 - u)};        // 90° CW
-            case 2 -> new double[]{wrap01(1 - u), wrap01(1 - v)};    // 180°
-            case 3 -> new double[]{wrap01(1 - v), wrap01(u)};        // 270°
-            default -> new double[]{wrap01(u), wrap01(v)};           // 0°
-        };
-    }
-
-    // Fractional part in [0,1)
-    private static double fractional(double x) {
-        double f = x - Math.floor(x);
-        // handle -0.0
-        return f < 0 ? (f + 1.0) : f;
-    }
-
-    // Ensure value ends in [0,1)
-    private static double wrap01(double x) {
-        return fractional(x);
     }
 
     // Helper to compute dot product for UV mapping

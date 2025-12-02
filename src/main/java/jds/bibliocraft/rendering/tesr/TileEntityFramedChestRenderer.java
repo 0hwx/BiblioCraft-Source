@@ -1,217 +1,173 @@
 package jds.bibliocraft.rendering.tesr;
 
 import com.google.common.base.Function;
-
 import jds.bibliocraft.CommonProxy;
-import jds.bibliocraft.models.ModelFramedChest;
-import net.minecraft.block.Block;
-import org.lwjgl.opengl.GL11;
-
 import jds.bibliocraft.blocks.base.BiblioWoodBlock.EnumWoodType;
 import jds.bibliocraft.tileentities.base.BiblioTileEntity;
 import jds.bibliocraft.tileentities.TileEntityFramedChest;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.model.AdvancedModelLoader;
+import net.minecraftforge.client.model.IModelCustom;
+import org.lwjgl.opengl.GL11;
 
 public class TileEntityFramedChestRenderer extends TileEntityBiblioRenderer {
-    //	private IBakedModel smallLid;
-//	private IBakedModel largeLidLeft;
-//	private IBakedModel largeLidRight;
-//	private IBakedModel latch;
-    private ModelFramedChest model = new ModelFramedChest();
+
+    private ResourceLocation modelLocation = new ResourceLocation("bibliocraft", "models/block/framedchest.obj");
+    private IModelCustom chestModel = AdvancedModelLoader.loadModel(modelLocation);
     private String customTextureString = "none";
     private EnumWoodType wood = EnumWoodType.OAK;
-    private ResourceLocation modelLocation = new ResourceLocation("bibliocraft:block/framedchest.obj");
-    private Block state;
+    private TextureAtlasSprite chestSprite;
 
     @Override
     public void renderTileEntityAt(BiblioTileEntity tile, double x, double y, double z, float tick) {
-        if (tile instanceof TileEntityFramedChest) {
-            TileEntityFramedChest chest = (TileEntityFramedChest) tile;
-            if (state == null) {
-                state = chest.getWorldObj().getBlock(chest.xCoord, chest.yCoord, chest.zCoord);
+        if (!(tile instanceof TileEntityFramedChest chest)) return;
+
+        getCustomTextureString(chest.getBlockMetadata(), chest.getCustomTextureString());
+
+        float lid = chest.getPrevLidAngle() + (chest.getLidAngle() - chest.getPrevLidAngle()) * tick;
+        lid = 1.0F - lid;
+        lid = 1.0F - lid * lid * lid;
+        lid = lid * 90.0f;
+
+        if (chest.getIsDouble()) {
+            if (chest.getIsLeft()) {
+                renderPart("large_lid_left", 1.0, 0.625, 0.05, lid);
+                renderPart("large_chest_left", 1.0, 0, 0, 0);
+
+                bindTexture(CommonProxy.IRON);
+                renderPart("latch", 1.5, 0.625, 0.05, lid);
+            } else {
+                renderPart("large_lid_right", 1.0, 0.625, 0.05, lid);
+                renderPart("large_chest_right", 1.0, 0, 0, 0);
             }
-            GL11.glPushMatrix();
-//            GL11.glTranslated(0.5F, 1.0F,  -0.5F);
-//            GL11.glRotatef(180.0F, 0.0F, 0.0F, 1.0F);
-            initModels(chest);
-            this.bindTexture(new ResourceLocation(customTextureString));
-            float lid = chest.getPrevLidAngle() + (chest.getLidAngle() - chest.getPrevLidAngle()) * tick;
-            lid = 1.0F - lid;
-            lid = 1.0F - lid * lid * lid;
-            lid = lid * 90.0f;
-            renderPart(chest, 1,0,0, lid);
-//			System.out.println(chest.getLidAngle());
-//			if (chest.getIsDouble())
-//			{
-//				if (chest.getIsLeft())
-//				{
-////					renderPart(largeLidLeft, 1.0, 0.625, 0.05, lid);
-////					renderPart(latch, 1.5, 0.625, 0.05, lid);
-//				}
-//				else
-//				{
-////					renderPart(largeLidRight, 1.0, 0.625, 0.05, lid);
-//				}
-//			}
-//			else
-//			{
-//                String[] lidPart = {"small_lid", "small_lid_item"};
-//				renderPart(lidPart, 1,  0.625, 0.05, lid);
-////				renderPart("small_lid", 1,   0.625,  0.05, lid);
-////				renderPart("latch", 1,  0.625,  0.05, lid);
-//			}
-            renderSlotItem(chest.getLabelStack(), x, y + 0.23, z + 0.93, 0.5f);
-            GL11.glPopMatrix();
+        } else {
+            renderPart("small_lid", 1.0, 0.625, 0.05, lid);
+            renderPart("small_chest", 1.0, 0, 0, 0);
+
+            bindTexture(CommonProxy.IRON);
+            renderPart("latch", 1.0, 0.625, 0.05, lid);
         }
 
+        renderSlotItem(chest.getLabelStack(), 0.5, 0.23, 0.93, 0.5f);
     }
 
-    private void renderFramedChest(double x, double y, double z, double rotate) {
-        this.model.SmallChest();
-        GL11.glRotated(rotate, 1.0D, 0.0D, 0.0D);
-        this.model.SmallLidItem();
-        this.bindTexture(CommonProxy.IRON);
-        this.model.latchItem();
+    @Override
+    public void renderItem(ItemRenderType type, ItemStack item, Object... data) {
+        GL11.glPushMatrix();
 
+        if (type == ItemRenderType.ENTITY) {
+            GL11.glTranslated(-0.5, 0.0, -0.5);
+        }
+
+        getCustomTextureFromStack(item);
+
+        if (chestModel != null) {
+            applySpriteUV();
+            chestModel.renderPart("small_chest");
+
+            GL11.glTranslated(0.05, 0.625, 0);
+            chestModel.renderPart("small_lid");
+
+            bindTexture(CommonProxy.IRON);
+            chestModel.renderPart("latch");
+            resetSpriteUV();
+        }
+
+        GL11.glPopMatrix();
     }
 
-    private ResourceLocation initModels(TileEntityFramedChest chest) {
-        wood = EnumWoodType.getEnum(chest.getBlockMetadata());
-        //customTextureString = ;
-        switch (wood) {
-            case OAK: {
-                customTextureString = "textures/blocks/planks_oak.png";
-                break;
-            }
-            case SPRUCE: {
-                customTextureString = "textures/blocks/planks_spruce.png";
-                break;
-            }
-            case BIRCH: {
-                customTextureString = "textures/blocks/planks_birch.png";
-                break;
-            }
-            case JUNGLE: {
-                customTextureString = "textures/blocks/planks_jungle.png";
-                break;
-            }
-            case ACACIA: {
-                customTextureString = "textures/blocks/planks_acacia.png";
-                break;
-            }
-            case DARKOAK: {
-                customTextureString = "textures/blocks/planks_big_oak.png";
-                break;
-            }
-            case FRAME: {
-                if (chest.getCustomTextureString().contains("none") || chest.getCustomTextureString().contains("minecraft:white")) {
-                    customTextureString = "bibliocraft:textures/blocks/frame";
-                } else {
-                    customTextureString = chest.getCustomTextureString();
+    private void getCustomTextureFromStack(ItemStack stack) {
+        String textureName = "bibliocraft:frame"; // Default
+
+        if (stack.hasTagCompound()) {
+            NBTTagCompound tags = stack.getTagCompound();
+            if (tags.hasKey("renderTexture")) {
+                String savedTex = tags.getString("renderTexture");
+                if (savedTex != null && !savedTex.isEmpty() && !savedTex.equals("none")) {
+                    textureName = savedTex;
                 }
-                break;
-            }
-            default: {
-                customTextureString = "textures/blocks/planks_oak.png";
-                break;
             }
         }
-
-//		IModel model = null;
-//		try
-//		{
-//			model = ModelLoaderRegistry.setModel(modelLocation);
-//		}
-//		catch (Exception e)
-//		{
-//
-//			model = ModelLoaderRegistry.getMissingModel();
-//		}
-//		model = model.process(ImmutableMap.of("flip-v", "true"));
-//		List<String> smallPart = new ArrayList<String>();
-//		smallPart.add("small_lid");
-//		List<String> largeLeftPart = new ArrayList<String>();
-//		largeLeftPart.add("large_lid_left");
-//		List<String> largeRightPart = new ArrayList<String>();
-//		largeRightPart.add("large_lid_right");
-//		List<String> latchPart = new ArrayList<String>();
-//		latchPart.add("latch");
-//		OBJModel.OBJState smallState = new OBJModel.OBJState(smallPart, true);
-//		OBJModel.OBJState largeLeftState = new OBJModel.OBJState(largeLeftPart, true);
-//		OBJModel.OBJState largeRightState = new OBJModel.OBJState(largeRightPart, true);
-//		OBJModel.OBJState latchState = new OBJModel.OBJState(latchPart, true);
-//		smallLid = model.bake(smallState,  Attributes.DEFAULT_BAKED_FORMAT, textureGetter);
-//		largeLidLeft = model.bake(largeLeftState,  Attributes.DEFAULT_BAKED_FORMAT, textureGetter);
-//		largeLidRight = model.bake(largeRightState,  Attributes.DEFAULT_BAKED_FORMAT, textureGetter);
-//		latch = model.bake(latchState,  Attributes.DEFAULT_BAKED_FORMAT, textureGetter);
-        return null;
+        getCustomTextureString(stack.getItemDamage(), textureName);
     }
 
-    protected Function<ResourceLocation, TextureAtlasSprite> textureGetter = new Function<ResourceLocation, TextureAtlasSprite>() {
-        @Override
-        public TextureAtlasSprite apply(ResourceLocation location) {
-            String returnValue = location.toString();
-            if (returnValue.contentEquals("minecraft:blocks/planks_oak")) {
-                returnValue = customTextureString;
-            }
-            return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(returnValue);
+    private void getCustomTextureString(int meta, String TextureString) {
+        wood = EnumWoodType.getEnum(meta);
+        switch (wood) {
+            case SPRUCE -> customTextureString = "minecraft:planks_spruce";
+            case BIRCH -> customTextureString = "minecraft:planks_birch";
+            case JUNGLE -> customTextureString = "minecraft:planks_jungle";
+            case ACACIA -> customTextureString = "minecraft:planks_acacia";
+            case DARKOAK -> customTextureString = "minecraft:planks_big_oak";
+            case FRAME -> customTextureString = (TextureString.contains("none") || TextureString.isEmpty()) ? "bibliocraft:frame" : TextureString;
+            default -> customTextureString = "minecraft:planks_oak";
         }
-    };
 
+        bindChestTexture(customTextureString);
+    }
 
-    private void renderPart(TileEntityFramedChest chest, double x, double y, double z, float rotation) {
-        // Handle rotation based on angle
+    private void bindChestTexture(String customTextureString) {
+        if (customTextureString == null || customTextureString.equals("none") || customTextureString.isEmpty()) {
+            customTextureString = "minecraft:planks_oak";
+        }
+
+        chestSprite = Minecraft.getMinecraft()
+            .getTextureMapBlocks()
+            .getAtlasSprite(customTextureString);
+
+        this.bindTexture(TextureMap.locationBlocksTexture);
+    }
+
+    private void renderPart(String modelpart, double x, double y, double z, float rotation) {
         switch (this.getAngle()) {
-            case SOUTH: {
+            case SOUTH -> {
                 double tx = x;
                 x = -z;
                 z = tx;
-                break;
             }
-            case WEST: {
+            case WEST -> {
                 x *= -1;
                 z *= -1;
-                break;
             }
-            case NORTH: {
+            case NORTH -> {
                 double tx = x;
                 x = z;
                 z = -tx;
-                break;
             }
-            case EAST:
-            default:
-                break;
+            default -> {}
         }
 
-        // Setup transform
+        GL11.glPushMatrix();
+
         GL11.glTranslated(this.globalX + this.xshift + x, this.globalY + y, this.globalZ + this.zshift + z);
-        GL11.glRotatef(degreeAngle - 90.0f, 0.0F, 1.0F, 0.0F);
+        GL11.glRotated(degreeAngle - 90.0f, 0.0F, 1.0F, 0.0F);
+        GL11.glRotated(rotation, 0.0f, 0.0f, 1.0f);
 
-        // Render chest components
-        if (chest.getIsDouble()) {
-            if (chest.getIsLeft()) {
-                this.model.LargeChestLeft();
-                GL11.glRotatef(rotation, 0.0f, 0.0f, 1.0f);
-                GL11.glTranslated(0.05, 0.62, 0.0);
-                this.model.LargeLidLeft();
-            } else {
-                this.model.LargeChestRight();
-                GL11.glRotatef(rotation, 0.0f, 0.0f, 1.0f);
-                GL11.glTranslated(0.05, 0.62, 0.0);
-                this.model.LargeLidRight();
-                GL11.glTranslated(0.0, 0.0, 0.5);
-                this.bindTexture(CommonProxy.IRON);
-                this.model.latch();
-            }
-        } else {
-            this.model.SmallChest();
-            GL11.glRotatef(rotation, 0.0f, 0.0f, 1.0f);
-            this.model.SmallLidItem();
-            this.bindTexture(CommonProxy.IRON);
-            this.model.latchItem();
-        }
+        applySpriteUV();
+        chestModel.renderPart(modelpart);
+        resetSpriteUV();
+
+        GL11.glPopMatrix();
+    }
+
+    private void applySpriteUV() {
+        if (chestSprite == null) return;
+        GL11.glMatrixMode(GL11.GL_TEXTURE);
+        GL11.glPushMatrix();
+        GL11.glTranslatef(chestSprite.getMinU(), chestSprite.getMinV(), 0f);
+        GL11.glScalef(chestSprite.getMaxU() - chestSprite.getMinU(), chestSprite.getMaxV() - chestSprite.getMinV(), 1f);
+        GL11.glMatrixMode(GL11.GL_MODELVIEW);
+    }
+
+    private void resetSpriteUV() {
+        if (chestSprite == null) return;
+        GL11.glMatrixMode(GL11.GL_TEXTURE);
+        GL11.glPopMatrix();
+        GL11.glMatrixMode(GL11.GL_MODELVIEW);
     }
 }

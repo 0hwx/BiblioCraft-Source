@@ -333,6 +333,7 @@ public class BlockTable extends BiblioWoodBlock {
         }
 
         obj.setModel(EnumObjModels.TABLE);
+        obj.setLockRotation(true);
 
         List<String> woodParts = new ArrayList<>();
         List<String> clothParts = new ArrayList<>();

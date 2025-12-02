@@ -18,6 +18,7 @@ public enum EnumObjModels {
 
 
     FANCY_WORKBENCH("fancy_workbench", "bibliocraft:models/block/fancyworkbench.obj"),
+    FRAMED_CHEST("framed_chest", "bibliocraft:models/block/framedchest.obj"),
     BOOKCASE("bookcase", "bibliocraft:models/block/bookcase.obj"),
 
 
